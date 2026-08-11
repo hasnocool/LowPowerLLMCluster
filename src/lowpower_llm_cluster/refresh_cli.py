@@ -10,6 +10,7 @@ from .catalog import load_catalog, project_root
 from .compatibility import load_builds
 from .decision import generate_daily_recommendations, render_daily_recommendations
 from .intelligence import generate_change_intelligence, render_daily_change_report
+from .manufacturer_discovery import load_discovery_config
 from .ops import run_profile, stale_listings, write_current_reports
 from .spec_enrichment import load_spec_enrichment_config
 from .tco import apply_tco_to_summary, break_even_analysis, load_tco_scenarios, render_tco_report
@@ -36,7 +37,16 @@ def _print_spec_evidence() -> None:
     print(f"Generated: {payload.get('generated_at') or '-'}")
     for row in payload.get("records", []):
         enrichment = row.get("spec_enrichment") or {}; fields = row.get("field_evidence") or {}
-        print(f"{str(row.get('component') or '-'):<14} {str(enrichment.get('association_id') or '-'):<36} fields={len(fields):<3} {row.get('title') or ''}")
+        print(f"{str(row.get('component') or '-'):<14} {str(enrichment.get('association_origin') or 'curated'):<10} {str(enrichment.get('association_id') or '-'):<36} fields={len(fields):<3} {row.get('title') or ''}")
+
+
+def _print_manufacturer_associations() -> None:
+    path = project_root() / "data" / "market" / "manufacturer-associations.json"; payload = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"associations": {}}
+    rows = list((payload.get("associations") or {}).values())
+    print(f"Associations: {len(rows)}")
+    for row in sorted(rows, key=lambda item: (str(item.get("manufacturer") or ""), str(item.get("mpn") or ""))):
+        score = row.get("identity_score"); score_text = f"{float(score):.3f}" if score is not None else "-"
+        print(f"{str(row.get('status') or '-'):<13} {str(row.get('manufacturer') or '-'):<18} {str(row.get('mpn') or '-'):<24} score={score_text:<5} {row.get('source_url') or ''}")
 
 
 def main() -> int:
@@ -44,10 +54,12 @@ def main() -> int:
     run = sub.add_parser("run", help="run a named scheduled discovery profile"); run.add_argument("profile")
     stale = sub.add_parser("stale", help="show active listings not observed recently"); stale.add_argument("--hours", type=float, default=48.0)
     sub.add_parser("reports", help="regenerate all current-market buying reports")
-    sub.add_parser("refresh-bom", help="fetch online BOM costs, enrich exact SKUs from manufacturer specs, and rebuild compatibility combinations")
+    sub.add_parser("refresh-bom", help="fetch online BOM costs, auto-discover manufacturer specs, enrich exact SKUs, and rebuild compatibility combinations")
     sub.add_parser("bom-config", help="show live BOM product-query and compatibility configuration")
     sub.add_parser("spec-config", help="show exact-SKU manufacturer specification associations and extraction policy")
     sub.add_parser("spec-evidence", help="show persisted field-level manufacturer specification evidence")
+    sub.add_parser("manufacturer-config", help="show official manufacturer-domain discovery registry and limits")
+    sub.add_parser("manufacturer-associations", help="show cached automatically verified manufacturer product-page associations")
     sub.add_parser("compatible-builds", help="show cheapest compatible/provisional complete build per tracked GPU")
     recommendations = sub.add_parser("recommendations", help="regenerate the ownership/TCO-aware decision report"); recommendations.add_argument("--scenario", default="mixed-3yr"); recommendations.add_argument("--ownership", default="new-build"); recommendations.add_argument("--owned", help="comma-separated extra owned component IDs")
     tco = sub.add_parser("tco", help="show ownership-aware complete-node acquisition and operating-cost ranking"); tco.add_argument("--scenario", default="mixed-3yr"); tco.add_argument("--ownership", default="new-build"); tco.add_argument("--owned", help="comma-separated extra owned component IDs")
@@ -62,6 +74,8 @@ def main() -> int:
     if args.command == "bom-config": print(json.dumps(load_bom_config(), indent=2, sort_keys=True)); return 0
     if args.command == "spec-config": print(json.dumps(load_spec_enrichment_config(), indent=2, sort_keys=True)); return 0
     if args.command == "spec-evidence": _print_spec_evidence(); return 0
+    if args.command == "manufacturer-config": print(json.dumps(load_discovery_config(), indent=2, sort_keys=True)); return 0
+    if args.command == "manufacturer-associations": _print_manufacturer_associations(); return 0
     if args.command == "compatible-builds": _print_builds(); return 0
     if args.command == "stale":
         rows = stale_listings(stale_after_hours=args.hours)
