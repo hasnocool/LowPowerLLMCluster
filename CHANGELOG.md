@@ -21,14 +21,19 @@ All notable changes to this project will be documented here.
 - Explicit Canadian landed-cost breakdown for item, shipping, duty, brokerage and tax.
 - Sourced vendor/community performance ingestion requiring model, runtime, workload, metric, unit and source URL provenance.
 - Strict compatible-performance aggregation that keeps different model variants, quantizations, runtime versions, workload phases, units, context dimensions and hardware configurations separate.
-- `llm-cluster-market` CLI with `discover`, `history`, `landed`, `refresh-fx`, `ingest-performance`, and `aggregate-performance` workflows.
-- `specs/MARKET_INTELLIGENCE.md` and tests for matching, history deduplication, seller confidence, lifecycle tracking, landed-cost math, evidence ingestion, compatible aggregation and JSON-LD normalization.
+- Turing RK1 32GB catalog reference with exact-product, vendor-published llama.cpp Q4_K_M benchmark evidence for 1.5B, 3B and 7B models.
+- CAD buying reports for under CA$100, CA$250 and CA$500, 32GB+, low-power, weird-hardware, EOL and measured-evidence candidates.
+- Broader official manufacturer/source seed registry, including Turing Pi, Radxa/ALLNET and Orange Pi references.
+- `llm-cluster-market` CLI with `discover`, `history`, `landed`, `refresh-fx`, `ingest-performance`, `aggregate-performance`, and `report` workflows.
+- `specs/MARKET_INTELLIGENCE.md` and tests for matching, history deduplication, seller confidence, lifecycle tracking, landed-cost math, evidence ingestion, compatible aggregation, JSON-LD normalization and CAD report behavior.
 
 ### Changed
 
 - Live market I/O uses `httpx.AsyncClient`; blocking filesystem work is isolated from the event loop.
 - Failed or credential-disabled sources cannot generate false listing-disappearance events.
 - v0.5 keeps the catalog authoritative while listings, prices, FX rates, seller reputation and benchmark records remain time-stamped evidence layers.
+- Benchmark evidence stays attached to the exact tested product/configuration instead of being copied across boards that merely share a SoC.
+- CAD reports prefer active live listing observations and fall back to clearly labeled catalog midpoint pricing only when sourced FX is available.
 
 ## [0.4.1] - 2026-08-10
 
