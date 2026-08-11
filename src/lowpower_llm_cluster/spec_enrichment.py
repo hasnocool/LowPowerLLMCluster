@@ -228,13 +228,31 @@ def extract_automatic_spec_fields(component: str, text: str, source_url: str, ob
             connectors.append("8-pin")
         if connectors:
             facts["gpu_power_connectors"] = sorted(set(connectors))
+        high_power = _first_int([
+            r"12V[- ]?2x6[^0-9]{0,40}(\d{3,4})\s*W",
+            r"12VHPWR[^0-9]{0,40}(\d{3,4})\s*W",
+        ], raw, minimum=300, maximum=700)
+        if high_power:
+            facts["native_12v2x6_w"] = high_power
     elif component == "chassis":
         gpu = _first_int([r"(?:Maximum|Max\.?)[^\n]{0,25}(?:GPU|Graphics Card)[^0-9]{0,25}(\d{3})\s*mm", r"GPU[^\n]{0,25}(?:Length|Clearance)[^0-9]{0,25}(\d{3})\s*mm"], raw, minimum=150, maximum=700)
         cooler = _first_int([r"(?:Maximum|Max\.?)[^\n]{0,25}(?:CPU )?Cooler[^0-9]{0,25}(\d{2,3})\s*mm", r"CPU Cooler[^\n]{0,25}(?:Height|Clearance)[^0-9]{0,25}(\d{2,3})\s*mm"], raw, minimum=35, maximum=250)
+        psu = _first_int([r"(?:Maximum|Max\.?)[^\n]{0,25}PSU[^0-9]{0,25}(\d{2,3})\s*mm"], raw, minimum=80, maximum=400)
         if gpu:
             facts["max_gpu_length_mm"] = gpu
         if cooler:
             facts["max_cpu_cooler_height_mm"] = cooler
+        if psu:
+            facts["max_psu_length_mm"] = psu
+        forms: list[str] = []
+        for needle, value in ((r"\bE-ATX\b", "E-ATX"), (r"\bATX\b", "ATX"), (r"\b(?:Micro[- ]?ATX|mATX)\b", "mATX"), (r"\bMini[- ]?ITX\b", "Mini-ITX")):
+            if re.search(needle, raw, re.IGNORECASE):
+                forms.append(value)
+        if forms:
+            facts["motherboard_form_factors"] = list(dict.fromkeys(forms))
+        slots = _first_int([r"(?:Expansion Slots|Horizontal Slots)[^0-9]{0,20}(\d{1,2})"], raw, minimum=1, maximum=16)
+        if slots:
+            facts["max_gpu_slots"] = slots
     elif component == "cooling":
         height = _first_int([r"(?:Height|Product Height)[^0-9]{0,25}(\d{2,3})\s*mm"], raw, minimum=20, maximum=250)
         if height:
@@ -345,7 +363,6 @@ async def enrich_candidate(component: str, candidate: dict[str, Any], config: di
     )
     _fill_missing(facts, evidence, structured_facts, structured_evidence)
 
-    # Flattened-page parsing is intentionally the last fallback.
     if automatic:
         fallback_facts, fallback_evidence = extract_automatic_spec_fields(component, text, url, observed_at, association_id, identity_score)
         _fill_missing(facts, evidence, fallback_facts, fallback_evidence)
