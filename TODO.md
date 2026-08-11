@@ -16,7 +16,7 @@
 - [x] Add exact-hardware RK1/RK3588, Jetson Orin Nano Super and stock BC-250 benchmark evidence.
 - [x] Add source health history and consecutive-failure tracking.
 - [x] Add transient HTTP retry/backoff with jitter and Retry-After handling.
-- [x] Add stale-listing warnings without deleting historical observations.
+- [x] Add stale-listing warnings without deleting historical data.
 - [x] Add named daily/weekly autonomous discovery profiles.
 - [x] Add scheduled GitHub refresh with automatic FX and current-market report regeneration.
 - [x] Add configurable watchlists with per-watch price/landed-cost/benchmark thresholds.
@@ -46,8 +46,13 @@
 - [x] Add cross-component compatibility resolution for CPU socket, RAM generation, PCIe slot/lanes, PSU wattage/connectors, motherboard/chassis form factor, GPU clearance and cooler dimensions.
 - [x] Generate per-GPU cheapest compatible/provisionally-compatible complete builds from live BOM candidates and recent GPU market evidence.
 - [x] Preserve unresolved exact board-partner dimensions/connectors as provisional compatibility instead of assuming they fit.
+- [x] Add exact-SKU manufacturer specification association/fetching with identity verification and field-level provenance.
+- [x] Enrich motherboard lane/M.2 facts, PSU connectors, chassis clearances and exact/reference GPU board requirements before compatibility solving.
+- [x] Allow exact GPU board facts to promote provisional builds or reject physically/electrically invalid combinations.
+- [x] Persist manufacturer spec evidence and expose `spec-config` / `spec-evidence` CLI views.
+- [ ] Expand exact-SKU manufacturer associations across more board-partner GPUs, PSUs, coolers, cases, RAM and SSD products discovered by live sourcing.
 - [ ] Add compatibility validation for owned hosts: PCIe generation/lanes, physical slots, PSU connectors/headroom, chassis clearance and cooling capacity.
-- [ ] Add exact motherboard lane-sharing/BIOS requirements and board-partner GPU dimension/connector enrichment from exact SKU sources.
+- [ ] Add BIOS/CPU support-table version checks for exact motherboard + CPU combinations where manufacturer support pages expose them.
 - [ ] Add province presets plus tariff/HS-code evidence without pretending customs treatment is universal.
 - [ ] Persist historical landed-CAD snapshots so pure FX movement can be compared without recomputing old observations at current FX.
 - [ ] Add provider-reported remaining quota/reset timestamps when APIs expose them.
@@ -65,6 +70,7 @@
 - [x] Add ownership-aware GPU acquisition so existing compatible host parts are not purchased twice.
 - [x] Feed current sourced host/BOM product costs into GPU complete-node TCO where online listings pass confidence/compatibility filters.
 - [x] Solve cheapest complete host builds per tracked GPU while rejecting known socket/memory/power/clearance incompatibilities.
+- [x] Add exact/reference-board enrichment for RTX 3090 Founders Edition and Intel Arc B580 Limited Edition without transferring those dimensions to arbitrary partner cards.
 - [ ] Expand NVIDIA coverage to other 12GB/16GB/24GB/32GB cards when live pricing justifies catalog inclusion.
 - [ ] Expand AMD coverage to additional maintained ROCm/Vulkan cards with useful VRAM-per-dollar.
 - [ ] Expand Intel Arc coverage as current/used pricing changes.
@@ -78,6 +84,7 @@
 - [x] Keep compatible measurements grouped by exact benchmark signature instead of averaging unlike runs.
 - [x] Add exact-product Jetson and stock BC-250 community/vendor measurements without copying them to similar hardware.
 - [x] Preserve TGP/TBP/board-power evidence separately while using it only as an explicitly low-confidence complete-node TCO planning input.
+- [x] Preserve manufacturer compatibility evidence field-by-field with source URL, timestamp, extraction method and association identity.
 - [ ] Add confidence-aware performance ranges only when multiple independent compatible real sources justify them.
 - [ ] Add model-family presets beyond the default transparent Q4 decision-capacity screen.
 - [ ] Benchmark the ThinkPad L14 as an optional local reference/calibration node.
