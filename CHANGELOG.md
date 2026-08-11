@@ -7,18 +7,28 @@ All notable changes to this project will be documented here.
 ### Added
 
 - Asynchronous product-discovery adapter contract plus deterministic JSON feed importer.
-- Normalized listing model and concurrent multi-source discovery with source/listing deduplication.
+- Live manufacturer JSON-LD discovery for public schema.org `Product` / `Offer` pages.
+- Mouser Search API adapter using `MOUSER_API_KEY`.
+- DigiKey Product Information V4 adapter using external OAuth credentials with CA/CAD locale defaults.
+- eBay Browse API adapter using application OAuth and the Canadian marketplace for used/secondary-market discovery.
+- Credential-free source configuration in `data/market/sources.json`; secrets remain environment-only.
+- Normalized listing model and concurrent multi-source discovery with source/listing deduplication and per-source success/failure status.
 - Append-only price observation history linked back to catalog part IDs.
 - Exact-SKU/configuration confidence scoring that does not confuse CPU theoretical RAM limits with installed RAM.
-- Evidence-backed CAD conversion input and explicit Canadian landed-cost breakdown for item, shipping, duty, brokerage and tax.
+- Independent seller/source confidence using source class plus marketplace feedback signals when available.
+- Query-scope-aware `discovered`, `disappeared`, and `reappeared` listing lifecycle tracking.
+- Automatic sourced CAD FX snapshots from the Bank of Canada Valet API with append-only FX history.
+- Explicit Canadian landed-cost breakdown for item, shipping, duty, brokerage and tax.
 - Sourced vendor/community performance ingestion requiring model, runtime, workload, metric, unit and source URL provenance.
-- `llm-cluster-market` CLI with `discover`, `history`, `landed`, and `ingest-performance` workflows.
-- `specs/MARKET_INTELLIGENCE.md` and tests for matching, history deduplication, landed-cost math and evidence ingestion.
+- Strict compatible-performance aggregation that keeps different model variants, quantizations, runtime versions, workload phases, units, context dimensions and hardware configurations separate.
+- `llm-cluster-market` CLI with `discover`, `history`, `landed`, `refresh-fx`, `ingest-performance`, and `aggregate-performance` workflows.
+- `specs/MARKET_INTELLIGENCE.md` and tests for matching, history deduplication, seller confidence, lifecycle tracking, landed-cost math, evidence ingestion, compatible aggregation and JSON-LD normalization.
 
 ### Changed
 
-- Market I/O boundaries are async-first; blocking file/SDK work is isolated from the event loop.
-- v0.5 keeps the catalog authoritative while listings, prices and benchmark records remain time-stamped evidence layers.
+- Live market I/O uses `httpx.AsyncClient`; blocking filesystem work is isolated from the event loop.
+- Failed or credential-disabled sources cannot generate false listing-disappearance events.
+- v0.5 keeps the catalog authoritative while listings, prices, FX rates, seller reputation and benchmark records remain time-stamped evidence layers.
 
 ## [0.4.1] - 2026-08-10
 
