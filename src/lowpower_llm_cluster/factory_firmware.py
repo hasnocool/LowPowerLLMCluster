@@ -50,9 +50,10 @@ def resolve_factory_firmware(
 ) -> dict[str, Any]:
     """Resolve factory/shipped BIOS only from explicit vendor-published mappings.
 
-    No generic serial decoding is attempted. A serial regex, manufacture-batch mapping,
-    PCB-revision mapping, or label/sticker rule is admitted only when it is represented
-    by a rule with a manufacturer source URL and an explicit factory BIOS value.
+    No generic serial decoding is attempted. Serial patterns, manufacture batches, PCB
+    revisions, and physical label/sticker methods are admitted only when backed by an
+    explicit manufacturer source. A documented label method may take the observed label
+    value as the factory BIOS; it does not require a pre-enumerated BIOS string.
     """
     cfg = dict(listing.get("configuration") or {})
     seller_fw = dict(cfg.get("seller_firmware_evidence") or {})
@@ -61,29 +62,33 @@ def resolve_factory_firmware(
     revision = _revision(cfg.get("board_revision") or seller_fw.get("board_revision"))
     factory_label = str(cfg.get("factory_bios_label") or seller_fw.get("factory_bios_label") or "").strip()
 
-    matches: list[tuple[int, dict[str, Any], str]] = []
+    matches: list[tuple[int, dict[str, Any], str, str]] = []
     payload = rules or load_factory_firmware_rules()
     for rule in payload.get("rules") or []:
         if not rule.get("enabled", True) or not str(rule.get("source_url") or "").startswith("https://"):
             continue
-        if not rule.get("factory_bios_version") or not _identity_matches(rule, listing):
+        if not _identity_matches(rule, listing):
             continue
         kind = str(rule.get("match_kind") or "").casefold()
+        configured_version = str(rule.get("factory_bios_version") or "").strip()
         score = 0
         reason = ""
-        if kind == "exact_serial" and serial and serial in {str(v) for v in rule.get("serials") or []}:
+        resolved_version = configured_version
+        if kind == "exact_serial" and configured_version and serial and serial in {str(v) for v in rule.get("serials") or []}:
             score, reason = 100, "exact serial matched a vendor-published factory firmware mapping"
-        elif kind == "serial_regex" and serial and rule.get("serial_pattern"):
+        elif kind == "serial_regex" and configured_version and serial and rule.get("serial_pattern"):
             if re.fullmatch(str(rule["serial_pattern"]), serial):
                 score, reason = 95, "serial matched a vendor-published decoding rule"
-        elif kind == "manufacture_batch" and batch and batch in {str(v) for v in rule.get("batches") or []}:
+        elif kind == "manufacture_batch" and configured_version and batch and batch in {str(v) for v in rule.get("batches") or []}:
             score, reason = 90, "manufacture batch matched a vendor-published factory firmware mapping"
-        elif kind == "board_revision" and revision and revision in {_revision(v) for v in rule.get("board_revisions") or []}:
+        elif kind == "board_revision" and configured_version and revision and revision in {_revision(v) for v in rule.get("board_revisions") or []}:
             score, reason = 80, "PCB revision matched an explicit vendor factory-firmware mapping"
-        elif kind == "factory_bios_label" and factory_label and _norm(factory_label) == _norm(rule.get("factory_bios_version")):
-            score, reason = 98, "physical factory-BIOS label/sticker matched the documented vendor method"
-        if score:
-            matches.append((score, rule, reason))
+        elif kind == "factory_bios_label" and factory_label and rule.get("observed_label_is_factory_bios") is True:
+            score, reason, resolved_version = 98, "physical factory-BIOS label/sticker interpreted by the documented vendor method", factory_label
+        elif kind == "factory_bios_label" and factory_label and configured_version and _norm(factory_label) == _norm(configured_version):
+            score, reason = 98, "physical factory-BIOS label/sticker matched the documented vendor value"
+        if score and resolved_version:
+            matches.append((score, rule, reason, resolved_version))
 
     if not matches:
         return {
@@ -92,12 +97,12 @@ def resolve_factory_firmware(
             "board_revision": revision,
             "serial_number_present": bool(serial),
             "manufacture_batch_present": bool(batch),
+            "factory_bios_label_present": bool(factory_label),
             "reason": "no explicit vendor-published serial/batch/revision/factory-label mapping matched",
             "manufacturer_authority": False,
         }
 
-    score, rule, reason = max(matches, key=lambda row: row[0])
-    version = str(rule["factory_bios_version"])
+    score, rule, reason, version = max(matches, key=lambda row: row[0])
     comparison = shipped_bios_meets_requirement(
         version,
         required_bios,
