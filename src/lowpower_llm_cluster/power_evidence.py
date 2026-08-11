@@ -62,7 +62,6 @@ def observation_match_level(part: dict[str, Any], observation: dict[str, Any]) -
     identity = hardware_power_identity(part)
     observed = dict(observation.get("identity") or {})
     if identity.get("exact_id") and _norm(observed.get("exact_id")) == identity["exact_id"]:
-        # Exact identifier is strongest; memory/storage tighten exact Apple/system configurations when supplied.
         for key in ("memory_gb", "storage_gb"):
             if observed.get(key) is not None and identity.get(key) is not None and float(observed[key]) != float(identity[key]):
                 return 0, "configuration_conflict"
@@ -90,9 +89,12 @@ def _percentile(values: list[float], fraction: float) -> float:
 
 
 def aggregate_power_observations(part: dict[str, Any], payload: dict[str, Any] | None = None) -> dict[str, Any] | None:
+    """Aggregate only evidence allowed to represent device/board power; retain rail-only data in the store for research."""
     payload = payload or load_power_evidence()
     candidates: list[tuple[int, str, dict[str, Any]]] = []
     for row in payload.get("observations") or []:
+        if row.get("eligible_for_device_power") is False:
+            continue
         level, label = observation_match_level(part, row)
         if level <= 0:
             continue
@@ -125,6 +127,7 @@ def aggregate_power_observations(part: dict[str, Any], payload: dict[str, Any] |
         "match_basis": selected[0][0],
         "confidence": confidence,
         "basis": "power_evidence_distribution",
+        "power_scopes": sorted({str(row.get("power_scope") or "unknown") for _, row in selected}),
         "source_ids": [row.get("id") for _, row in selected if row.get("id")],
         "inferred": confidence != "high",
     }
