@@ -28,6 +28,27 @@ def test_supported_cpu_with_minimum_bios_and_cpu_less_recovery_scores_high():
     assert "cpu_less_recovery_available" in result["readiness"]
 
 
+def test_explicit_factory_bios_equal_to_minimum_proves_readiness():
+    flashback = detect_bios_flashback("This board ships with BIOS version A9 from factory.")
+    result = boot_readiness_score({"status": "supported", "minimum_bios_version": "A9", "matrix_complete": True}, flashback)
+    assert flashback["shipped_bios_version"] == "A9"
+    assert result["score"] == 98
+    assert result["shipped_bios_meets_minimum"] is True
+    assert result["readiness"] == "ready_with_verified_firmware"
+
+
+def test_different_factory_bios_version_is_not_ordered_without_vendor_comparator():
+    flashback = detect_bios_flashback("This board ships with BIOS version AB from factory.")
+    result = boot_readiness_score({"status": "supported", "minimum_bios_version": "A9", "matrix_complete": True}, flashback)
+    assert result["shipped_bios_meets_minimum"] is None
+    assert any("version ordering" in warning for warning in result["warnings"])
+
+
+def test_manufacture_date_does_not_create_shipped_bios_evidence():
+    flashback = detect_bios_flashback("Manufactured 2025-08. Latest BIOS is AB.")
+    assert flashback["shipped_bios_version"] is None
+
+
 def test_unsupported_cpu_is_zero_readiness():
     result = boot_readiness_score({"status": "unsupported", "minimum_bios_version": None}, {"status": "supported", "cpu_less_update_explicit": True})
     assert result["score"] == 0
