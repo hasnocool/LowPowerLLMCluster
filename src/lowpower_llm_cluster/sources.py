@@ -1,4 +1,3 @@
-# src/lowpower_llm_cluster/sources.py
 from __future__ import annotations
 
 import base64
@@ -30,6 +29,13 @@ def _first_price_break(items: list[dict[str, Any]] | None) -> float | None:
         if price is not None:
             values.append(price)
     return min(values) if values else None
+
+
+def _manufacturer_name(value: Any) -> str | None:
+    if isinstance(value, dict):
+        value = value.get("Name") or value.get("name") or value.get("Value") or value.get("value")
+    text = str(value or "").strip()
+    return text or None
 
 
 class JsonLdCollector(HTMLParser):
@@ -110,10 +116,9 @@ class ManufacturerJsonLdAdapter(DiscoveryAdapter):
                             product_url = str(offer.get("url") or node.get("url") or response.url)
                             availability = str(offer.get("availability") or "").rsplit("/", 1)[-1] or None
                             sku = node.get("sku") or node.get("mpn")
-                            brand = node.get("brand")
-                            if isinstance(brand, dict):
-                                brand = brand.get("name")
-                            listings.append(Listing(source=self.name, source_id=f"{url}#{sku or index}", url=urljoin(str(response.url), product_url), title=title, price=price, currency=currency, observed_at=_now(), seller=str(brand or response.url.host), sku=str(sku) if sku else None, configuration={}, availability=availability, source_kind="manufacturer", seller_metrics={"verified_source": True}))
+                            brand = _manufacturer_name(node.get("brand") or node.get("manufacturer"))
+                            configuration = {"manufacturer": brand, "mpn": str(node.get("mpn") or sku or "") or None}
+                            listings.append(Listing(source=self.name, source_id=f"{url}#{sku or index}", url=urljoin(str(response.url), product_url), title=title, price=price, currency=currency, observed_at=_now(), seller=str(brand or response.url.host), sku=str(sku) if sku else None, configuration=configuration, availability=availability, source_kind="manufacturer", seller_metrics={"verified_source": True}))
         return listings
 
 
@@ -144,7 +149,9 @@ class MouserAdapter(DiscoveryAdapter):
                         continue
                     currency = str(part.get("Currency") or "USD").upper()
                     part_number = str(part.get("ManufacturerPartNumber") or part.get("MouserPartNumber") or "")
-                    output.append(Listing(source=self.name, source_id=str(part.get("MouserPartNumber") or part_number), url=str(part.get("ProductDetailUrl") or "https://www.mouser.ca/"), title=str(part.get("Description") or part_number), price=price, currency=currency, observed_at=_now(), seller="Mouser Electronics", sku=part_number or None, configuration={}, availability=str(part.get("Availability") or "") or None, source_kind="authorized_distributor", seller_metrics={"verified_source": True, "lifecycle": part.get("LifecycleStatus")}))
+                    manufacturer = _manufacturer_name(part.get("Manufacturer"))
+                    configuration = {"manufacturer": manufacturer, "mpn": part_number or None, "distributor_part_number": part.get("MouserPartNumber")}
+                    output.append(Listing(source=self.name, source_id=str(part.get("MouserPartNumber") or part_number), url=str(part.get("ProductDetailUrl") or "https://www.mouser.ca/"), title=str(part.get("Description") or part_number), price=price, currency=currency, observed_at=_now(), seller="Mouser Electronics", sku=part_number or None, configuration=configuration, availability=str(part.get("Availability") or "") or None, source_kind="authorized_distributor", seller_metrics={"verified_source": True, "lifecycle": part.get("LifecycleStatus")}))
         return output
 
 
@@ -180,10 +187,12 @@ class DigiKeyAdapter(DiscoveryAdapter):
                     if price is None:
                         continue
                     product_number = str(product.get("ManufacturerProductNumber") or product.get("manufacturerProductNumber") or product.get("DigiKeyProductNumber") or "")
+                    manufacturer = _manufacturer_name(product.get("Manufacturer") or product.get("manufacturer"))
                     description = product.get("Description") or product.get("description") or {}
                     if isinstance(description, dict): description = description.get("ProductDescription") or description.get("productDescription")
                     url = str(product.get("ProductUrl") or product.get("productUrl") or "https://www.digikey.ca/")
-                    output.append(Listing(source=self.name, source_id=str(product.get("DigiKeyProductNumber") or product.get("digiKeyProductNumber") or product_number), url=url, title=str(description or product_number), price=price, currency=self.currency, observed_at=_now(), seller="DigiKey", sku=product_number or None, configuration={}, availability=str(product.get("QuantityAvailable") or product.get("quantityAvailable") or "") or None, source_kind="authorized_distributor", seller_metrics={"verified_source": True}))
+                    configuration = {"manufacturer": manufacturer, "mpn": product_number or None, "distributor_part_number": product.get("DigiKeyProductNumber") or product.get("digiKeyProductNumber")}
+                    output.append(Listing(source=self.name, source_id=str(product.get("DigiKeyProductNumber") or product.get("digiKeyProductNumber") or product_number), url=url, title=str(description or product_number), price=price, currency=self.currency, observed_at=_now(), seller="DigiKey", sku=product_number or None, configuration=configuration, availability=str(product.get("QuantityAvailable") or product.get("quantityAvailable") or "") or None, source_kind="authorized_distributor", seller_metrics={"verified_source": True}))
         return output
 
 
