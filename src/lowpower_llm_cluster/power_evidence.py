@@ -54,10 +54,10 @@ def observation_match_level(part: dict[str, Any], observation: dict[str, Any]) -
     observed = dict(observation.get("identity") or {})
 
     conflict_fields = (
-        "memory_gb", "storage_gb", "apple_model_identifier", "apple_part_number",
-        "apple_gpu_cores", "screen_inches", "storage_controller", "nand_type",
-        "gpu_board_mpn", "gpu_board_revision", "gpu_vbios", "host_cpu",
-        "host_motherboard", "host_psu", "host_ram_gb", "device_sku",
+        "memory_gb", "storage_gb", "apple_model_identifier", "apple_a_number", "apple_part_number",
+        "apple_soc", "apple_gpu_cores", "screen_inches", "storage_controller", "nand_type", "storage_interface",
+        "gpu_board_partner", "gpu_board_mpn", "gpu_board_revision", "gpu_vbios", "host_cpu",
+        "host_motherboard", "host_psu", "host_ram_gb", "device_model", "device_sku",
         "mobile_soc", "mobile_soc_variant", "ram_topology",
     )
     for key in conflict_fields:
@@ -65,7 +65,7 @@ def observation_match_level(part: dict[str, Any], observation: dict[str, Any]) -
             return 0, f"configuration_conflict:{key}"
 
     exact_keys = (
-        "exact_id", "apple_model_identifier", "apple_part_number", "device_sku",
+        "exact_id", "apple_model_identifier", "apple_a_number", "apple_part_number", "device_sku",
         "gpu_board_mpn", "gpu_board_revision", "storage_controller", "nand_type",
     )
     matched_exact = [key for key in exact_keys if observed.get(key) not in (None, "") and identity.get(key) not in (None, "") and _same(identity[key], observed[key])]
