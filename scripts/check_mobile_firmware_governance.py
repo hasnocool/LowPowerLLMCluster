@@ -58,8 +58,8 @@ def main() -> int:
         if term not in support_source: errors.append(f"manufacturer support ingestion lost completeness/host guardrail: {term}")
 
     discovery_source=(ROOT/"src/lowpower_llm_cluster/firmware_discovery.py").read_text(encoding="utf-8")
-    for term in ("def discover_unlinked_support_surfaces","def probe_unlinked_support_candidates","def normalize_bios_history_payload","def extract_board_revision_evidence","def shipped_bios_evidence","official_sitemap","inline_script_endpoint","manufacture date alone"):
-        if term not in discovery_source and term != "manufacture date alone": errors.append(f"deep firmware discovery lost evidence/guardrail: {term}")
+    for term in ("def discover_unlinked_support_surfaces","def probe_unlinked_support_candidates","def normalize_bios_history_payload","def extract_board_revision_evidence","def shipped_bios_evidence","official_sitemap","inline_script_endpoint"):
+        if term not in discovery_source: errors.append(f"deep firmware discovery lost evidence/guardrail: {term}")
     if "MAX_DISCOVERY_FETCHES = 8" not in discovery_source: errors.append("deep firmware discovery must remain bounded")
 
     structured_source=(ROOT/"src/lowpower_llm_cluster/structured_specs.py").read_text(encoding="utf-8")
@@ -69,10 +69,11 @@ def main() -> int:
         errors.append("structured motherboard enrichment lost API completeness propagation")
 
     power_source=(ROOT/"src/lowpower_llm_cluster/power_evidence.py").read_text(encoding="utf-8")
-    for term in ("def hardware_power_identity","def aggregate_power_observations","load_p25_w","load_p75_w","exact_sku_or_model_identifier","configuration_conflict"):
+    for term in ("def hardware_power_identity","def aggregate_power_observations","load_p25_w","load_p75_w","exact_sku_or_model_identifier","configuration_conflict","power_evidence_distribution"):
         if term not in power_source: errors.append(f"self-improving power evidence lost invariant: {term}")
     model_source=(ROOT/"src/lowpower_llm_cluster/power_model.py").read_text(encoding="utf-8")
-    if "aggregate_power_observations" not in model_source or "power_evidence_distribution" not in model_source: errors.append("power model lost learned evidence priority")
+    for term in ("aggregate_power_observations",'"distribution": learned',"match_level"):
+        if term not in model_source: errors.append(f"power model lost learned evidence priority: {term}")
 
     compatibility_source=(ROOT/"src/lowpower_llm_cluster/compatibility.py").read_text(encoding="utf-8")
     for term in ("boot_readiness_score",'"boot_readiness"'):
