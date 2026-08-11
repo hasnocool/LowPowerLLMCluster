@@ -7,6 +7,7 @@ import json
 
 from .bom_sourcing import load_bom_config, refresh_bom_market
 from .catalog import load_catalog, project_root
+from .compatibility import load_builds
 from .decision import generate_daily_recommendations, render_daily_recommendations
 from .intelligence import generate_change_intelligence, render_daily_change_report
 from .ops import run_profile, stale_listings, write_current_reports
@@ -24,14 +25,27 @@ def _owned(value: str | None) -> list[str]:
     return [item.strip() for item in (value or "").split(",") if item.strip()]
 
 
+def _print_builds() -> None:
+    payload = load_builds()
+    print(f"Generated: {payload.get('generated_at') or '-'}")
+    for gpu_id, row in sorted((payload.get("gpus") or {}).items()):
+        best = row.get("best_build") or {}
+        compat = best.get("compatibility") or {}
+        total = best.get("complete_build_acquisition_cad")
+        price = f"CA${float(total):,.2f}" if total is not None else "unpriced"
+        unknowns = ",".join(compat.get("unknowns") or []) or "none"
+        print(f"{gpu_id:<34} {compat.get('status', 'no-build'):<24} {price:<12} unresolved={unknowns}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Autonomous LowPowerLLMCluster market refresh")
     sub = parser.add_subparsers(dest="command", required=True)
     run = sub.add_parser("run", help="run a named scheduled discovery profile"); run.add_argument("profile")
     stale = sub.add_parser("stale", help="show active listings not observed recently"); stale.add_argument("--hours", type=float, default=48.0)
     sub.add_parser("reports", help="regenerate all current-market buying reports")
-    sub.add_parser("refresh-bom", help="fetch current online product data/costs for required TCO BOM components")
-    sub.add_parser("bom-config", help="show live BOM product-query and selection configuration")
+    sub.add_parser("refresh-bom", help="fetch current online product data/costs for required TCO BOM components and rebuild compatibility combinations")
+    sub.add_parser("bom-config", help="show live BOM product-query and compatibility configuration")
+    sub.add_parser("compatible-builds", help="show cheapest compatible/provisional complete build per tracked GPU")
     recommendations = sub.add_parser("recommendations", help="regenerate the ownership/TCO-aware decision report")
     recommendations.add_argument("--scenario", default="mixed-3yr"); recommendations.add_argument("--ownership", default="new-build"); recommendations.add_argument("--owned", help="comma-separated extra owned component IDs")
     tco = sub.add_parser("tco", help="show ownership-aware complete-node acquisition and operating-cost ranking")
@@ -48,8 +62,9 @@ def main() -> int:
     if args.command == "refresh-bom":
         result = asyncio.run(refresh_bom_market())
         summary = {component: {"candidate_count": row.get("candidate_count", 0), "selected": (row.get("selected") or {}).get("landed", {}).get("landed_cad"), "source": (row.get("selected") or {}).get("listing", {}).get("source")} for component, row in result.get("components", {}).items()}
-        print(json.dumps({"generated_at": result.get("generated_at"), "components": summary}, indent=2, sort_keys=True)); return 0
+        print(json.dumps({"generated_at": result.get("generated_at"), "components": summary, "compatible_builds": result.get("compatible_builds", {})}, indent=2, sort_keys=True)); return 0
     if args.command == "bom-config": print(json.dumps(load_bom_config(), indent=2, sort_keys=True)); return 0
+    if args.command == "compatible-builds": _print_builds(); return 0
     if args.command == "stale":
         rows = stale_listings(stale_after_hours=args.hours)
         for row in rows: print(f"{row['stale_hours']:7.1f}h  {row['source']:<20} {row['title']}")
