@@ -7,11 +7,16 @@
 - [x] Add CAD conversion input and Canada landed-cost estimator.
 - [x] Add exact-SKU/configuration confidence.
 - [x] Add sourced vendor/community performance ingestion with model/runtime/workload provenance.
-- [ ] Add live retailer adapters where terms/API access permit: manufacturer stores, distributors and structured marketplaces.
-- [ ] Add listing disappearance/reappearance and stock-state observations.
-- [ ] Add automatic sourced FX refresh and historical FX snapshots.
+- [x] Add live source adapters: public manufacturer JSON-LD, Mouser, DigiKey and eBay Browse.
+- [x] Add listing disappearance/reappearance observations with query-scope protection.
+- [x] Add automatic sourced FX refresh and historical FX snapshots using Bank of Canada Valet.
+- [x] Add seller/source reputation confidence separately from SKU confidence.
+- [x] Add compatible benchmark aggregation without mixing different model/runtime/workload signatures.
+- [ ] Add live stock/availability normalization across source-specific vocabularies.
 - [ ] Add province presets plus tariff/HS-code evidence without pretending customs treatment is universal.
-- [ ] Add seller/source reputation confidence separately from SKU confidence.
+- [ ] Add automatic credential/token refresh for DigiKey instead of requiring an externally obtained access token.
+- [ ] Add more manufacturer/distributor source seeds and source-specific parsing fixtures.
+- [ ] Add seller/source reputation history rather than only observation-time confidence.
 - [ ] Normalize form factor, dimensions, DC input, PSU/cooling and host requirements.
 - [ ] Verify board-level RAM maximums instead of relying on CPU theoretical limits.
 - [ ] Add more direct-China and used-market mini PCs, mobile boards, SBCs and unusual accelerators.
@@ -20,7 +25,8 @@
 ## Evidence & estimates
 
 - [x] Ingest sourced vendor/community performance records with model/runtime/workload provenance.
-- [ ] Add confidence-aware performance ranges only when multiple compatible real sources justify them.
+- [x] Aggregate compatible measured records into count/median/range/mean/confidence groups.
+- [ ] Add confidence-aware performance ranges to product views only when multiple compatible real sources justify them.
 - [ ] Add model-family presets to the safe model-fit screen.
 - [ ] Track published/estimated power boundaries without calling TDP complete-node watts.
 - [ ] Benchmark the ThinkPad L14 as an optional local reference/calibration node.
