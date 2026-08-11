@@ -2,7 +2,7 @@
 
 The project compares **usable systems**, not isolated sticker prices.
 
-A CA$500 GPU is not a CA$500 inference node when it still needs a CPU/host, motherboard, RAM, storage, PSU, PCIe/OCuLink hardware, cooling and chassis. Likewise, a barebone mini PC may need RAM/storage before it is comparable with a complete system.
+A CA$500 GPU is not a CA$500 inference node when it still needs a CPU/host, motherboard, RAM, storage, PSU, PCIe/OCuLink hardware, cooling and chassis. The ownership-aware layer then asks which of those required parts are already owned and compatible, so they are not purchased twice.
 
 ## Full discrete-GPU build stack
 
@@ -20,52 +20,79 @@ GPU / accelerator
       └── misc integration
       │
       ▼
-complete-node acquisition cost
+required complete-node BOM
       │
-      +
- idle/load energy scenario
+      ├── already owned → CA$0 incremental acquisition
+      └── missing       → purchase assumption / sourced price
       │
       ▼
- total cost of ownership
+incremental acquisition cost
+      │
+      +
+complete-node idle/load energy scenario
+      │
+      ▼
+total cost of ownership
 ```
 
-`data/market/tco-scenarios.json` contains **planning assumptions**, not live quotations. The CPU/host, motherboard, RAM, storage, PSU, chassis, cooling and integration lines are intentionally separate so they can later be replaced independently with sourced local prices.
+`data/market/tco-scenarios.json` contains planning assumptions, not live quotations. Component lines stay separate so each can later be replaced independently with sourced local prices.
+
+## Ownership profiles
+
+The shipped ownership profiles are:
+
+- `new-build` — buy every infrastructure component required by the deployment profile;
+- `reuse-host-core` — reuse CPU/host, motherboard, RAM, storage and chassis; still buy missing PSU, PCIe integration and cooling when required;
+- `reuse-complete-host` — reuse a compatible complete host including PSU and cooling; normally only accelerator-specific integration remains;
+- `reuse-everything` — every required infrastructure component is already owned and compatible; only the listed product is new acquisition cost.
+
+You can also add arbitrary owned components on top of a named profile.
+
+Examples:
+
+```bash
+# Full new GPU build
+llm-cluster-refresh tco --scenario mixed-3yr --ownership new-build
+
+# Existing desktop, but it may still need PSU/cooling/adapter upgrades
+llm-cluster-refresh tco --scenario mixed-3yr --ownership reuse-host-core
+
+# Existing host plus an already-owned 750W PSU
+llm-cluster-refresh tco \
+  --scenario mixed-3yr \
+  --ownership reuse-host-core \
+  --owned psu_750w
+
+# Existing complete compatible PC; only accelerator integration is incremental
+llm-cluster-refresh tco --ownership reuse-complete-host
+```
+
+Owned components are recorded with basis `already_owned`, a zero incremental acquisition cost, and the planning-reference cost they avoided. **Ownership never removes those parts from the power model.** Reusing a CPU/motherboard/RAM stack lowers acquisition cost, but the powered host still consumes electricity.
 
 ## Deployment profiles
 
-The TCO engine infers a conservative deployment profile from catalog metadata:
+The TCO engine separately infers what a product needs to become usable:
 
-- `complete_system` — product is treated as usable without a separate host stack;
-- `barebone_or_board` — adds RAM, storage, power, cooling and chassis assumptions;
-- `host_attached_pcie` — adds CPU/host, motherboard, host RAM, storage, PSU, PCIe adapter, cooling, chassis and misc integration;
-- `host_attached_usb` — adds CPU/host, motherboard, RAM, storage, power and chassis;
-- `module_requires_carrier` — adds a carrier board and supporting infrastructure;
-- `standalone_board` — adds storage/power/cooling/chassis planning costs.
+- `complete_system` — no separate host stack;
+- `barebone_or_board` — RAM, storage, power, cooling and chassis as needed;
+- `host_attached_pcie` — CPU/host, motherboard, RAM, storage, PSU, PCIe integration, cooling and chassis;
+- `host_attached_usb` — CPU/host, motherboard, RAM, storage, power and chassis;
+- `module_requires_carrier` — carrier board and supporting infrastructure;
+- `standalone_board` — storage/power/cooling/chassis planning costs.
 
-These profiles should become more exact as catalog records gain explicit included-component evidence.
+Deployment profile answers **what is required**. Ownership profile answers **which required parts must actually be bought**.
 
 ## Power evidence boundaries
 
-A GPU's TBP/TGP is **not** complete-node wall power. When only board power exists, the planning model creates a low-confidence complete-node estimate by adding explicit host idle/load assumptions plus PSU/cooling overhead. The result is labeled:
+A GPU's TBP/TGP is not complete-node wall power. When only board power exists, the planning model creates a low-confidence complete-node estimate by adding explicit host idle/load assumptions plus PSU/cooling overhead. Already owning the host does not change this power estimate.
 
 `estimated_complete_node_from_board_power_plus_host_assumptions`
 
-It must never be presented as measured tokens/joule or measured wall input. A real `complete_node_input` measurement remains the preferred evidence for final efficiency comparisons.
-
-## Operating scenarios
-
-The shipped scenarios cover occasional, mixed, always-on and higher-electricity sensitivity cases. Each scenario records load hours/day, idle hours/day, days/year, CAD/kWh assumption and ownership years. These are editable planning assumptions, not claims about a user's tariff.
+A real `complete_node_input` measurement remains the preferred evidence for final efficiency comparisons.
 
 ## Break-even analysis
 
-The TCO engine can compare two catalog products and solve several useful thresholds while holding the selected scenario constant:
-
-- **product-price break-even** — the highest price option A could cost while matching option B's full TCO;
-- **reverse product-price break-even** for option B;
-- **electricity-rate break-even** when the two modeled systems consume different amounts of energy;
-- **load-hours/day break-even** when the threshold falls inside the selected daily powered-on window.
-
-Example:
+Break-even comparisons can use a different ownership profile on each side. This matters when comparing, for example, a GPU that can reuse an existing desktop against a new integrated node.
 
 ```bash
 llm-cluster-refresh break-even \
@@ -73,32 +100,20 @@ llm-cluster-refresh break-even \
   compute-ryzen-8845hs-32g \
   --price-a 500 \
   --price-b 700 \
+  --ownership-a reuse-host-core \
+  --ownership-b new-build \
   --scenario mixed-3yr
 ```
 
-The output includes each complete-node BOM/TCO plus the break-even thresholds. Power-derived thresholds inherit the power model's evidence quality: if one side is based on GPU board TGP plus host assumptions, the break-even result is a planning estimate, not a measured energy result.
-
-## Decision integration
-
-The market/model-fit decision score is calculated first. TCO then re-ranks that result using complete-node acquisition and operating cost. This prevents a cheap accelerator from winning solely because its host infrastructure is hidden outside the listing price.
-
-Use:
-
-```bash
-llm-cluster-refresh tco --scenario mixed-3yr
-llm-cluster-refresh tco --scenario always-on-3yr
-llm-cluster-refresh recommendations --scenario high-electricity-3yr
-llm-cluster-refresh tco-scenarios
-llm-cluster-refresh break-even PART_A PART_B --price-a 500 --price-b 700
-```
-
-Autonomous refresh writes `reports/current/daily-tco.md`, `reports/current/daily-tco.json`, and TCO-aware `daily-recommendations.json`.
+The output includes each option's incremental infrastructure, avoided acquisition from already-owned parts, complete-node acquisition, operating cost, TCO, product-price break-even, and power-sensitive break-even thresholds.
 
 ## Guardrails
 
+- Never charge twice for compatible hardware the user already owns.
+- Never make already-owned hardware disappear from operating-power calculations.
+- Never assume owned hardware is compatible merely because it exists; ownership profiles represent a planning scenario, not automatic compatibility proof.
 - Never hide CPU/host, motherboard, RAM, storage, PSU, chassis, cooling or required interconnect outside a discrete-GPU comparison.
 - Never count board TGP/TBP as complete-node measured power.
 - Never mix sourced market prices and planning assumptions without labeling each basis.
-- Never promote an incomplete/unknown TCO candidate to `Buy` merely because its component price is attractive.
-- Keep electricity-rate and usage assumptions user-editable.
+- Keep electricity-rate, usage and ownership assumptions user-editable.
 - Treat break-even thresholds as scenario-sensitive planning outputs, not forecasts.
