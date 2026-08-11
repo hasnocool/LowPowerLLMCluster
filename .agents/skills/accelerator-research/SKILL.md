@@ -11,7 +11,7 @@ Use when researching NPUs, TPUs, AI ASICs, FPGAs, adaptive SoCs, host-attached A
 7. For FPGA/adaptive hardware, distinguish stock DPU capability from a proposed custom datapath. Do not call theoretical custom logic a benchmark.
 8. For EOL hardware, record `lifecycle_status`, unresolved pricing honestly, software-support risk, and the used-price threshold that would justify testing when possible.
 9. Keep accelerator-chip, accelerator-board, SOM, and complete-node power scopes separate.
-10. Update `data/parts.json`, regenerate `PARTS.md`, update `docs/SOURCES.md`, and run catalog/governance/tests.
+10. Update the appropriate `data/catalog/*.json` fragment (and the manifest only when structure changes), regenerate `PARTS.md`, update `docs/SOURCES.md`, and run catalog/governance/tests.
 
 ## Graduation rule
 

@@ -187,7 +187,8 @@ LowPowerLLMCluster/
 ├── README.md                 plain-language project overview
 ├── PARTS.md                  generated current parts/pricing table
 ├── data/
-│   └── parts.json            machine-readable source of truth
+│   ├── parts.json            small catalog manifest
+│   └── catalog/              category-sized part fragments
 ├── docs/
 │   ├── PROJECT_CHARTER.md    mission and hardware scope
 │   ├── GUARDRAILS.md         evidence and anti-drift rules

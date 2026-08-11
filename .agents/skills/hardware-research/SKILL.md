@@ -8,5 +8,5 @@ Use when discovering new mini PCs, dev boards, SBCs, embedded boards or specialt
 4. Find a current purchasable listing or a clearly labelled reference price.
 5. Search runtime/community evidence for Linux and llama.cpp/backend compatibility.
 6. Record risks and missing information instead of filling gaps with assumptions.
-7. Add the candidate to `data/parts.json`, regenerate `PARTS.md`, and update `docs/SOURCES.md`.
+7. Add the candidate to the appropriate `data/catalog/*.json` fragment (and update the manifest only when adding a new fragment), regenerate `PARTS.md`, and update `docs/SOURCES.md`.
 8. Never call TOPS, TFLOPS, bandwidth or core count a measured LLM result.
