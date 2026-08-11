@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "currency": "CAD",
+  "basis": "Planning defaults only. Replace these assumptions with sourced local component prices and electricity rates for purchase decisions.",
+  "component_costs_cad": {
+    "host_platform": 300.0,
+    "host_ram_32gb": 100.0,
+    "system_ram_32gb": 100.0,
+    "storage_1tb": 80.0,
+    "psu_750w": 120.0,
+    "power_supply": 80.0,
+    "pcie_adapter": 40.0,
+    "carrier_board": 150.0,
+    "cooling": 60.0,
+    "chassis_misc": 80.0
+  },
+  "power_assumptions": {
+    "host_idle_w": 35.0,
+    "host_load_w": 90.0,
+    "gpu_idle_w": 20.0,
+    "integrated_idle_ratio": 0.25,
+    "psu_cooling_overhead_pct": 0.08
+  },
+  "energy_scenarios": {
+    "light-3yr": {
+      "description": "Occasional inference/workstation use.",
+      "load_hours_per_day": 2.0,
+      "idle_hours_per_day": 6.0,
+      "days_per_year": 365,
+      "electricity_cad_per_kwh": 0.15,
+      "years": 3
+    },
+    "mixed-3yr": {
+      "description": "Daily mixed development/inference use with the node left on most of the day.",
+      "load_hours_per_day": 6.0,
+      "idle_hours_per_day": 18.0,
+      "days_per_year": 365,
+      "electricity_cad_per_kwh": 0.15,
+      "years": 3
+    },
+    "always-on-3yr": {
+      "description": "24/7 node with significant daily inference load.",
+      "load_hours_per_day": 12.0,
+      "idle_hours_per_day": 12.0,
+      "days_per_year": 365,
+      "electricity_cad_per_kwh": 0.15,
+      "years": 3
+    },
+    "high-electricity-3yr": {
+      "description": "Sensitivity scenario for expensive electricity.",
+      "load_hours_per_day": 6.0,
+      "idle_hours_per_day": 18.0,
+      "days_per_year": 365,
+      "electricity_cad_per_kwh": 0.30,
+      "years": 3
+    }
+  }
+}
