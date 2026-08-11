@@ -58,8 +58,14 @@
 - [x] Parse schema.org `Product.additionalProperty` and real HTML specification tables before flattened-page regex fallback.
 - [x] Parse motherboard CPU/BIOS support matrices when a target CPU row is available.
 - [x] Follow bounded same-manufacturer manual/datasheet/spec PDF links and text-extract compatibility evidence with field-level provenance.
+- [x] Preserve complete parsed CPU/BIOS support rows on motherboard candidates for later CPU+motherboard pair evaluation.
+- [x] Evaluate motherboard + CPU BIOS compatibility after build pairing, rejecting explicit unsupported rows and retaining minimum BIOS requirements/warnings.
+- [x] Keep absence from incomplete/paginated support matrices provisional rather than treating it as unsupported.
 - [ ] Expand the manufacturer registry and stable manufacturer search-page templates as live sourcing encounters new brands.
 - [ ] Discover separate manufacturer CPU-support/download endpoints when they are not linked from the verified product page.
+- [ ] Detect paginated/API-backed CPU support matrices and prove matrix completeness where possible.
+- [ ] Capture BIOS Flashback / CPU-less firmware update capability and use it to score BIOS-update friction.
+- [ ] Infer likely shipped BIOS/hardware revision only when manufacturer or seller evidence supports it.
 - [ ] Add compatibility validation for owned hosts: PCIe generation/lanes, physical slots, PSU connectors/headroom, chassis clearance and cooling capacity.
 - [ ] Add province presets plus tariff/HS-code evidence without pretending customs treatment is universal.
 - [ ] Persist historical landed-CAD snapshots so pure FX movement can be compared without recomputing old observations at current FX.
@@ -97,6 +103,7 @@
 - [x] Preserve manufacturer compatibility evidence field-by-field with source URL, timestamp, extraction method and association identity.
 - [x] Preserve automatic association identity score/cache state separately from extracted compatibility evidence.
 - [x] Preserve structured-source class (`additionalProperty`, HTML table, CPU/BIOS matrix, PDF) on each extracted manufacturer fact.
+- [x] Preserve pair-level CPU/BIOS manufacturer support provenance in compatible-build results.
 - [ ] Add confidence-aware performance ranges only when multiple independent compatible real sources justify them.
 - [ ] Add model-family presets beyond the default transparent Q4 decision-capacity screen.
 - [ ] Benchmark the ThinkPad L14 as an optional local reference/calibration node.
