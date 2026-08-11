@@ -6,5 +6,6 @@
   },
   "as_of": null,
   "source_url": null,
-  "notes": "Populate with a sourced exchange-rate snapshot before converting non-CAD listings. Rates are CAD per unit of source currency."
+  "source": "Bank of Canada Valet API",
+  "notes": "Run `llm-cluster-market refresh-fx` to populate sourced non-CAD rates. Rates are CAD per unit of source currency."
 }
