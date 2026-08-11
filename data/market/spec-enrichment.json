@@ -1,6 +1,11 @@
 {
   "schema_version": 1,
   "timeout_seconds": 20,
+  "automatic_discovery": {
+    "enabled": true,
+    "prefer_curated_associations": true,
+    "fallback_to_official_manufacturer_discovery": true
+  },
   "policy": {
     "manufacturer_https_only": true,
     "unknown_fields_remain_unknown": true,
