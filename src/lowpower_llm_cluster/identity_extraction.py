@@ -65,6 +65,11 @@ def enrich_hardware_identity(text: str, *, existing: dict[str, Any] | None = Non
     if host_ram:
         _set(cfg, "host_ram_gb", int(host_ram))
 
+    # Physical board provenance that may support vendor-published factory-firmware rules.
+    _set(cfg, "serial_number", _match(r"\b(?:serial(?: number)?|S/N|SN)\s*[:#-]\s*([A-Za-z0-9._/-]{5,40})", normalized))
+    _set(cfg, "manufacture_batch", _match(r"\b(?:manufacture|manufacturing|factory|production)\s*(?:batch|lot|code)\s*[:#-]?\s*([A-Za-z0-9._/-]{2,40})", normalized))
+    _set(cfg, "factory_bios_label", _match(r"\b(?:factory|default|bios chip)\s*(?:BIOS|UEFI)?\s*(?:sticker|label|version)?\s*[:#-]\s*([A-Za-z0-9._-]{2,30})", normalized))
+
     return cfg
 
 
@@ -73,9 +78,15 @@ def extract_seller_firmware_evidence(text: str) -> dict[str, Any]:
     normalized = " ".join(str(text or "").split())
     revision = _match(r"\b(?:PCB|board|hardware)\s*(?:rev(?:ision)?\.?)\s*[:#-]?\s*([A-Za-z0-9._-]+)", normalized)
     bios = _match(r"\b(?:current|installed|running)\s+(?:BIOS|UEFI)(?:\s+version)?\s*[:#-]?\s*([A-Za-z0-9._-]+)", normalized)
+    serial = _match(r"\b(?:serial(?: number)?|S/N|SN)\s*[:#-]\s*([A-Za-z0-9._/-]{5,40})", normalized)
+    batch = _match(r"\b(?:manufacture|manufacturing|factory|production)\s*(?:batch|lot|code)\s*[:#-]?\s*([A-Za-z0-9._/-]{2,40})", normalized)
+    factory_label = _match(r"\b(?:factory|default|bios chip)\s*(?:BIOS|UEFI)?\s*(?:sticker|label|version)?\s*[:#-]\s*([A-Za-z0-9._-]{2,30})", normalized)
     return {
         "board_revision": revision,
         "installed_bios_version": bios,
+        "serial_number": serial,
+        "manufacture_batch": batch,
+        "factory_bios_label": factory_label,
         "source_type": "seller_listing_text",
-        "confidence": "medium" if revision or bios else "unknown",
+        "confidence": "medium" if revision or bios or serial or batch or factory_label else "unknown",
     }
