@@ -18,6 +18,22 @@
       }
     },
     {
+      "id": "gpu-value",
+      "description": "Discrete GPUs with enough fixed VRAM to be useful local-LLM candidates, including current retail and used-market bargains.",
+      "enabled": true,
+      "match": {
+        "categories": ["gpu_accelerator"],
+        "min_memory_gb": 12
+      },
+      "alerts": {
+        "price_drop_pct": 8,
+        "landed_cost_change_pct": 6,
+        "stock_return": true,
+        "new_product": true,
+        "benchmark_change_pct": 10
+      }
+    },
+    {
       "id": "weird-accelerators",
       "description": "Unusual, specialist and decommissioned accelerators worth watching for bargains.",
       "enabled": true,
