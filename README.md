@@ -15,45 +15,92 @@ Current market snapshot: **August 10, 2026**. Prices and variants change; verify
 v0.5 turns the static catalog into a time-aware research pipeline without allowing volatile listings to overwrite curated hardware facts:
 
 ```text
-product sources
-      │
-      ▼
-async discovery adapters
-      │
-      ▼
-normalized listings ──────► exact SKU/config confidence
-      │                              │
-      ▼                              ▼
-price observations              catalog match
-      │                              │
-      └──────────────┬───────────────┘
-                     ▼
-                price history
-                     │
-        sourced FX / shipping / tax
-                     │
-                     ▼
-            Canadian landed cost
+manufacturer pages     distributors       marketplaces
+ JSON-LD offers       Mouser / DigiKey       eBay CA
+       │                    │                   │
+       └────────────────────┼───────────────────┘
+                            ▼
+                    async discovery
+                            │
+                            ▼
+                   normalized listing
+                            │
+          ┌─────────────────┼───────────────────┐
+          ▼                 ▼                   ▼
+     SKU/config          seller/source      lifecycle
+      confidence          confidence      seen/gone/back
+          │                 │                   │
+          └─────────────────┼───────────────────┘
+                            ▼
+                       price history
+                            │
+                 Bank of Canada FX
+                            │
+                            ▼
+                 Canadian landed cost
 
-vendor/community measurements
-              │
-              ▼
-      performance evidence
- model + runtime + workload + source
+vendor/community benchmark evidence
+                │
+                ▼
+ compatible model/runtime/workload groups
 ```
 
-The source-adapter interface is async-first. Network adapters must use non-blocking clients; blocking SDK or filesystem calls are isolated from the event loop.
+The source-adapter interface is async-first and uses `httpx.AsyncClient` for live network access. Blocking filesystem work stays off the event loop.
 
-The initial JSON-feed adapter is a deterministic import/fixture boundary for source-specific collectors:
+### Live sources
+
+Current source adapters:
+
+- public manufacturer product pages with schema.org `Product` / `Offer` JSON-LD;
+- Mouser Search API;
+- DigiKey Product Information V4 with CA/CAD locale defaults;
+- eBay Browse API using the Canadian marketplace;
+- deterministic JSON feed imports for fixtures, exports and future collectors.
+
+Credentials come from environment variables and are **never** stored in `data/market/sources.json`:
 
 ```bash
-llm-cluster-market discover --feed listings.json --query "Ryzen 8845HS"
-llm-cluster-market history special-amd-bc250-16g
-llm-cluster-market landed listing.json --tax-rate 0.12
-llm-cluster-market ingest-performance performance-records.json
+export MOUSER_API_KEY='...'
+export DIGIKEY_CLIENT_ID='...'
+export DIGIKEY_ACCESS_TOKEN='...'
+export EBAY_CLIENT_ID='...'
+export EBAY_CLIENT_SECRET='...'
 ```
 
-`data/market/fx-cad.json` deliberately ships without a made-up USD/CAD rate. Add a sourced rate snapshot before converting non-CAD listings. Landed cost keeps item, shipping, duty, brokerage and tax separate because Canadian customs treatment depends on the actual shipment.
+Missing credentials simply disable that source. A failed API request also cannot create fake listing-disappearance events.
+
+Examples:
+
+```bash
+# Public manufacturer structured data
+llm-cluster-market discover --source manufacturer --query "Jetson Orin Nano"
+
+# Structured distributor sources when credentials are configured
+llm-cluster-market discover --source mouser --source digikey --query "RK3588"
+
+# Canadian eBay search for used / decommissioned hardware
+llm-cluster-market discover --source ebay --query "Alveo U50"
+
+# Deterministic feed/import path
+llm-cluster-market discover --feed listings.json --query "Ryzen 8845HS"
+
+# Refresh sourced CAD exchange rates and preserve history
+llm-cluster-market refresh-fx --currency USD --currency EUR
+
+# View price / SKU-confidence / seller-confidence history
+llm-cluster-market history special-amd-bc250-16g
+
+# Estimate a specific listing's landed cost using the sourced FX snapshot
+llm-cluster-market landed listing.json --tax-rate 0.12
+
+# Ingest and aggregate compatible performance evidence
+llm-cluster-market ingest-performance performance-records.json
+llm-cluster-market aggregate-performance special-amd-bc250-16g
+```
+
+`data/market/listing-state.json` records `discovered`, `disappeared`, and `reappeared` events. Disappearance is only inferred after a successful poll of the **same source and query scope**, so changing the search query cannot make unrelated products appear to vanish.
+
+`llm-cluster-market refresh-fx` uses the Bank of Canada Valet API and stores both the current snapshot and append-only FX history. Landed cost keeps item, shipping, duty, brokerage and tax separate because actual Canadian customs treatment depends on the shipment, province, origin, courier and tariff classification.
 
 ## The project in one picture
 
@@ -95,7 +142,9 @@ spec_based_estimate  weak planning clue only
 unknown              completely acceptable
 ```
 
-The project **will not manufacture tokens/sec** from TOPS, TFLOPS, memory bandwidth, core count or TDP. v0.5 performance imports additionally require the source URL, exact model/variant where known, runtime/backend, workload/phase, metric and unit.
+The project **will not manufacture tokens/sec** from TOPS, TFLOPS, memory bandwidth, core count or TDP. v0.5 performance imports require the source URL, exact model/variant where known, runtime/backend, workload/phase, metric and unit.
+
+Compatible aggregation is deliberately strict: records with different model variants, quantization, runtime/version/backend, workload phase, units, context dimensions or hardware configuration are kept in separate groups instead of being averaged into a misleading number.
 
 ## What can be estimated safely?
 
@@ -170,8 +219,11 @@ The catalog intentionally spans different kinds of useful hardware:
 ## Repository map
 
 - `data/catalog/` — curated hardware catalog fragments.
-- `data/market/` — time-varying listing/price/FX evidence.
-- `data/evidence/` — sourced performance evidence.
+- `data/market/sources.json` — source configuration without secrets.
+- `data/market/price-history.json` — append-only listing/price observations.
+- `data/market/listing-state.json` — listing lifecycle events.
+- `data/market/fx-cad.json` / `fx-history.json` — sourced CAD FX evidence.
+- `data/evidence/performance.json` — sourced performance evidence.
 - `specs/HARDWARE_CATALOG.md` — catalog contract.
 - `specs/EVIDENCE.md` — evidence and estimation guardrails.
 - `specs/MARKET_INTELLIGENCE.md` — discovery, pricing, Canadian cost and performance-ingestion contract.
