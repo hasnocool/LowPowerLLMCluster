@@ -51,7 +51,8 @@ def main() -> int:
         if function not in firmware_source: errors.append(f"firmware readiness layer lost {function.split()[-1]}")
     for term in ("USB BIOS FlashBack","Q-Flash Plus","Flash BIOS Button","cpu_less_update_explicit"):
         if term not in firmware_source: errors.append(f"firmware readiness lost evidence token: {term}")
-    if '"performance_claim": False' not in firmware_source: errors.append("boot-readiness score must not become a performance claim")
+    if '"performance_claim": False' not in firmware_source and '"performance_claim":False' not in firmware_source:
+        errors.append("boot-readiness score must not become a performance claim")
 
     support_source=(ROOT/"src/lowpower_llm_cluster/manufacturer_support.py").read_text(encoding="utf-8")
     for term in ("def ingest_support_endpoint","def ingest_ranked_support_endpoints","def pagination_metadata","MAX_SUPPORT_PAGES = 64","explicit_total_pages","explicit_total_count","explicit_has_more_false","endpoint_not_on_expected_official_host"):
