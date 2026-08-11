@@ -13,11 +13,15 @@ def main() -> int:
         "data/catalog/apple-low-power.json",
         "data/catalog/mobile-devices.json",
         "src/lowpower_llm_cluster/mobile_platform.py",
+        "src/lowpower_llm_cluster/apple_resolution.py",
         "src/lowpower_llm_cluster/firmware_readiness.py",
+        "src/lowpower_llm_cluster/manufacturer_support.py",
         "docs/APPLE_MOBILE_NODES.md",
         "docs/FIRMWARE_BOOT_READINESS.md",
         "tests/test_mobile_platform.py",
+        "tests/test_apple_resolution.py",
         "tests/test_firmware_readiness.py",
+        "tests/test_manufacturer_support.py",
     ]
     for rel in required:
         if not (ROOT / rel).exists():
@@ -51,6 +55,30 @@ def main() -> int:
     if '"performance_claim": False' not in mobile_source:
         errors.append("mobile memory budget must remain capacity-only, not a performance claim")
 
+    apple_resolver = (ROOT / "src/lowpower_llm_cluster/apple_resolution.py").read_text(encoding="utf-8")
+    for term in (
+        "def resolve_apple_configuration",
+        "apple_a_number",
+        "model_identifier",
+        "apple_part_number",
+        "memory_capacity_gb",
+        "storage_gb",
+        "battery_cycle_count",
+        "battery_health_percent",
+        "activation_lock",
+        "mdm_enrollment",
+        "gpu_core_count_explicit",
+        "exact_configuration",
+    ):
+        if term not in apple_resolver:
+            errors.append(f"Apple exact-resolution layer lost evidence field: {term}")
+    if '"performance_claim": False' not in apple_resolver:
+        errors.append("Apple exact-resolution metadata must not become a performance claim")
+
+    sources_source = (ROOT / "src/lowpower_llm_cluster/sources.py").read_text(encoding="utf-8")
+    if "resolve_apple_configuration" not in sources_source:
+        errors.append("live marketplace/manufacturer adapters lost Apple exact-configuration enrichment")
+
     firmware_source = (ROOT / "src/lowpower_llm_cluster/firmware_readiness.py").read_text(encoding="utf-8")
     for function in ("def discover_support_endpoints", "def detect_bios_flashback", "def boot_readiness_score"):
         if function not in firmware_source:
@@ -61,10 +89,32 @@ def main() -> int:
     if '"performance_claim": False' not in firmware_source:
         errors.append("boot-readiness score must not become a performance claim")
 
+    support_source = (ROOT / "src/lowpower_llm_cluster/manufacturer_support.py").read_text(encoding="utf-8")
+    for term in (
+        "def ingest_support_endpoint",
+        "def ingest_ranked_support_endpoints",
+        "def pagination_metadata",
+        "MAX_SUPPORT_PAGES = 64",
+        "explicit_total_pages",
+        "explicit_total_count",
+        "explicit_has_more_false",
+        "endpoint_not_on_expected_official_host",
+    ):
+        if term not in support_source:
+            errors.append(f"manufacturer support ingestion lost completeness/host guardrail: {term}")
+
     structured_source = (ROOT / "src/lowpower_llm_cluster/structured_specs.py").read_text(encoding="utf-8")
-    for term in ("support_endpoints", "bios_flashback", "discover_support_endpoints", "detect_bios_flashback"):
+    for term in (
+        "support_endpoints",
+        "bios_flashback",
+        "discover_support_endpoints",
+        "detect_bios_flashback",
+        "ingest_ranked_support_endpoints",
+        "cpu_support_matrix_completeness_proof",
+        'stats["cpu_support_matrix_complete"] = bool(api_result.get("complete"))',
+    ):
         if term not in structured_source:
-            errors.append(f"structured motherboard enrichment lost firmware evidence: {term}")
+            errors.append(f"structured motherboard enrichment lost firmware/API evidence: {term}")
 
     compatibility_source = (ROOT / "src/lowpower_llm_cluster/compatibility.py").read_text(encoding="utf-8")
     for term in ("boot_readiness_score", '"boot_readiness"'):
