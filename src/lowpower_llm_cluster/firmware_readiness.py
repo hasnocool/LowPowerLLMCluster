@@ -6,6 +6,7 @@ from typing import Any
 from urllib.parse import urljoin, urlparse
 
 from .bios_versioning import shipped_bios_meets_requirement
+from .seller_firmware import correlate_seller_firmware
 
 
 class _LinkParser(HTMLParser):
@@ -72,10 +73,26 @@ def boot_readiness_score(cpu_bios: dict[str,Any], flashback: dict[str,Any] | Non
         shipped_bios_meets_minimum=version_comparison.get("meets_minimum")
         if shipped_bios_meets_minimum is None: warnings.append(f"Board explicitly ships with BIOS {shipped_version}, but safe vendor-specific version ordering against required {minimum} is unresolved.")
         elif shipped_bios_meets_minimum is False: warnings.append(f"Board explicitly ships with BIOS {shipped_version}, which is older than required {minimum} by {version_comparison.get('reason')}.")
+
+    seller_firmware=correlate_seller_firmware(cpu_bios,flashback.get("seller_firmware_evidence"),flashback.get("revision_bios_history") or [])
+    seller_meets=seller_firmware.get("meets_minimum")
+    seller_history_match=seller_firmware.get("installed_bios_in_revision_history") is True
+    if seller_firmware.get("installed_bios_version"):
+        if seller_meets is True and seller_history_match:
+            warnings.append("Seller-stated installed BIOS meets the CPU minimum and exists in official BIOS history for the seller-stated board revision; seller evidence remains lower authority than manufacturer factory evidence.")
+        elif seller_meets is True:
+            warnings.append("Seller-stated installed BIOS meets the CPU minimum by vendor-safe version comparison, but revision-scoped manufacturer history did not independently verify that exact installed version.")
+        elif seller_meets is False:
+            warnings.append(f"Seller-stated installed BIOS {seller_firmware.get('installed_bios_version')} is below required {minimum}; firmware update is required before using the selected CPU.")
+        else:
+            warnings.append("Seller states an installed BIOS version, but safe vendor-specific ordering against the CPU minimum is unresolved.")
+
     if pair_status=="unsupported": score=0; readiness="not_bootable_with_selected_cpu"
     elif pair_status=="supported" and not minimum: score=96; readiness="ready_by_support_evidence"
     elif pair_status=="supported" and minimum:
         if shipped_bios_meets_minimum is True: score=98; readiness="ready_with_verified_firmware"
+        elif seller_meets is True and seller_history_match: score=94; readiness="ready_by_correlated_seller_installed_firmware"
+        elif seller_meets is True: score=90; readiness="ready_by_seller_installed_firmware_claim"
         elif cpu_less: score=88; readiness="supported_update_may_be_required_cpu_less_recovery_available"; warnings.append(f"CPU requires BIOS >= {minimum}; CPU-less update capability is explicitly documented.")
         elif fb_status=="supported": score=78; readiness="supported_update_may_be_required_flashback_detected"; warnings.append(f"CPU requires BIOS >= {minimum}; firmware update capability is documented but CPU-less operation was not explicitly verified.")
         elif fb_status=="unsupported": score=48; readiness="supported_but_update_path_has_high_friction"; warnings.append(f"CPU requires BIOS >= {minimum}; no CPU-less firmware-update path is documented by current evidence.")
@@ -83,4 +100,4 @@ def boot_readiness_score(cpu_bios: dict[str,Any], flashback: dict[str,Any] | Non
     else:
         score=54 if cpu_less else 34; readiness="support_unresolved_but_cpu_less_recovery_available" if cpu_less else "support_and_boot_path_unresolved"; warnings.append(str(cpu_bios.get("reason") or "CPU/BIOS support is unresolved."))
     if cpu_bios.get("matrix_complete") is False and pair_status=="unresolved": warnings.append("Manufacturer CPU-support matrix is not proven complete; absence is not treated as unsupported.")
-    return {"score":int(score),"readiness":readiness,"cpu_bios_status":pair_status,"minimum_bios_version":minimum,"flashback_status":fb_status,"cpu_less_update_explicit":flashback.get("cpu_less_update_explicit"),"shipped_bios_version":shipped_version,"shipped_bios_meets_minimum":shipped_bios_meets_minimum,"version_comparison":version_comparison,"warnings":warnings,"basis":"manufacturer_cpu_support_plus_firmware_recovery_evidence","performance_claim":False}
+    return {"score":int(score),"readiness":readiness,"cpu_bios_status":pair_status,"minimum_bios_version":minimum,"flashback_status":fb_status,"cpu_less_update_explicit":flashback.get("cpu_less_update_explicit"),"shipped_bios_version":shipped_version,"shipped_bios_meets_minimum":shipped_bios_meets_minimum,"version_comparison":version_comparison,"seller_firmware":seller_firmware,"warnings":warnings,"basis":"manufacturer_cpu_support_plus_firmware_recovery_and_bounded_seller_evidence","performance_claim":False}
