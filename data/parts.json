@@ -11,6 +11,7 @@
     "embedded_board",
     "specialty_board",
     "control_plane",
+    "gpu_accelerator",
     "npu_accelerator",
     "tpu_accelerator",
     "ai_asic_accelerator",
@@ -26,6 +27,7 @@
     "catalog/infrastructure.json",
     "catalog/heterogeneous-nodes.json",
     "catalog/benchmarked-reference-nodes.json",
+    "catalog/gpus.json",
     "catalog/accelerators-genai.json",
     "catalog/accelerators-research.json",
     "catalog/accelerators-specialist.json"
