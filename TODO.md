@@ -61,10 +61,11 @@
 - [x] Preserve complete parsed CPU/BIOS support rows on motherboard candidates for later CPU+motherboard pair evaluation.
 - [x] Evaluate motherboard + CPU BIOS compatibility after build pairing, rejecting explicit unsupported rows and retaining minimum BIOS requirements/warnings.
 - [x] Keep absence from incomplete/paginated support matrices provisional rather than treating it as unsupported.
+- [x] Discover and rank linked official manufacturer CPU-support, BIOS and download endpoints from verified motherboard pages.
+- [x] Capture BIOS Flashback / CPU-less firmware-update evidence and expose an evidence-based boot-readiness score on complete builds.
 - [ ] Expand the manufacturer registry and stable manufacturer search-page templates as live sourcing encounters new brands.
 - [ ] Discover separate manufacturer CPU-support/download endpoints when they are not linked from the verified product page.
 - [ ] Detect paginated/API-backed CPU support matrices and prove matrix completeness where possible.
-- [ ] Capture BIOS Flashback / CPU-less firmware update capability and use it to score BIOS-update friction.
 - [ ] Infer likely shipped BIOS/hardware revision only when manufacturer or seller evidence supports it.
 - [ ] Add compatibility validation for owned hosts: PCIe generation/lanes, physical slots, PSU connectors/headroom, chassis clearance and cooling capacity.
 - [ ] Add province presets plus tariff/HS-code evidence without pretending customs treatment is universal.
@@ -75,6 +76,22 @@
 - [ ] Normalize form factor, dimensions, DC input, PSU/cooling and host requirements.
 - [ ] Verify board-level RAM maximums instead of relying on CPU theoretical limits.
 - [ ] Add more direct-China and used-market mini PCs, mobile boards, SBCs, GPUs and unusual accelerators.
+
+## Apple and mobile coverage
+
+- [x] Add first-class `apple_silicon_system`, `mobile_phone`, `tablet` and `media_device` catalog categories.
+- [x] Cover Apple-silicon Macs from M1 through current M5/M5 Pro/M5 Max generations, including MacBook Air/Pro, Mac mini, iMac and Mac Studio.
+- [x] Add iPad Pro M1/M2/M4/M5, current iPad Air M4, current iPhone A19/A19 Pro family references and Apple TV 4K A15.
+- [x] Add current Android low-power reference phones including Pixel 10 Pro 16GB and Galaxy S26 Ultra 12/16GB.
+- [x] Add mobile runtime classes so macOS Apple-silicon systems can be general-purpose nodes while iOS/iPadOS/tvOS/Android devices retain sandbox, service and thermal constraints.
+- [x] Add conservative mobile/unified-memory capacity reserves without deriving throughput from SoC marketing specifications.
+- [x] Add Apple/mobile discovery queries to daily and weekly market refresh profiles.
+- [x] Keep battery capacity, charger wattage and charging rate separate from measured inference wall-input power.
+- [ ] Split broad Apple family listings into exact chip/GPU/core/unified-memory SKUs automatically from marketplace titles/model identifiers.
+- [ ] Add exact Apple model-number/part-number enrichment and memory/storage configuration resolution.
+- [ ] Ingest measured complete-node Apple idle/load/inference power with exact model/runtime/workload provenance.
+- [ ] Add used-Mac condition signals such as battery health/cycle count, activation-lock status, warranty and seller return policy where sources expose them.
+- [ ] Expand Android phone/tablet coverage based on RAM, runtime support and used-market value.
 
 ## GPU coverage
 
@@ -104,6 +121,7 @@
 - [x] Preserve automatic association identity score/cache state separately from extracted compatibility evidence.
 - [x] Preserve structured-source class (`additionalProperty`, HTML table, CPU/BIOS matrix, PDF) on each extracted manufacturer fact.
 - [x] Preserve pair-level CPU/BIOS manufacturer support provenance in compatible-build results.
+- [x] Preserve boot-readiness as a firmware/installability signal rather than a performance metric.
 - [ ] Add confidence-aware performance ranges only when multiple independent compatible real sources justify them.
 - [ ] Add model-family presets beyond the default transparent Q4 decision-capacity screen.
 - [ ] Benchmark the ThinkPad L14 as an optional local reference/calibration node.
