@@ -151,12 +151,17 @@ def resolve_apple_configuration(title: str, description: str | None = None, exis
         parsed["cpu_cores"] = cpu_cores
     if gpu_cores is not None:
         parsed["gpu_cores"] = gpu_cores
-    parsed["condition_evidence"] = _condition(combined)
+
+    condition = _condition(combined)
+    prior_condition = dict(existing.get("condition_evidence") or {})
+    for key, value in condition.items():
+        if value is not None:
+            prior_condition.setdefault(key, value)
+    if prior_condition:
+        existing["condition_evidence"] = prior_condition
 
     conflicts: list[str] = []
     for key, value in parsed.items():
-        if key == "condition_evidence":
-            continue
         if existing.get(key) is not None and str(existing[key]).casefold() != str(value).casefold():
             conflicts.append(key)
         existing.setdefault(key, value)
