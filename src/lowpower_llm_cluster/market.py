@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from .catalog import project_root
-from .identity_extraction import enrich_hardware_identity
+from .identity_extraction import enrich_hardware_identity, extract_seller_firmware_evidence
 
 CONFIDENCE = {"unknown": 0.0, "low": 0.25, "medium": 0.55, "high": 0.8, "exact": 1.0}
 PERF_SOURCE = {"unknown": 0.0, "spec_based_estimate": 0.15, "derived_estimate": 0.35, "vendor_measured": 0.6, "community_measured": 0.8, "measured_local": 1.0}
@@ -71,6 +71,14 @@ class Listing:
 
     def __post_init__(self) -> None:
         enriched = enrich_hardware_identity(self.title, existing=dict(self.configuration or {}))
+        if self.source_kind == "structured_marketplace":
+            seller_fw = extract_seller_firmware_evidence(self.title)
+            if seller_fw.get("board_revision") or seller_fw.get("installed_bios_version"):
+                enriched.setdefault("seller_firmware_evidence", seller_fw)
+                if seller_fw.get("board_revision"):
+                    enriched.setdefault("board_revision", seller_fw["board_revision"])
+                if seller_fw.get("installed_bios_version"):
+                    enriched.setdefault("installed_bios_version", seller_fw["installed_bios_version"])
         object.__setattr__(self, "configuration", enriched)
 
     @classmethod
