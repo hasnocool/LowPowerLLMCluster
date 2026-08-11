@@ -33,9 +33,10 @@
 - [x] Add opportunity freshness/expiry semantics.
 - [x] Add P1-P4 alert prioritization.
 - [x] Add ranked Buy / Watch / Ignore / Experimental daily recommendations.
-- [x] Add complete-node TCO: product + required host/RAM/storage/PSU/PCIe/cooling/chassis + electricity scenarios.
+- [x] Add complete-node TCO with explicit GPU + CPU/host + motherboard + RAM + storage + PSU + PCIe/OCuLink/riser + cooling + chassis + electricity scenarios.
 - [x] Re-rank daily recommendations using complete-node acquisition and operating cost rather than card/component sticker price alone.
 - [x] Add editable light/mixed/always-on/high-electricity TCO scenarios and `daily-tco` reports.
+- [x] Add break-even analysis for product price, electricity rate and daily load hours between two complete-node options.
 - [ ] Replace generic TCO component assumptions with sourced component/BOM observations per exact deployment when evidence is available.
 - [ ] Add reusable-host scenarios so an accelerator can distinguish `I already own a suitable host` from `new complete node required`.
 - [ ] Add province presets plus tariff/HS-code evidence without pretending customs treatment is universal.
@@ -50,7 +51,8 @@
 ## GPU coverage
 
 - [x] Track RTX 5060 Ti 16GB, RTX 3090 24GB, RX 9070/9070 XT 16GB, Arc B580 12GB and Arc A770 16GB reference products.
-- [x] Count host/PSU/PCIe/cooling infrastructure and board-power-derived operating scenarios in GPU TCO comparisons.
+- [x] Count CPU/host, motherboard, RAM, storage, PSU, PCIe integration, cooling, chassis and board-power-derived operating scenarios in GPU TCO comparisons.
+- [x] Add GPU-vs-integrated-node break-even analysis using complete-node TCO rather than card sticker price.
 - [ ] Expand NVIDIA coverage to other 12GB/16GB/24GB/32GB cards when live pricing justifies catalog inclusion.
 - [ ] Expand AMD coverage to additional maintained ROCm/Vulkan cards with useful VRAM-per-dollar.
 - [ ] Expand Intel Arc coverage as current/used pricing changes.
