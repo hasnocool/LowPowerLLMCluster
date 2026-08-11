@@ -13,16 +13,20 @@
 - [x] Add seller/source reputation confidence separately from SKU confidence.
 - [x] Add compatibility-preserving benchmark aggregation.
 - [x] Add CAD buying reports: under CA$100/250/500, 32GB+, low-power, weird-hardware, EOL, measured-evidence.
-- [x] Add an exact-hardware benchmark reference product and seed sourced RK1/RK3588 llama.cpp evidence.
+- [x] Add exact-hardware RK1/RK3588, Jetson Orin Nano Super and stock BC-250 benchmark evidence.
 - [x] Add source health history and consecutive-failure tracking.
 - [x] Add transient HTTP retry/backoff with jitter and Retry-After handling.
 - [x] Add stale-listing warnings without deleting historical observations.
 - [x] Add named daily/weekly autonomous discovery profiles.
 - [x] Add scheduled GitHub refresh with automatic FX and current-market report regeneration.
-- [x] Add additional exact-hardware Jetson Orin Nano Super community/vendor benchmark evidence.
+- [x] Add configurable watchlists with per-watch price/landed-cost/benchmark thresholds.
+- [x] Add significant price-drop, stock-return and new-product alerts.
+- [x] Add benchmark regression/improvement detection for compatible exact-hardware signatures.
+- [x] Add source query/run budgets with persisted daily estimated request usage.
+- [x] Add compact generated daily change-intelligence reports.
 - [ ] Add province presets plus tariff/HS-code evidence without pretending customs treatment is universal.
-- [ ] Add source-specific rate-limit budget telemetry and next-allowed-request timestamps.
-- [ ] Add alert thresholds for repeated source failures, newly stale listings, and major price changes.
+- [ ] Add provider-reported remaining quota/reset timestamps when APIs expose them.
+- [ ] Add notification delivery adapters for email/webhook/chat after alert evidence is generated.
 - [ ] Add more structured used-market sources where official/legal API access exists.
 - [ ] Normalize form factor, dimensions, DC input, PSU/cooling and host requirements.
 - [ ] Verify board-level RAM maximums instead of relying on CPU theoretical limits.
@@ -32,7 +36,7 @@
 
 - [x] Ingest sourced vendor/community performance records with model/runtime/workload provenance.
 - [x] Keep compatible measurements grouped by exact benchmark signature instead of averaging unlike runs.
-- [x] Add additional exact-product Jetson community/vendor measurements without copying them to other Orin products.
+- [x] Add exact-product Jetson and stock BC-250 community/vendor measurements without copying them to similar hardware.
 - [ ] Add confidence-aware performance ranges only when multiple independent compatible real sources justify them.
 - [ ] Add model-family presets to the safe model-fit screen.
 - [ ] Track published/estimated power boundaries without calling TDP complete-node watts.
