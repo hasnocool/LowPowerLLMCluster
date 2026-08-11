@@ -19,6 +19,15 @@
       "generate_reports": true,
       "tax_rate": 0.12,
       "stale_after_hours": 72,
+      "price_drop_pct": 10,
+      "landed_cost_change_pct": 8,
+      "benchmark_change_pct": 10,
+      "source_budgets": {
+        "manufacturer": {"max_queries_per_run": 8, "daily_request_budget": 64},
+        "mouser": {"max_queries_per_run": 8, "daily_request_budget": 48},
+        "digikey": {"max_queries_per_run": 8, "daily_request_budget": 48},
+        "ebay": {"max_queries_per_run": 8, "daily_request_budget": 64}
+      },
       "retry": {
         "attempts": 4,
         "base_delay_s": 1.0,
@@ -46,6 +55,15 @@
       "generate_reports": true,
       "tax_rate": 0.12,
       "stale_after_hours": 168,
+      "price_drop_pct": 12,
+      "landed_cost_change_pct": 10,
+      "benchmark_change_pct": 12,
+      "source_budgets": {
+        "manufacturer": {"max_queries_per_run": 12, "daily_request_budget": 80},
+        "mouser": {"max_queries_per_run": 12, "daily_request_budget": 60},
+        "digikey": {"max_queries_per_run": 12, "daily_request_budget": 60},
+        "ebay": {"max_queries_per_run": 12, "daily_request_budget": 80}
+      },
       "retry": {
         "attempts": 5,
         "base_delay_s": 2.0,
