@@ -9,14 +9,14 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from lowpower_llm_cluster.catalog import load_catalog  # noqa: E402
 
-CATALOG = ROOT / "data" / "parts.json"
+CATALOG = ROOT / "data/parts.json"
 REQUIRED = {
     "id", "category", "name", "vendor", "price_min_usd", "price_max_usd",
     "price_status", "moq", "url", "verified_on", "listing_status", "plain_language",
 }
 LLM_REQUIRED = {"hardware_class", "software_maturity", "risk_level", "memory_config_status"}
 ACCELERATOR_CATEGORIES = {
-    "npu_accelerator", "tpu_accelerator", "ai_asic_accelerator", "fpga_accelerator",
+    "gpu_accelerator", "npu_accelerator", "tpu_accelerator", "ai_asic_accelerator", "fpga_accelerator",
     "adaptive_soc", "decommissioned_accelerator",
 }
 ACCELERATOR_REQUIRED = {
@@ -103,6 +103,11 @@ def main() -> int:
                 errors.append(f"{part_id}: accelerator entry missing {sorted(accel_missing)}")
             if not part.get("precision_formats") and part.get("lifecycle_status") != "discontinued":
                 errors.append(f"{part_id}: accelerator entry needs precision_formats")
+            if part.get("category") == "gpu_accelerator":
+                if part.get("memory_config_status") != "fixed" or part.get("memory_capacity_gb") is None:
+                    errors.append(f"{part_id}: discrete GPU entries must record fixed VRAM capacity")
+                if not part.get("power_scope"):
+                    errors.append(f"{part_id}: GPU board power must include an explicit power_scope")
 
     if errors:
         print("Catalog validation failed:", file=sys.stderr)
