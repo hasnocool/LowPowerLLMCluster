@@ -43,8 +43,11 @@
 - [x] Fetch live BOM product/cost data for CPU, motherboard, RAM, storage, PSU, PCIe/OCuLink, cooling and chassis using structured online sources.
 - [x] Persist current BOM selections and append-only landed-CAD BOM price history.
 - [x] Overlay selected sourced BOM costs into TCO one component at a time while preserving fallback assumption provenance.
-- [ ] Expand exact component compatibility validation beyond text filters: CPU socket/chipset, RAM generation, PSU connectors/headroom, GPU clearance, PCIe lanes/gen and cooler dimensions.
+- [x] Add cross-component compatibility resolution for CPU socket, RAM generation, PCIe slot/lanes, PSU wattage/connectors, motherboard/chassis form factor, GPU clearance and cooler dimensions.
+- [x] Generate per-GPU cheapest compatible/provisionally-compatible complete builds from live BOM candidates and recent GPU market evidence.
+- [x] Preserve unresolved exact board-partner dimensions/connectors as provisional compatibility instead of assuming they fit.
 - [ ] Add compatibility validation for owned hosts: PCIe generation/lanes, physical slots, PSU connectors/headroom, chassis clearance and cooling capacity.
+- [ ] Add exact motherboard lane-sharing/BIOS requirements and board-partner GPU dimension/connector enrichment from exact SKU sources.
 - [ ] Add province presets plus tariff/HS-code evidence without pretending customs treatment is universal.
 - [ ] Persist historical landed-CAD snapshots so pure FX movement can be compared without recomputing old observations at current FX.
 - [ ] Add provider-reported remaining quota/reset timestamps when APIs expose them.
@@ -61,6 +64,7 @@
 - [x] Add GPU-vs-integrated-node break-even analysis using complete-node TCO rather than card sticker price.
 - [x] Add ownership-aware GPU acquisition so existing compatible host parts are not purchased twice.
 - [x] Feed current sourced host/BOM product costs into GPU complete-node TCO where online listings pass confidence/compatibility filters.
+- [x] Solve cheapest complete host builds per tracked GPU while rejecting known socket/memory/power/clearance incompatibilities.
 - [ ] Expand NVIDIA coverage to other 12GB/16GB/24GB/32GB cards when live pricing justifies catalog inclusion.
 - [ ] Expand AMD coverage to additional maintained ROCm/Vulkan cards with useful VRAM-per-dollar.
 - [ ] Expand Intel Arc coverage as current/used pricing changes.
