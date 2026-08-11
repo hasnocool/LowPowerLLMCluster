@@ -25,6 +25,7 @@
     "catalog/core-nodes.json",
     "catalog/infrastructure.json",
     "catalog/heterogeneous-nodes.json",
+    "catalog/benchmarked-reference-nodes.json",
     "catalog/accelerators-genai.json",
     "catalog/accelerators-research.json",
     "catalog/accelerators-specialist.json"
