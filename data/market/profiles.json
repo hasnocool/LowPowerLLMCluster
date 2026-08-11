@@ -4,25 +4,12 @@
     "daily-market": {
       "description": "Daily public/current-market refresh across compact nodes, accelerators and discrete GPUs.",
       "sources": ["manufacturer", "mouser", "digikey", "ebay"],
-      "queries": [
-        "Ryzen 8845HS mini PC",
-        "Ryzen 7735U mini PC",
-        "BC-250 16GB",
-        "RK3588 32GB",
-        "Jetson Orin Nano Super",
-        "Hailo-10H",
-        "BM1688",
-        "Alveo U50",
-        "GeForce RTX 5060 Ti 16GB",
-        "GeForce RTX 3090 24GB",
-        "Radeon RX 9070 16GB",
-        "Intel Arc B580 12GB",
-        "Intel Arc A770 16GB"
-      ],
+      "queries": ["Ryzen 8845HS mini PC", "Ryzen 7735U mini PC", "BC-250 16GB", "RK3588 32GB", "Jetson Orin Nano Super", "Hailo-10H", "BM1688", "Alveo U50", "GeForce RTX 5060 Ti 16GB", "GeForce RTX 3090 24GB", "Radeon RX 9070 16GB", "Intel Arc B580 12GB", "Intel Arc A770 16GB"],
       "refresh_fx": true,
       "currencies": ["USD", "EUR", "GBP", "JPY", "CNY", "AUD"],
       "generate_reports": true,
       "tax_rate": 0.12,
+      "tco_scenario": "mixed-3yr",
       "stale_after_hours": 72,
       "price_drop_pct": 10,
       "landed_cost_change_pct": 8,
@@ -33,38 +20,16 @@
         "digikey": {"max_queries_per_run": 13, "daily_request_budget": 72},
         "ebay": {"max_queries_per_run": 13, "daily_request_budget": 96}
       },
-      "retry": {
-        "attempts": 4,
-        "base_delay_s": 1.0,
-        "max_delay_s": 30.0
-      }
+      "retry": {"attempts": 4, "base_delay_s": 1.0, "max_delay_s": 30.0}
     },
     "weekly-deep-scan": {
       "description": "Broader weekly refresh for unusual, EOL, high-memory and GPU bargain hardware.",
       "sources": ["manufacturer", "mouser", "digikey", "ebay"],
-      "queries": [
-        "Alveo U50",
-        "Alveo V70",
-        "Tenstorrent Wormhole",
-        "Kria KV260",
-        "Versal AI Edge",
-        "Coral Edge TPU",
-        "MemryX MX3",
-        "SOPHGO BM1684X",
-        "SOPHGO BM1688",
-        "Orange Pi 5 Plus 32GB",
-        "Radxa ROCK 5 ITX 32GB",
-        "Turing RK1 32GB",
-        "GeForce RTX 5060 Ti 16GB",
-        "GeForce RTX 3090 24GB",
-        "Radeon RX 9070 16GB",
-        "Radeon RX 9070 XT 16GB",
-        "Intel Arc B580 12GB",
-        "Intel Arc A770 16GB"
-      ],
+      "queries": ["Alveo U50", "Alveo V70", "Tenstorrent Wormhole", "Kria KV260", "Versal AI Edge", "Coral Edge TPU", "MemryX MX3", "SOPHGO BM1684X", "SOPHGO BM1688", "Orange Pi 5 Plus 32GB", "Radxa ROCK 5 ITX 32GB", "Turing RK1 32GB", "GeForce RTX 5060 Ti 16GB", "GeForce RTX 3090 24GB", "Radeon RX 9070 16GB", "Radeon RX 9070 XT 16GB", "Intel Arc B580 12GB", "Intel Arc A770 16GB"],
       "refresh_fx": true,
       "generate_reports": true,
       "tax_rate": 0.12,
+      "tco_scenario": "mixed-3yr",
       "stale_after_hours": 168,
       "price_drop_pct": 12,
       "landed_cost_change_pct": 10,
@@ -75,11 +40,7 @@
         "digikey": {"max_queries_per_run": 18, "daily_request_budget": 90},
         "ebay": {"max_queries_per_run": 18, "daily_request_budget": 120}
       },
-      "retry": {
-        "attempts": 5,
-        "base_delay_s": 2.0,
-        "max_delay_s": 60.0
-      }
+      "retry": {"attempts": 5, "base_delay_s": 2.0, "max_delay_s": 60.0}
     }
   }
 }
