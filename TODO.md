@@ -73,6 +73,17 @@
 - [x] Feed marketplace short descriptions through the lower-priority identity parser when the source API exposes them.
 - [x] Persist revision-scoped manufacturer BIOS API history in motherboard structured evidence.
 - [x] Correlate seller-stated PCB revision + installed BIOS with the selected CPU minimum and official revision-scoped history without upgrading seller evidence to manufacturer authority.
+- [x] Add an auditable sourced-power measurement feed with exact hardware identity, HTTPS provenance and explicit power boundaries.
+- [x] Seed measured power evidence across exact Apple M1/M4 configurations, a Ryzen 7840HS mini PC, Pixel 10 Pro XL, Galaxy S26 Ultra and an RTX 3090 board-only sample.
+- [x] Add a data-driven vendor parameter alias registry so new structured source labels can map into normalized identity fields without inventing values.
+- [x] Add a conservative factory-firmware rule registry that permits serial/batch/revision/physical-label mappings only when a vendor publishes the relationship.
+- [x] Preserve ASRock's documented BIOS-chip sticker method as verified factory/default BIOS evidence.
+- [ ] Continuously harvest exact complete-node/device power measurements across Apple, mini PCs/SBCs, phones/tablets and unusual accelerators.
+- [ ] Harvest exact GPU + host wall-input measurements under llama.cpp/vLLM/MLC workloads with host CPU/motherboard/RAM/PSU identity.
+- [ ] Harvest exact SSD idle/average/max power with controller + NAND + capacity identity from auditable numeric sources.
+- [ ] Harvest incremental RAM-topology power evidence where test methodology isolates DIMM configuration.
+- [ ] Expand vendor parameter aliases only as real manufacturer/distributor schemas expose new labels.
+- [ ] Populate serial/manufacture-batch/revision → factory BIOS rules only where vendors publish a verifiable mapping; do not reverse-engineer undocumented serial formats.
 - [ ] Expand the manufacturer registry and stable manufacturer search-page templates as live sourcing encounters new brands.
 - [ ] Infer likely shipped BIOS/hardware revision only when manufacturer or seller evidence supports it.
 - [ ] Add compatibility validation for owned hosts: PCIe generation/lanes, physical slots, PSU connectors/headroom, chassis clearance and cooling capacity.
@@ -99,8 +110,9 @@
 - [x] Carry used-Mac battery health/cycles plus stated Activation Lock and MDM evidence separately from exact SKU identity.
 - [x] Feed resolved Apple configuration through existing live price/shipping, sourced CAD FX and landed-cost/TCO evidence paths.
 - [x] Extract explicit mobile model/SKU, SoC and SoC-variant identity from listings/spec text and structured source fields when present.
+- [x] Seed complete-device measured power for exact M1 Max, M4/M4 Pro, M4 Max, Pixel 10 Pro XL and Galaxy S26 Ultra configurations.
 - [ ] Expand the Apple A-number/model/part-number knowledge base and add authoritative order-number mappings for more generations/regions.
-- [ ] Ingest measured complete-node Apple idle/load/inference power with exact model/runtime/workload provenance.
+- [ ] Ingest LLM-specific complete-node Apple idle/load/inference power with exact model/runtime/workload provenance.
 - [ ] Add used-Mac warranty/AppleCare and seller return-policy evidence where sources expose them.
 - [ ] Expand Android phone/tablet coverage based on RAM, runtime support and used-market value.
 
@@ -116,6 +128,7 @@
 - [x] Allow board-partner GPU MPNs to discover official manufacturer pages automatically when the manufacturer registry can verify them.
 - [x] Prefer structured GPU properties/spec tables/manual fields over flattened manufacturer-page prose for dimensions, connectors and PSU requirements.
 - [x] Extract explicit GPU board partner, PCB/board revision and VBIOS identity from listing/spec text and structured source fields when present.
+- [x] Seed board-only measured power for MSI RTX 3090 Gaming X Trio while preserving accelerator-board scope.
 - [ ] Expand NVIDIA coverage to other 12GB/16GB/24GB/32GB cards when live pricing justifies catalog inclusion.
 - [ ] Expand AMD coverage to additional maintained ROCm/Vulkan cards with useful VRAM-per-dollar.
 - [ ] Expand Intel Arc coverage as current/used pricing changes.
@@ -136,6 +149,7 @@
 - [x] Preserve boot-readiness as a firmware/installability signal rather than a performance metric.
 - [x] Feed explicit SSD controller/NAND/interface, RAM topology, GPU board/VBIOS/host context and mobile SKU/SoC identity into adaptive power matching.
 - [x] Allow verified structured manufacturer identity facts to narrow adaptive power identities without replacing stronger direct measurements.
+- [x] Add `docs/EVIDENCE_HARVESTING.md` with measurement-boundary and per-category harvesting rules.
 - [ ] Add confidence-aware performance ranges only when multiple independent compatible real sources justify them.
 - [ ] Add model-family presets beyond the default transparent Q4 decision-capacity screen.
 - [ ] Benchmark the ThinkPad L14 as an optional local reference/calibration node.
