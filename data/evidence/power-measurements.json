@@ -30,6 +30,141 @@
       "notes": "Exact reviewed configuration: MacBook Pro 16 2021, M1 Max 32-core GPU, 64GB unified memory, 2TB SSD. Idle value is the review's average idle measurement; load is the review's average load measurement."
     },
     {
+      "id": "notebookcheck-mac-mini-m4-10gpu-16gb-256gb",
+      "part_id": "apple-mac-mini-m4-pro",
+      "source_type": "community_measured",
+      "source_url": "https://www.notebookcheck.net/Apple-Mac-Mini-M4-review-Smaller-faster-and-louder.918832.0.html",
+      "power_scope": "complete_node_input",
+      "measurement_method": "Metrahit Energy whole-system AC input measurement",
+      "workload": "Notebookcheck load-average power test",
+      "identity": {
+        "model": "apple m4",
+        "category": "apple silicon system",
+        "memory_gb": 16,
+        "storage_gb": 256,
+        "apple_soc": "apple m4",
+        "apple_gpu_cores": 10,
+        "device_model": "apple mac mini m4"
+      },
+      "idle_w": 2.65,
+      "load_w": 31.5,
+      "max_w": 62.5,
+      "notes": "Exact reviewed base Mac mini configuration: M4 10-core CPU/10-core GPU, 16GB unified memory, 256GB Apple SSD AP0256Z. Idle is the midpoint of the measured 2.6-2.7W idle range; load average is 31.5W and load maximum is 62.5W."
+    },
+    {
+      "id": "notebookcheck-mac-mini-m4pro-16gpu-64gb-2tb",
+      "part_id": "apple-mac-mini-m4-pro",
+      "source_type": "community_measured",
+      "source_url": "https://www.notebookcheck.net/Apple-Mac-Mini-M4-Pro-review-The-compact-and-frugal-desktop-PC-with-top-performance-and-expensive-upgrades.946883.0.html",
+      "power_scope": "complete_node_input",
+      "measurement_method": "Metrahit Energy whole-system AC input measurement",
+      "workload": "Notebookcheck load-average power test",
+      "identity": {
+        "model": "apple m4 pro",
+        "category": "apple silicon system",
+        "memory_gb": 64,
+        "storage_gb": 2048,
+        "apple_soc": "apple m4 pro",
+        "apple_gpu_cores": 16,
+        "device_model": "apple mac mini m4 pro"
+      },
+      "idle_w": 2.59,
+      "load_w": 31.4,
+      "max_w": 70.1,
+      "notes": "Exact reviewed Mac mini M4 Pro configuration: 12-core CPU, 16-core GPU, 64GB unified memory and 2TB SSD."
+    },
+    {
+      "id": "notebookcheck-mbp16-2024-m4max-40gpu-48gb-1tb",
+      "part_id": "apple-macbook-pro-m3-m4",
+      "source_type": "community_measured",
+      "source_url": "https://www.notebookcheck.net/Apple-MacBook-Pro-16-M4-Max-review-The-M4-Max-is-one-of-the-fastest-mobile-processors.929593.0.html",
+      "power_scope": "complete_node_input",
+      "measurement_method": "Metrahit Energy wall-input measurement",
+      "workload": "Notebookcheck load-average power test",
+      "identity": {
+        "model": "apple m4 max",
+        "category": "apple silicon system",
+        "memory_gb": 48,
+        "storage_gb": 1024,
+        "apple_soc": "apple m4 max",
+        "apple_gpu_cores": 40,
+        "screen_inches": 16.2,
+        "device_model": "apple macbook pro 16 m4 max"
+      },
+      "idle_w": 15.5,
+      "load_w": 125.0,
+      "max_w": 143.7,
+      "notes": "Exact reviewed 16-inch 2024 MacBook Pro: full 16-core M4 Max, 40-core GPU, 48GB unified memory and 1TB Apple SSD AP1024Z."
+    },
+    {
+      "id": "notebookcheck-minisforum-um780-xtx-7840hs-32gb-1tb",
+      "source_type": "community_measured",
+      "source_url": "https://www.notebookcheck.net/Minisforum-EliteMini-UM780-XTX-review-The-mini-PC-with-an-AMD-Ryzen-7-7840HS-and-a-Radeon-780M-has-been-given-OCuLink-and-USB-4-connections.775606.0.html",
+      "power_scope": "complete_node_input",
+      "measurement_method": "Metrahit Energy whole-system AC input measurement",
+      "workload": "Notebookcheck load-average power test",
+      "identity": {
+        "model": "minisforum elitemini um780 xtx",
+        "category": "mini pc",
+        "device_model": "minisforum elitemini um780 xtx",
+        "device_sku": "um780 xtx",
+        "memory_gb": 32,
+        "storage_gb": 1024,
+        "host_cpu": "amd ryzen 7 7840hs",
+        "ram_topology": {
+          "total_gb": 32,
+          "module_count": 2,
+          "memory_type": "DDR5"
+        }
+      },
+      "idle_w": 10.5,
+      "load_w": 67.2,
+      "max_w": 97.2,
+      "notes": "Exact review sample used Ryzen 7 7840HS, Radeon 780M, 32GB DDR5-5600 in both SO-DIMM slots and a 1TB Kingston OM8PGP41024Q-A0 NVMe SSD."
+    },
+    {
+      "id": "notebookcheck-pixel10-pro-xl-tensor-g5-16gb-256gb",
+      "part_id": "mobile-google-pixel-10-pro-16g",
+      "source_type": "community_measured",
+      "source_url": "https://www.notebookcheck.net/Google-Pixel-10-Pro-XL-Smartphone-Review-Gorgeous-flagship-that-offers-a-great-Android-experience-with-one-Achilles-heel.1100253.0.html",
+      "power_scope": "measured_device_input",
+      "measurement_method": "Notebookcheck Metrahit Energy device power measurement",
+      "workload": "Notebookcheck load-average power test",
+      "identity": {
+        "model": "google pixel 10 pro xl",
+        "category": "mobile phone",
+        "device_model": "google pixel 10 pro xl",
+        "memory_gb": 16,
+        "storage_gb": 256,
+        "mobile_soc": "google tensor g5"
+      },
+      "idle_w": 1.34,
+      "load_w": 4.38,
+      "max_w": 16.3,
+      "notes": "Exact review sample: Pixel 10 Pro XL, Tensor G5, 16GB RAM and 256GB UFS 4.0 storage. Load average and maximum are preserved separately because mobile thermal control makes peak and sustained behavior diverge."
+    },
+    {
+      "id": "notebookcheck-galaxy-s26-ultra-12gb-256gb",
+      "part_id": "mobile-samsung-galaxy-s26-ultra-16g",
+      "source_type": "community_measured",
+      "source_url": "https://www.notebookcheck.net/Blocks-prying-eyes-Samsung-Galaxy-S26-Ultra-review.1278349.0.html",
+      "power_scope": "measured_device_input",
+      "measurement_method": "Notebookcheck Metrahit Energy device power measurement",
+      "workload": "Notebookcheck load-average power test",
+      "identity": {
+        "model": "samsung galaxy s26 ultra",
+        "category": "mobile phone",
+        "device_model": "samsung galaxy s26 ultra",
+        "memory_gb": 12,
+        "storage_gb": 256,
+        "mobile_soc": "qualcomm snapdragon 8 elite gen 5 for galaxy"
+      },
+      "idle_w": 1.18,
+      "load_w": 14.91,
+      "max_w": 16.58,
+      "notes": "Exact review sample: Galaxy S26 Ultra with Snapdragon 8 Elite Gen 5 for Galaxy, 12GB RAM and 256GB UFS 4.0 storage."
+    },
+    {
       "id": "techpowerup-msi-rtx3090-gaming-x-trio-gaming",
       "source_type": "community_measured",
       "source_url": "https://www.techpowerup.com/review/msi-geforce-rtx-3090-gaming-x-trio/29.html",
