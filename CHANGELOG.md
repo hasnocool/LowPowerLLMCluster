@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented here.
 
+## [0.5.0] - 2026-08-10
+
+### Added
+
+- Asynchronous product-discovery adapter contract plus deterministic JSON feed importer.
+- Normalized listing model and concurrent multi-source discovery with source/listing deduplication.
+- Append-only price observation history linked back to catalog part IDs.
+- Exact-SKU/configuration confidence scoring that does not confuse CPU theoretical RAM limits with installed RAM.
+- Evidence-backed CAD conversion input and explicit Canadian landed-cost breakdown for item, shipping, duty, brokerage and tax.
+- Sourced vendor/community performance ingestion requiring model, runtime, workload, metric, unit and source URL provenance.
+- `llm-cluster-market` CLI with `discover`, `history`, `landed`, and `ingest-performance` workflows.
+- `specs/MARKET_INTELLIGENCE.md` and tests for matching, history deduplication, landed-cost math and evidence ingestion.
+
+### Changed
+
+- Market I/O boundaries are async-first; blocking file/SDK work is isolated from the event loop.
+- v0.5 keeps the catalog authoritative while listings, prices and benchmark records remain time-stamped evidence layers.
+
 ## [0.4.1] - 2026-08-10
 
 ### Changed
@@ -53,43 +71,17 @@ All notable changes to this project will be documented here.
 - Reusable `accelerator-research` agent skill.
 - Accelerator metadata for family, host mode, software stack, LLM support, lifecycle, precision formats, power scope and workload role.
 - Catalog schema v3 support for unresolved/EOL pricing without fake zero-dollar values.
-- Modular catalog manifest plus category-sized JSON fragments to reduce merge conflicts as the hardware universe grows.
-
-### Changed
-
-- Screening and BOM code now handles unresolved prices safely.
-- LLM screening explicitly excludes TOPS/TFLOPS from the heuristic.
-- Fixed-function vision accelerators are cataloged as specialists rather than mislabeled LLM workers.
-- Project charter and guardrails now cover accelerator power boundaries, runtime evidence and lifecycle risk.
 
 ## [0.2.0] - 2026-08-10
 
 ### Added
 
-- Expanded project scope from Ryzen laptop-class nodes to heterogeneous mini PCs, development boards, SBCs, embedded boards and specialty compute.
-- AMD BC-250 experimental candidate with explicit community-evidence and risk labels.
-- NVIDIA Jetson Orin Nano Super, Orange Pi 5 Plus 32GB, Radxa ROCK 5 ITX+ 32GB, MINISFORUM BD795M, Framework Ryzen AI mainboard and Intel N100 control-plane references.
-- Project charter and mechanical guardrails.
-- Hardware catalog, benchmark, scoring and agent-workflow specifications.
-- Five reusable agent skills for hardware research, catalog curation, benchmarking, architecture review and release governance.
-- PR and hardware-candidate templates.
-- Mechanical version/document governance check in CI.
-
-### Changed
-
-- Screening score now supports heterogeneous hardware and explicitly avoids CPU-core-based cross-architecture performance claims.
-- Parts table now supports Alibaba, AliExpress and manufacturer/reference sources instead of labelling every URL as Alibaba.
+- Heterogeneous hardware catalog covering mini PCs, dev boards, embedded boards, SBCs and specialty/decommissioned hardware.
+- Initial low-power cluster scoring, BOM and catalog CLI.
+- Project governance, agent skills, catalog schemas and deterministic generated parts table.
 
 ## [0.1.0] - 2026-08-10
 
 ### Added
 
-- Initial low-power distributed LLM cluster architecture.
-- Alibaba hardware-market snapshot with prices, URLs, seller verification state and plain-language rationale.
-- Ryzen 7 7735U, Ryzen 7 8845HS, Ryzen 7 8745HS and Ryzen AI 9 HX 370 node candidates.
-- 2.5GbE switch, DDR5 SO-DIMM and NVMe sourcing leads.
-- ASCII architecture, power, networking and model-placement diagrams.
-- Machine-readable `data/parts.json` catalog.
-- CLI node-ranking and BOM calculations.
-- Catalog validation, stale-price checks and generated PARTS.md workflow.
-- GitHub Actions validation workflow.
+- Initial LowPowerLLMCluster project structure and catalog concept.
