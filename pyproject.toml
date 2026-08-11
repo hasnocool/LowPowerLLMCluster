@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [{name = "LowPowerLLMCluster contributors"}]
-dependencies = ["httpx>=0.28,<1"]
+dependencies = ["httpx>=0.28,<1", "pypdf>=5,<7"]
 
 [project.scripts]
 llm-cluster = "lowpower_llm_cluster.cli:main"
