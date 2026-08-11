@@ -67,6 +67,18 @@ All notable changes to this project will be documented here.
 - Bounded manufacturer-PDF text extraction through `pypdf` without OCR, with PDF URLs and source class retained in field-level provenance.
 - Structured evidence priority that lets exact curated fields win, then structured page/manual evidence fill unresolved fields, with flattened-page regexes used only as the final fallback.
 - `docs/STRUCTURED_MANUFACTURER_INGESTION.md` plus deterministic fixtures covering JSON-LD properties, spec tables, BIOS support matrices, PDF-link filtering and provenance.
+- Pair-level CPU + motherboard BIOS compatibility using retained manufacturer support rows, minimum-BIOS requirements, explicit unsupported rejection and conservative incomplete-matrix handling.
+- First-class `apple_silicon_system`, `mobile_phone`, `tablet` and `media_device` categories.
+- Apple low-power catalog coverage from M1 through current M5/M5 Pro/M5 Max Macs, plus iPad Pro/Air, iPhone and Apple TV references.
+- Current Android mobile references for Pixel 10 Pro/Pro XL and Galaxy S26 Ultra configurations.
+- Mobile runtime policy separating general-purpose macOS Apple-silicon nodes from sandboxed phone/tablet/media endpoints.
+- Conservative mobile/unified-memory capacity reservations that do not infer tokens/sec or throughput from SoC specifications.
+- Daily and weekly Apple/mobile market-discovery queries alongside existing GPU, mini-PC and accelerator searches.
+- Official manufacturer support-endpoint discovery for likely CPU-support, BIOS/UEFI/firmware and download pages while remaining restricted to the verified manufacturer host.
+- BIOS Flashback / CPU-less firmware-update detection with explicit evidence requirements for high-confidence CPU-less recovery claims.
+- Build-level boot-readiness scoring that combines pair-level CPU/BIOS support, minimum BIOS requirements and recovery/Flashback evidence without becoming a performance metric.
+- `docs/APPLE_MOBILE_NODES.md` and `docs/FIRMWARE_BOOT_READINESS.md` methodology/guardrail guides.
+- Dedicated mobile/firmware governance checks plus deterministic tests for runtime constraints, endpoint discovery, Flashback evidence and boot-readiness scoring.
 - `llm-cluster-refresh manufacturer-config` and `manufacturer-associations` inspection commands.
 - Persisted `data/market/spec-evidence.json`, `data/market/manufacturer-associations.json` and `data/market/compatible-builds.json` evidence/build state.
 - `llm-cluster-refresh spec-config`, `spec-evidence`, `refresh-bom`, and `compatible-builds` operator workflows.
@@ -100,6 +112,10 @@ All notable changes to this project will be documented here.
 - Automatic manufacturer discovery never broadens authority beyond the configured official manufacturer domains.
 - Structured manufacturer evidence is consumed before generic flattened-page regexes; weaker sources can fill missing fields but do not overwrite stronger verified values.
 - Complete-build ranking prefers fully compatible builds, then better manufacturer-spec coverage, before relying on provisional unknowns.
+- Mobile devices with unknown published RAM may remain runtime/catalog candidates only with `memory_config_status=unknown`; model-fit capacity remains unresolved instead of guessed.
+- macOS Apple-silicon machines are treated as complete general-purpose nodes, while iOS/iPadOS/tvOS/Android devices retain mobile sandbox/service/thermal constraints.
+- Battery capacity, adapter wattage and charging rate remain separate from measured complete-node inference power.
+- Complete-build compatibility now exposes `boot_readiness` separately from performance, price and raw CPU/BIOS support state.
 
 ## [0.4.1] - 2026-08-10
 
