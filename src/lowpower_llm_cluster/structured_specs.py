@@ -10,6 +10,7 @@ from urllib.parse import urljoin, urlparse
 import httpx
 
 from .firmware_readiness import detect_bios_flashback, discover_support_endpoints
+from .manufacturer_support import ingest_ranked_support_endpoints
 
 
 def _norm(value: Any) -> str:
@@ -353,7 +354,9 @@ async def ingest_structured_manufacturer_document(
         "pdf_urls": [],
         "cpu_support_matrix": [],
         "cpu_support_matrix_complete": False,
+        "cpu_support_matrix_completeness_proof": None,
         "support_endpoints": [],
+        "support_api": {"complete": False, "completeness_proof": None, "selected_endpoint": None, "provider": None, "attempts": []},
         "bios_flashback": {"status": "unknown", "feature_name": None, "cpu_less_update_explicit": None, "confidence": "unknown"},
     }
     confidence = "exact" if identity_score and identity_score >= 0.9 else "high"
@@ -382,8 +385,8 @@ async def ingest_structured_manufacturer_document(
     })
     stats["table_fields"] = len(table_facts)
 
+    source_host = (urlparse(source_url).hostname or "").casefold()
     if component == "motherboard":
-        source_host = (urlparse(source_url).hostname or "").casefold()
         if source_host:
             stats["support_endpoints"] = discover_support_endpoints(html, source_url, {source_host})
         stats["bios_flashback"] = detect_bios_flashback(html)
@@ -400,7 +403,6 @@ async def ingest_structured_manufacturer_document(
                 "confidence": confidence,
             })
         stats["cpu_support_matrix"] = support_rows
-        stats["cpu_support_matrix_complete"] = False
         support = extract_cpu_support_matrix(parser.tables, target_cpu=target_cpu)
         _merge(facts, evidence, support, {
             "source_url": source_url,
@@ -413,9 +415,28 @@ async def ingest_structured_manufacturer_document(
         })
         stats["support_fields"] = len(support)
 
+        if client is not None and source_host and stats["support_endpoints"]:
+            api_result = await ingest_ranked_support_endpoints(
+                stats["support_endpoints"],
+                client=client,
+                official_host=source_host,
+            )
+            stats["support_api"] = {key: value for key, value in api_result.items() if key != "matrix"}
+            api_rows = list(api_result.get("matrix") or [])
+            for row in api_rows:
+                row.update({
+                    "observed_at": observed_at,
+                    "association_id": association_id,
+                    "identity_score": identity_score,
+                    "confidence": confidence,
+                })
+            if api_rows and (api_result.get("complete") or len(api_rows) > len(stats["cpu_support_matrix"])):
+                stats["cpu_support_matrix"] = api_rows
+                stats["cpu_support_matrix_complete"] = bool(api_result.get("complete"))
+                stats["cpu_support_matrix_completeness_proof"] = api_result.get("completeness_proof")
+
     if client is not None:
         links = find_document_links(parser, source_url)[:3]
-        source_host = (urlparse(source_url).hostname or "").casefold()
         allowed = (allowed_host or source_host).casefold()
         for pdf_url in links:
             host = (urlparse(pdf_url).hostname or "").casefold()
