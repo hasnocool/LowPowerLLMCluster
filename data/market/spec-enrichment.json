@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "timeout_seconds": 20,
+  "policy": {
+    "manufacturer_https_only": true,
+    "unknown_fields_remain_unknown": true,
+    "field_level_provenance_required": true,
+    "configured_constants_require_verified_page_identity": true
+  },
+  "associations": [
+    {
+      "id": "msi-b550-a-pro",
+      "component": "motherboard",
+      "manufacturer": "MSI",
+      "match_terms": ["MSI B550-A PRO", "B550-A PRO"],
+      "verify_terms_any": ["B550-A PRO", "AMD B550 Chipset"],
+      "source_url": "https://www.msi.com/Motherboard/B550-A-PRO/Specification",
+      "fields": {
+        "socket": {"constant": "AM4"},
+        "memory_type": {"constant": "DDR4"},
+        "gpu_slot": {"constant": "PCIe x16"},
+        "gpu_slot_lanes": {"constant": 16},
+        "pcie_generation": {"constant": 4},
+        "form_factors": {"constant": ["ATX"]},
+        "supports_nvme_m2": {"constant": true},
+        "m2_slots": {"constant": 2},
+        "secondary_x16_lanes": {"constant": 4},
+        "lane_sharing_note": {"constant": "PCI_E3 is unavailable when a PCIe SSD is installed in M2_2."}
+      }
+    },
+    {
+      "id": "msi-pro-b660m-a-ddr4",
+      "component": "motherboard",
+      "manufacturer": "MSI",
+      "match_terms": ["MSI PRO B660M-A DDR4", "PRO B660M-A DDR4"],
+      "verify_terms_any": ["PRO B660M-A DDR4", "B660 Chipset"],
+      "source_url": "https://www.msi.com/Motherboard/PRO-B660M-A-DDR4/Specification",
+      "fields": {
+        "socket": {"constant": "LGA1700"},
+        "memory_type": {"constant": "DDR4"},
+        "gpu_slot": {"constant": "PCIe x16"},
+        "gpu_slot_lanes": {"constant": 16},
+        "pcie_generation": {"constant": 4},
+        "form_factors": {"constant": ["mATX"]},
+        "supports_nvme_m2": {"constant": true},
+        "m2_slots": {"constant": 2},
+        "secondary_x16_lanes": {"constant": 4}
+      }
+    },
+    {
+      "id": "corsair-rm750e-cp-9020295-na",
+      "component": "psu_750w",
+      "manufacturer": "Corsair",
+      "exact_skus": ["CP-9020295-NA"],
+      "match_terms": ["RM750e", "RMe Series RM750e"],
+      "verify_terms_any": ["RM750e", "CP-9020295-NA"],
+      "source_url": "https://www.corsair.com/us/en/p/psu/CP-9020295-NA/rme-series-rm750e-fully-modular-low-noise-atx-power-supply-cp-9020295-na",
+      "fields": {
+        "wattage_w": {"constant": 750},
+        "form_factor": {"constant": "ATX"},
+        "gpu_power_connectors": {"constant": ["12V-2x6", "8-pin"]},
+        "atx_standard": {"constant": "ATX 3.1"},
+        "pcie_power_standard": {"constant": "PCIe 5.1"},
+        "native_12v2x6_w": {"constant": 600}
+      }
+    },
+    {
+      "id": "corsair-4000d-airflow-black",
+      "component": "chassis",
+      "manufacturer": "Corsair",
+      "exact_skus": ["CC-9011200-WW"],
+      "match_terms": ["4000D Airflow", "CC-9011200-WW"],
+      "verify_terms_any": ["4000D AIRFLOW", "Maximum CPU Cooler Height"],
+      "source_url": "https://www.corsair.com/us/en/p/pc-case/cc-9011200-ww/4000d-airflow-tempered-glass-mid-tower-atx-case-cc-9011200-ww",
+      "fields": {
+        "motherboard_form_factors": {"constant": ["Mini-ITX", "mATX", "ATX", "E-ATX"]},
+        "max_gpu_length_mm": {"constant": 360},
+        "max_cpu_cooler_height_mm": {"constant": 170},
+        "max_psu_length_mm": {"constant": 220},
+        "max_gpu_slots": {"constant": 7},
+        "vertical_gpu_mount_supported": {"constant": true}
+      }
+    },
+    {
+      "id": "intel-core-i5-12400",
+      "component": "cpu_host",
+      "manufacturer": "Intel",
+      "match_terms": ["Core i5-12400", "i5-12400", "i5 12400"],
+      "verify_terms_any": ["i5-12400", "LGA1700"],
+      "source_url": "https://www.intel.com/content/www/us/en/products/sku/134586/intel-core-i512400-processor-18m-cache-up-to-4-40-ghz/specifications.html",
+      "fields": {
+        "socket": {"constant": "LGA1700"},
+        "memory_types": {"constant": ["DDR4", "DDR5"]},
+        "pcie_generation": {"constant": 5},
+        "tdp_w": {"constant": 65}
+      }
+    }
+  ]
+}
