@@ -65,9 +65,12 @@ def gpu_requirements(part: dict[str, Any]) -> dict[str, Any]:
     requirements.setdefault("pcie_slot", "x16")
     lane_match = re.search(r"pcie\s*[0-9.]*\s*x(\d+)", text, re.IGNORECASE)
     if lane_match: requirements.setdefault("minimum_pcie_lanes", int(lane_match.group(1)))
-    psu_match = re.search(r"(\d{3,4})\s*w(?:\s+(?:required|recommended|system))?", text, re.IGNORECASE)
-    if psu_match: requirements.setdefault("minimum_psu_w", int(psu_match.group(1)))
-    requirements.setdefault("minimum_psu_w", part.get("recommended_psu_w"))
+    watt_values = [int(value) for value in re.findall(r"(\d{3,4})\s*w", text, re.IGNORECASE)]
+    explicit_psu = part.get("recommended_psu_w")
+    if explicit_psu is not None:
+        requirements.setdefault("minimum_psu_w", explicit_psu)
+    elif watt_values:
+        requirements.setdefault("minimum_psu_w", max(watt_values))
     requirements.setdefault("gpu_length_mm", part.get("length_mm"))
     requirements.setdefault("gpu_slots", part.get("slot_width"))
     connectors = part.get("power_connectors")
@@ -109,7 +112,7 @@ def evaluate_build_compatibility(build: dict[str, dict[str, Any]], gpu_part: dic
     if board_forms and chassis_forms and not (board_forms & chassis_forms): failures.append(f"motherboard_form_factor: {sorted(board_forms)} not supported by {sorted(chassis_forms)}")
     elif not board_forms or not chassis_forms: unknowns.append("motherboard_form_factor")
 
-    if storage.get("interface") == "NVMe" and not board.get("supports_nvme_m2", True): failures.append("storage_interface: motherboard lacks NVMe M.2 support")
+    if storage.get("interface") == "NVMe" and board.get("supports_nvme_m2") is False: failures.append("storage_interface: motherboard lacks NVMe M.2 support")
     elif storage.get("interface") == "NVMe" and "supports_nvme_m2" not in board: unknowns.append("nvme_m2_support")
 
     if gpu_part:
