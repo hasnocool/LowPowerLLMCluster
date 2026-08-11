@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .catalog import project_root
+from .firmware_readiness import boot_readiness_score
 
 
 def _load(path: Path, default: Any) -> Any:
@@ -88,7 +89,6 @@ def gpu_requirements(part: dict[str, Any], exact_facts: dict[str, Any] | None = 
     if connectors:
         requirements.setdefault("power_connectors", connectors)
     if exact_facts:
-        # Exact-SKU/board facts are allowed to supersede family/reference defaults.
         for key in ("pcie_slot", "minimum_pcie_lanes", "minimum_pcie_generation", "minimum_psu_w", "gpu_length_mm", "gpu_slots", "power_connectors", "requires_resizable_bar"):
             if exact_facts.get(key) is not None:
                 requirements[key] = exact_facts[key]
@@ -225,6 +225,9 @@ def evaluate_build_compatibility(build: dict[str, dict[str, Any]], gpu_part: dic
     _check_equal("cpu_socket", cpu.get("socket"), board.get("socket"), failures, unknowns)
 
     cpu_bios = evaluate_cpu_bios_pair(cpu_row, board_row)
+    board_structured = ((board_row.get("spec_enrichment") or {}).get("structured_document") or {})
+    flashback = board_structured.get("bios_flashback") or {}
+    boot_readiness = boot_readiness_score(cpu_bios, flashback)
     if cpu_bios["status"] == "unsupported":
         failures.append(f"cpu_bios_support: {cpu_bios['reason']}")
     elif cpu_bios["status"] == "unresolved":
@@ -233,6 +236,9 @@ def evaluate_build_compatibility(build: dict[str, dict[str, Any]], gpu_part: dic
         minimum_bios = cpu_bios.get("minimum_bios_version")
         if minimum_bios:
             warnings.append(f"cpu_bios: selected CPU requires motherboard BIOS >= {minimum_bios}; shipped BIOS version is unknown")
+    for warning in boot_readiness.get("warnings") or []:
+        if warning not in warnings and not (str(warning).startswith("CPU requires BIOS") and any("cpu_bios:" in item for item in warnings)):
+            warnings.append(str(warning))
 
     cpu_memory = set(str(v).upper() for v in cpu.get("memory_types", []))
     board_memory = str(board.get("memory_type") or "").upper() or None
@@ -332,6 +338,7 @@ def evaluate_build_compatibility(build: dict[str, dict[str, Any]], gpu_part: dic
         "warnings": warnings,
         "unknowns": sorted(set(unknowns)),
         "cpu_bios": cpu_bios,
+        "boot_readiness": boot_readiness,
         "gpu_requirement_basis": "exact_sku_manufacturer_spec" if gpu_facts else "catalog_reference",
     }
 
