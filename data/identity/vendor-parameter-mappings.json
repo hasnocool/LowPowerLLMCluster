@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "policy": {
+    "values_must_come_from_source": true,
+    "aliases_do_not_imply_values": true,
+    "notes": "This registry only maps explicit structured parameter labels to normalized identity fields. It must never invent controller, NAND, revision, VBIOS, topology, SoC, or host values."
+  },
+  "generic": {
+    "ssd_controller": ["SSD Controller", "NVMe Controller", "Controller IC", "Storage Controller"],
+    "nand_type": ["NAND Type", "NAND Flash Type", "Flash Type", "Flash Memory Type"],
+    "storage_interface": ["Storage Interface", "Drive Interface", "Bus Type"],
+    "gpu_board_revision": ["PCB Revision", "Board Revision", "Hardware Revision"],
+    "vbios_version": ["VBIOS Version", "Video BIOS Version", "Graphics BIOS Version"],
+    "board_partner": ["Board Partner", "Graphics Manufacturer", "GPU Manufacturer"],
+    "ram_configuration": ["Memory Configuration", "Module Configuration", "DIMM Configuration", "Memory Kit Configuration"],
+    "ram_module_count": ["Number of Modules", "Module Count", "DIMM Count"],
+    "ram_module_capacity": ["Capacity per Module", "Module Capacity"],
+    "ram_channels": ["Memory Channels", "Channel Configuration"],
+    "memory_type": ["Memory Type", "DRAM Type", "RAM Type"],
+    "device_sku": ["Device SKU", "Model Number", "Device Model", "Part Number"],
+    "soc": ["SoC", "SoC Model", "System on Chip"],
+    "soc_variant": ["SoC Variant", "Chip Variant", "Processor Variant"],
+    "host_cpu": ["Host CPU", "Test CPU"],
+    "host_motherboard": ["Host Motherboard", "Test Motherboard"],
+    "host_psu": ["Host PSU", "Test PSU", "Power Supply Model"],
+    "host_ram_gb": ["Host RAM", "System Memory"]
+  },
+  "vendors": {
+    "Samsung": {
+      "nand_type": ["V-NAND", "NAND Flash"],
+      "ssd_controller": ["Controller", "Controller Type"]
+    },
+    "Kingston": {
+      "nand_type": ["NAND", "NAND Type"],
+      "ssd_controller": ["Controller"]
+    },
+    "Crucial": {
+      "nand_type": ["NAND", "NAND Flash"],
+      "ssd_controller": ["Controller"]
+    },
+    "Micron": {
+      "nand_type": ["NAND", "NAND Technology"],
+      "ssd_controller": ["Controller"]
+    },
+    "NVIDIA": {
+      "vbios_version": ["VBIOS", "Video BIOS"],
+      "gpu_board_revision": ["Board Revision", "PCB Revision"]
+    },
+    "ASUS": {
+      "vbios_version": ["VBIOS", "BIOS Version"],
+      "gpu_board_revision": ["PCB Revision", "Hardware Revision"]
+    },
+    "MSI": {
+      "vbios_version": ["VBIOS", "Video BIOS"],
+      "gpu_board_revision": ["PCB", "PCB Revision"]
+    },
+    "Gigabyte": {
+      "vbios_version": ["VBIOS", "BIOS Version"],
+      "gpu_board_revision": ["PCB Revision", "Revision"]
+    },
+    "Google": {
+      "device_sku": ["Model", "Model Number"],
+      "soc": ["Processor", "SoC"],
+      "soc_variant": ["Processor Variant", "SoC Variant"]
+    },
+    "Samsung Mobile": {
+      "device_sku": ["Model Code", "Model Number"],
+      "soc": ["Processor", "Chipset"],
+      "soc_variant": ["Processor Variant", "Chipset Variant"]
+    }
+  }
+}
