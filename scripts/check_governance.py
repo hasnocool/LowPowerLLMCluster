@@ -41,11 +41,12 @@ def main() -> int:
     required = [
         "README.md", "PARTS.md", "TODO.md", "CHANGELOG.md", "AGENTS.md",
         "docs/PROJECT_CHARTER.md", "docs/GUARDRAILS.md", "docs/ACCELERATORS.md",
-        "specs/HARDWARE_CATALOG.md", "specs/EVIDENCE.md", "specs/BENCHMARKING.md", "specs/SCORING.md",
+        "specs/HARDWARE_CATALOG.md", "specs/EVIDENCE.md", "specs/MARKET_INTELLIGENCE.md", "specs/BENCHMARKING.md", "specs/SCORING.md",
         "specs/hardware-catalog.schema.json", "specs/hardware-part.schema.json",
         "specs/benchmark.schema.json", "specs/benchmark-profile.schema.json",
         "specs/adapter-output.schema.json", "docs/BENCHMARK_HARNESS.md",
         "benchmarks/README.md", "results/README.md",
+        "data/market/price-history.json", "data/market/fx-cad.json", "data/evidence/performance.json",
         ".agents/skills/hardware-research/SKILL.md",
         ".agents/skills/catalog-curation/SKILL.md",
         ".agents/skills/benchmark-hardware/SKILL.md",
