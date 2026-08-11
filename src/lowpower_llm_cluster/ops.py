@@ -5,7 +5,6 @@ import asyncio
 import json
 import random
 import time
-from dataclasses import asdict
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, Awaitable, Callable
@@ -13,6 +12,7 @@ from typing import Any, Awaitable, Callable
 import httpx
 
 from .catalog import load_catalog, project_root
+from .intelligence import generate_change_intelligence, render_daily_change_report
 from .market import append_price_observations, discover_with_status, refresh_bank_of_canada_fx, update_listing_presence
 from .reports import build_report_rows, named_reports, render_report
 from .sources import DigiKeyAdapter, EbayBrowseAdapter, ManufacturerJsonLdAdapter, MouserAdapter
@@ -35,14 +35,7 @@ def _write(path: Path, value: Any) -> None:
     tmp.replace(path)
 
 
-async def with_retry(
-    operation: Callable[[], Awaitable[Any]],
-    *,
-    attempts: int = 4,
-    base_delay_s: float = 1.0,
-    max_delay_s: float = 30.0,
-) -> Any:
-    """Retry transient HTTP/network failures with exponential backoff and Retry-After support."""
+async def with_retry(operation: Callable[[], Awaitable[Any]], *, attempts: int = 4, base_delay_s: float = 1.0, max_delay_s: float = 30.0) -> Any:
     last: BaseException | None = None
     for attempt in range(attempts):
         try:
@@ -71,34 +64,67 @@ async def with_retry(
 
 
 class RetryingAdapter:
-    def __init__(self, adapter: Any, retry: dict[str, Any]) -> None:
+    def __init__(self, adapter: Any, retry: dict[str, Any], *, source_key: str, max_queries: int | None = None) -> None:
         self.adapter = adapter
         self.name = adapter.name
+        self.source_key = source_key
         self.enabled = bool(getattr(adapter, "enabled", True))
         self.retry = retry
+        self.max_queries = max_queries
 
     async def discover(self, queries: list[str]):
-        return await with_retry(
-            lambda: self.adapter.discover(queries),
-            attempts=int(self.retry.get("attempts", 4)),
-            base_delay_s=float(self.retry.get("base_delay_s", 1.0)),
-            max_delay_s=float(self.retry.get("max_delay_s", 30.0)),
-        )
+        selected = queries[: self.max_queries] if self.max_queries is not None else queries
+        return await with_retry(lambda: self.adapter.discover(selected), attempts=int(self.retry.get("attempts", 4)), base_delay_s=float(self.retry.get("base_delay_s", 1.0)), max_delay_s=float(self.retry.get("max_delay_s", 30.0)))
 
 
-def adapters_for_profile(profile: dict[str, Any], sources_config: dict[str, Any]) -> list[Any]:
+def _budget_state(path: Path | None = None) -> tuple[Path, dict[str, Any]]:
+    target = path or project_root() / "data" / "market" / "source-budgets.json"
+    today = datetime.now(UTC).date().isoformat()
+    payload = _load(target, {"schema_version": 1, "date": today, "sources": {}})
+    if payload.get("date") != today:
+        payload = {"schema_version": 1, "date": today, "sources": {}}
+    return target, payload
+
+
+def reserve_source_budget(source: str, requested: int, budget: dict[str, Any], *, path: Path | None = None) -> tuple[int, dict[str, Any]]:
+    target, payload = _budget_state(path)
+    state = payload["sources"].setdefault(source, {"estimated_requests": 0, "skipped": 0})
+    daily_limit = int(budget.get("daily_request_budget", 1000000))
+    per_run = int(budget.get("max_queries_per_run", requested))
+    remaining = max(0, daily_limit - int(state.get("estimated_requests", 0)))
+    allowed = min(requested, per_run, remaining)
+    state["estimated_requests"] = int(state.get("estimated_requests", 0)) + allowed
+    if allowed < requested:
+        state["skipped"] = int(state.get("skipped", 0)) + (requested - allowed)
+    state["last_reserved_at"] = _now()
+    _write(target, payload)
+    return allowed, {"requested": requested, "allowed": allowed, "daily_limit": daily_limit, "remaining_after": max(0, remaining - allowed)}
+
+
+def adapters_for_profile(profile: dict[str, Any], sources_config: dict[str, Any]) -> tuple[list[Any], dict[str, Any]]:
     adapters: list[Any] = []
+    budget_status: dict[str, Any] = {}
+    budgets = profile.get("source_budgets") or {}
+    queries = list(profile.get("queries", []))
     for source in profile.get("sources", []):
         if source == "manufacturer":
-            adapters.append(ManufacturerJsonLdAdapter(list(sources_config.get("manufacturer_jsonld_urls", []))))
+            adapter = ManufacturerJsonLdAdapter(list(sources_config.get("manufacturer_jsonld_urls", [])))
         elif source == "mouser":
-            adapters.append(MouserAdapter())
+            adapter = MouserAdapter()
         elif source == "digikey":
-            adapters.append(DigiKeyAdapter())
+            adapter = DigiKeyAdapter()
         elif source == "ebay":
-            adapters.append(EbayBrowseAdapter())
-    retry = profile.get("retry") or {}
-    return [RetryingAdapter(adapter, retry) for adapter in adapters]
+            adapter = EbayBrowseAdapter()
+        else:
+            continue
+        budget = budgets.get(source, {})
+        allowed, status = reserve_source_budget(source, len(queries), budget)
+        budget_status[source] = status
+        wrapped = RetryingAdapter(adapter, profile.get("retry") or {}, source_key=source, max_queries=allowed)
+        if allowed <= 0:
+            wrapped.enabled = False
+        adapters.append(wrapped)
+    return adapters, budget_status
 
 
 def record_source_health(statuses: list[dict[str, Any]], *, profile: str, elapsed_s: float, path: Path | None = None) -> None:
@@ -129,13 +155,10 @@ def stale_listings(*, stale_after_hours: float = 48.0, path: Path | None = None)
     cutoff = datetime.now(UTC) - timedelta(hours=stale_after_hours)
     rows: list[dict[str, Any]] = []
     for state in payload.get("states", {}).values():
-        if not state.get("active", True):
-            continue
-        last_seen = state.get("last_seen")
-        if not last_seen:
+        if not state.get("active", True) or not state.get("last_seen"):
             continue
         try:
-            seen = datetime.fromisoformat(str(last_seen).replace("Z", "+00:00"))
+            seen = datetime.fromisoformat(str(state["last_seen"]).replace("Z", "+00:00"))
         except ValueError:
             continue
         if seen < cutoff:
@@ -166,7 +189,7 @@ async def run_profile(name: str, *, profiles_path: Path | None = None, sources_p
         raise KeyError(f"unknown refresh profile: {name}")
     profile = profiles[name]
     sources = _load(sources_path, {})
-    adapters = adapters_for_profile(profile, sources)
+    adapters, budgets = adapters_for_profile(profile, sources)
     queries = list(profile.get("queries", []))
 
     started = time.monotonic()
@@ -186,7 +209,18 @@ async def run_profile(name: str, *, profiles_path: Path | None = None, sources_p
     if profile.get("generate_reports", False):
         report_counts = await asyncio.to_thread(write_current_reports, tax_rate=float(profile.get("tax_rate", 0.12)))
 
+    intelligence = await asyncio.to_thread(
+        generate_change_intelligence,
+        default_price_drop_pct=float(profile.get("price_drop_pct", 10.0)),
+        default_landed_change_pct=float(profile.get("landed_cost_change_pct", 8.0)),
+        default_benchmark_change_pct=float(profile.get("benchmark_change_pct", 10.0)),
+        tax_rate=float(profile.get("tax_rate", 0.12)),
+    )
+    daily_md = project_root() / "reports" / "current" / "daily-changes.md"
+    daily_md.parent.mkdir(parents=True, exist_ok=True)
+    daily_md.write_text(render_daily_change_report(intelligence), encoding="utf-8")
+
     stale = stale_listings(stale_after_hours=float(profile.get("stale_after_hours", 48)))
-    result = {"profile": name, "listings": len(listings), "statuses": statuses, "price_observations": prices, "presence": presence, "stale_count": len(stale), "fx": fx_result, "reports": report_counts}
+    result = {"profile": name, "listings": len(listings), "statuses": statuses, "source_budgets": budgets, "price_observations": prices, "presence": presence, "stale_count": len(stale), "fx": fx_result, "reports": report_counts, "change_alerts": intelligence.get("alert_count", 0)}
     _write(project_root() / "data" / "market" / "last-refresh.json", {"completed_at": _now(), **result})
     return result
