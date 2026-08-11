@@ -1,9 +1,10 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "currency": "CAD",
   "basis": "Planning defaults only. Replace these assumptions with sourced local component prices and electricity rates for purchase decisions.",
   "component_costs_cad": {
-    "host_platform": 300.0,
+    "cpu_host": 180.0,
+    "motherboard": 140.0,
     "host_ram_32gb": 100.0,
     "system_ram_32gb": 100.0,
     "storage_1tb": 80.0,
@@ -12,7 +13,8 @@
     "pcie_adapter": 40.0,
     "carrier_board": 150.0,
     "cooling": 60.0,
-    "chassis_misc": 80.0
+    "chassis": 100.0,
+    "chassis_misc": 30.0
   },
   "power_assumptions": {
     "host_idle_w": 35.0,
