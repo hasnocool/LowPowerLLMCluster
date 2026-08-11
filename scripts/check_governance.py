@@ -24,10 +24,18 @@ def main() -> int:
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     init = (ROOT / "src/lowpower_llm_cluster/__init__.py").read_text(encoding="utf-8")
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-    py_match = re.search(r'^version = "([^"]+)"', pyproject, re.MULTILINE); init_match = re.search(r'__version__ = "([^"]+)"', init); change_match = re.search(r'^## \[([^]]+)\]', changelog, re.MULTILINE)
-    found = {"VERSION": version, "pyproject.toml": py_match.group(1) if py_match else None, "package __version__": init_match.group(1) if init_match else None, "CHANGELOG latest": change_match.group(1) if change_match else None}
+    py_match = re.search(r'^version = "([^"]+)"', pyproject, re.MULTILINE)
+    init_match = re.search(r'__version__ = "([^"]+)"', init)
+    change_match = re.search(r'^## \[([^]]+)\]', changelog, re.MULTILINE)
+    found = {
+        "VERSION": version,
+        "pyproject.toml": py_match.group(1) if py_match else None,
+        "package __version__": init_match.group(1) if init_match else None,
+        "CHANGELOG latest": change_match.group(1) if change_match else None,
+    }
     for source, value in found.items():
-        if value != version: errors.append(f"{source} is {value!r}, expected {version!r}")
+        if value != version:
+            errors.append(f"{source} is {value!r}, expected {version!r}")
 
     required = [
         "README.md", "PARTS.md", "TODO.md", "CHANGELOG.md", "AGENTS.md",
@@ -38,35 +46,58 @@ def main() -> int:
         ".agents/skills/hardware-research/SKILL.md", ".agents/skills/catalog-curation/SKILL.md", ".agents/skills/benchmark-hardware/SKILL.md", ".agents/skills/architecture-review/SKILL.md", ".agents/skills/release-governance/SKILL.md", ".agents/skills/accelerator-research/SKILL.md",
     ]
     for rel in required:
-        if not (ROOT / rel).exists(): errors.append(f"required governance artifact missing: {rel}")
+        if not (ROOT / rel).exists():
+            errors.append(f"required governance artifact missing: {rel}")
 
     catalog = json.loads((ROOT / "data/parts.json").read_text(encoding="utf-8"))
-    if catalog.get("schema_version") != 3: errors.append("data/parts.json schema_version must be 3")
-    if "gpu_accelerator" not in set(catalog.get("candidate_categories", [])): errors.append("data/parts.json must keep gpu_accelerator as a first-class candidate category")
-    if "catalog/gpus.json" not in set(catalog.get("part_files", [])): errors.append("data/parts.json must include catalog/gpus.json")
+    if catalog.get("schema_version") != 3:
+        errors.append("data/parts.json schema_version must be 3")
+    if "gpu_accelerator" not in set(catalog.get("candidate_categories", [])):
+        errors.append("data/parts.json must keep gpu_accelerator as a first-class candidate category")
+    if "catalog/gpus.json" not in set(catalog.get("part_files", [])):
+        errors.append("data/parts.json must include catalog/gpus.json")
 
     source_config = json.loads((ROOT / "data/market/sources.json").read_text(encoding="utf-8"))
-    if source_config.get("schema_version") != 1: errors.append("data/market/sources.json schema_version must be 1")
-    if not source_config.get("gpu_reference_urls"): errors.append("data/market/sources.json must retain official GPU reference coverage")
+    if source_config.get("schema_version") != 1:
+        errors.append("data/market/sources.json schema_version must be 1")
+    if not source_config.get("gpu_reference_urls"):
+        errors.append("data/market/sources.json must retain official GPU reference coverage")
 
     profiles = json.loads((ROOT / "data/market/profiles.json").read_text(encoding="utf-8"))
-    if profiles.get("schema_version") != 1 or not profiles.get("profiles"): errors.append("data/market/profiles.json must define schema_version 1 and at least one profile")
+    if profiles.get("schema_version") != 1 or not profiles.get("profiles"):
+        errors.append("data/market/profiles.json must define schema_version 1 and at least one profile")
     profile_text = json.dumps(profiles).casefold()
     for required_gpu in ("rtx 5060 ti", "rtx 3090", "rx 9070", "arc b580"):
-        if required_gpu not in profile_text: errors.append(f"autonomous profiles lost GPU sourcing query: {required_gpu}")
+        if required_gpu not in profile_text:
+            errors.append(f"autonomous profiles lost GPU sourcing query: {required_gpu}")
     for profile_name, profile in profiles.get("profiles", {}).items():
-        if not profile.get("tco_scenario"): errors.append(f"refresh profile {profile_name} must select a TCO scenario")
+        if not profile.get("tco_scenario"):
+            errors.append(f"refresh profile {profile_name} must select a TCO scenario")
 
     tco = json.loads((ROOT / "data/market/tco-scenarios.json").read_text(encoding="utf-8"))
-    if tco.get("schema_version") != 1 or not tco.get("energy_scenarios"): errors.append("data/market/tco-scenarios.json must define schema_version 1 and energy scenarios")
+    if tco.get("schema_version") != 2 or not tco.get("energy_scenarios"):
+        errors.append("data/market/tco-scenarios.json must define schema_version 2 and energy scenarios")
+    component_costs = tco.get("component_costs_cad") or {}
+    for required_component in ("cpu_host", "motherboard", "host_ram_32gb", "storage_1tb", "psu_750w", "pcie_adapter", "cooling", "chassis"):
+        if required_component not in component_costs:
+            errors.append(f"TCO scenario lost required discrete-GPU BOM component: {required_component}")
+    tco_source = (ROOT / "src/lowpower_llm_cluster/tco.py").read_text(encoding="utf-8")
+    cli_source = (ROOT / "src/lowpower_llm_cluster/refresh_cli.py").read_text(encoding="utf-8")
+    if "def break_even_analysis" not in tco_source:
+        errors.append("TCO engine must retain break_even_analysis")
+    if '"break-even"' not in cli_source:
+        errors.append("refresh CLI must retain the break-even command")
 
     watchlists = json.loads((ROOT / "data/market/watchlists.json").read_text(encoding="utf-8"))
-    if watchlists.get("schema_version") != 1 or not isinstance(watchlists.get("watchlists"), list): errors.append("data/market/watchlists.json must define schema_version 1 and a watchlists array")
-    if "gpu-value" not in {str(row.get("id")) for row in watchlists.get("watchlists", [])}: errors.append("data/market/watchlists.json must retain the gpu-value watchlist")
+    if watchlists.get("schema_version") != 1 or not isinstance(watchlists.get("watchlists"), list):
+        errors.append("data/market/watchlists.json must define schema_version 1 and a watchlists array")
+    if "gpu-value" not in {str(row.get("id")) for row in watchlists.get("watchlists", [])}:
+        errors.append("data/market/watchlists.json must retain the gpu-value watchlist")
 
     source_text = (ROOT / "data/market/sources.json").read_text(encoding="utf-8")
     for forbidden in ("api_key", "client_secret", "access_token"):
-        if re.search(rf'"{forbidden}"\s*:\s*"[^\"]+"', source_text, re.IGNORECASE): errors.append(f"data/market/sources.json must not contain credential value {forbidden}")
+        if re.search(rf'"{forbidden}"\s*:\s*"[^\"]+"', source_text, re.IGNORECASE):
+            errors.append(f"data/market/sources.json must not contain credential value {forbidden}")
     return fail(errors)
 
 
