@@ -38,14 +38,30 @@ manufacturer pages     distributors       marketplaces
                             │
                             ▼
                  Canadian landed cost
-
-vendor/community benchmark evidence
-                │
-                ▼
- compatible model/runtime/workload groups
+                            │
+                            ▼
+                  current CAD reports
 ```
 
 The source-adapter interface is async-first and uses `httpx.AsyncClient` for live network access. Blocking filesystem work stays off the event loop.
+
+### Autonomous refresh
+
+Named refresh profiles live in `data/market/profiles.json`. They combine source coverage, queries, retry/backoff, staleness thresholds, FX refresh and report generation:
+
+```bash
+llm-cluster-refresh run daily-market
+llm-cluster-refresh run weekly-deep-scan
+llm-cluster-refresh health
+llm-cluster-refresh stale --hours 72
+llm-cluster-refresh reports
+```
+
+Transient HTTP/network failures are retried with exponential backoff and jitter; numeric `Retry-After` is honored for rate-limited sources. Permanent client errors are not retried blindly. Every run records source health/history, and a failed source cannot manufacture disappearance events.
+
+`.github/workflows/autonomous-refresh.yml` schedules daily and weekly refresh profiles and can also be triggered manually. Optional Mouser/DigiKey/eBay credentials come from repository secrets; public manufacturer discovery and Bank of Canada FX work without those credentials. Updated market evidence and `reports/current/` are committed only when data changes.
+
+Active listings that have not been reconfirmed within the profile threshold are surfaced as **stale warnings**. Stale does not mean sold, disappeared or invalid; history remains intact.
 
 ### Live sources
 
@@ -72,62 +88,21 @@ Missing credentials simply disable that source. A failed API request also cannot
 Examples:
 
 ```bash
-# Public manufacturer structured data
 llm-cluster-market discover --source manufacturer --query "Jetson Orin Nano"
-
-# Structured distributor sources when credentials are configured
 llm-cluster-market discover --source mouser --source digikey --query "RK3588"
-
-# Canadian eBay search for used / decommissioned hardware
 llm-cluster-market discover --source ebay --query "Alveo U50"
-
-# Deterministic feed/import path
 llm-cluster-market discover --feed listings.json --query "Ryzen 8845HS"
-
-# Refresh sourced CAD exchange rates and preserve history
 llm-cluster-market refresh-fx --currency USD --currency EUR
-
-# View price / SKU-confidence / seller-confidence history
 llm-cluster-market history special-amd-bc250-16g
-
-# Estimate a specific listing's landed cost using the sourced FX snapshot
 llm-cluster-market landed listing.json --tax-rate 0.12
-
-# Ingest and aggregate compatible performance evidence
 llm-cluster-market ingest-performance performance-records.json
 llm-cluster-market aggregate-performance special-amd-bc250-16g
+llm-cluster-market report under-250
 ```
 
 `data/market/listing-state.json` records `discovered`, `disappeared`, and `reappeared` events. Disappearance is only inferred after a successful poll of the **same source and query scope**, so changing the search query cannot make unrelated products appear to vanish.
 
 `llm-cluster-market refresh-fx` uses the Bank of Canada Valet API and stores both the current snapshot and append-only FX history. Landed cost keeps item, shipping, duty, brokerage and tax separate because actual Canadian customs treatment depends on the shipment, province, origin, courier and tariff classification.
-
-## The project in one picture
-
-```text
-                     PRODUCT DISCOVERY
-                           │
-       ┌───────────────────┼───────────────────┐
-       ▼                   ▼                   ▼
-    mini PCs            dev/SBCs          accelerators
- Ryzen / Intel        RK3588 / Jetson   NPU/TPU/ASIC/FPGA
-       │                   │                   │
-       └───────────────────┼───────────────────┘
-                           ▼
-                     PRODUCT CATALOG
-                           │
-          ┌────────────────┼────────────────┐
-          ▼                ▼                ▼
-       price/URL       model-fit screen   evidence
-       lifecycle       RAM/software       provenance
-          │                │                │
-          └────────────────┼────────────────┘
-                           ▼
-                    BUYING SHORTLIST
-                           │
-             optional real benchmarks
-             when hardware/data exists
-```
 
 ## Evidence, not pretend precision
 
@@ -145,6 +120,8 @@ unknown              completely acceptable
 The project **will not manufacture tokens/sec** from TOPS, TFLOPS, memory bandwidth, core count or TDP. v0.5 performance imports require the source URL, exact model/variant where known, runtime/backend, workload/phase, metric and unit.
 
 Compatible aggregation is deliberately strict: records with different model variants, quantization, runtime/version/backend, workload phase, units, context dimensions or hardware configuration are kept in separate groups instead of being averaged into a misleading number.
+
+The evidence store now includes exact-product Turing RK1 measurements plus exact Jetson Orin Nano Super community/vendor measurements. Jetson internal-rail energy measurements retain their published power scope and are not relabeled as complete-node tokens/joule.
 
 ## What can be estimated safely?
 
@@ -185,47 +162,25 @@ v0.5 applies the same rule to listing matching: CPU-theoretical RAM does not inc
 
 ```bash
 python -m pip install -e .
-
-# Buying/research shortlist — not a performance benchmark
 llm-cluster rank
-
-# Browse likely LLM-capable hardware under $250
 llm-cluster list --llm-only --max-price 250
-
-# Find 32GB+ candidates
 llm-cluster list --llm-only --min-memory 32 --sort price
-
-# Inspect one record and its evidence status
 llm-cluster show special-amd-bc250-16g
-
-# Conservative capacity screen for a 14B 4-bit model
 llm-cluster fit special-amd-bc250-16g --params-b 14 --bits 4
 ```
-
-## Hardware families
-
-The catalog intentionally spans different kinds of useful hardware:
-
-| Class | Examples | Why track it? |
-|---|---|---|
-| low-power x86 | Ryzen 7735U/8845HS, N100 | common Linux ecosystem, replaceable RAM on many models |
-| high-memory mobile boards | 8745HS/HX370/7945HX | dense CPU/APU compute with laptop-class efficiency |
-| unusual APU | AMD BC-250 | cheap unified GDDR6 and interesting Vulkan potential |
-| ARM/SBC | RK3588, Jetson Orin | very low power and compact always-on nodes |
-| GenAI accelerators | Hailo, SOPHGO, Tenstorrent | alternative transformer runtimes worth tracking |
-| FPGA/adaptive SoC | Kria, Versal, Alveo | research/custom datapaths and unusual memory systems |
-| specialist accelerators | Coral, MemryX, NCS2 | route vision/audio/classification away from LLM nodes |
 
 ## Repository map
 
 - `data/catalog/` — curated hardware catalog fragments.
 - `data/market/sources.json` — source configuration without secrets.
+- `data/market/profiles.json` — named autonomous polling profiles.
 - `data/market/price-history.json` — append-only listing/price observations.
 - `data/market/listing-state.json` — listing lifecycle events.
+- `data/market/source-health.json` — generated source health/history after autonomous runs.
 - `data/market/fx-cad.json` / `fx-history.json` — sourced CAD FX evidence.
 - `data/evidence/performance.json` — sourced performance evidence.
-- `specs/HARDWARE_CATALOG.md` — catalog contract.
-- `specs/EVIDENCE.md` — evidence and estimation guardrails.
+- `reports/current/` — automatically regenerated current-market reports.
+- `docs/AUTONOMOUS_REFRESH.md` — retry, health, stale and scheduling behavior.
 - `specs/MARKET_INTELLIGENCE.md` — discovery, pricing, Canadian cost and performance-ingestion contract.
 - `benchmarks/` — optional local measurement tooling.
 - `PARTS.md` — deterministic human-readable catalog view.
