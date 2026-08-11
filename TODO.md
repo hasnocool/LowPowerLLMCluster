@@ -69,6 +69,10 @@
 - [x] Preserve revision-scoped BIOS history when official manufacturer API payloads expose board/PCB revision metadata.
 - [x] Automatically extract seller-stated PCB revision and currently installed BIOS/UEFI as lower-confidence marketplace evidence.
 - [x] Automatically enrich listings with SSD controller/NAND/interface, GPU board/VBIOS, RAM topology, mobile SKU/SoC and accelerator host-context facts when explicitly present.
+- [x] Ingest the same narrow identity fields from structured JSON-LD additional properties, distributor parameter/spec arrays, marketplace aspects and manufacturer spec tables.
+- [x] Feed marketplace short descriptions through the lower-priority identity parser when the source API exposes them.
+- [x] Persist revision-scoped manufacturer BIOS API history in motherboard structured evidence.
+- [x] Correlate seller-stated PCB revision + installed BIOS with the selected CPU minimum and official revision-scoped history without upgrading seller evidence to manufacturer authority.
 - [ ] Expand the manufacturer registry and stable manufacturer search-page templates as live sourcing encounters new brands.
 - [ ] Infer likely shipped BIOS/hardware revision only when manufacturer or seller evidence supports it.
 - [ ] Add compatibility validation for owned hosts: PCIe generation/lanes, physical slots, PSU connectors/headroom, chassis clearance and cooling capacity.
@@ -94,7 +98,7 @@
 - [x] Resolve Apple marketplace listings into explicit A-number/model/part identity, chip, RAM, SSD, screen and explicitly stated CPU/GPU core counts without inferring missing bins.
 - [x] Carry used-Mac battery health/cycles plus stated Activation Lock and MDM evidence separately from exact SKU identity.
 - [x] Feed resolved Apple configuration through existing live price/shipping, sourced CAD FX and landed-cost/TCO evidence paths.
-- [x] Extract explicit mobile model/SKU, SoC and SoC-variant identity from listings/spec text when present.
+- [x] Extract explicit mobile model/SKU, SoC and SoC-variant identity from listings/spec text and structured source fields when present.
 - [ ] Expand the Apple A-number/model/part-number knowledge base and add authoritative order-number mappings for more generations/regions.
 - [ ] Ingest measured complete-node Apple idle/load/inference power with exact model/runtime/workload provenance.
 - [ ] Add used-Mac warranty/AppleCare and seller return-policy evidence where sources expose them.
@@ -111,7 +115,7 @@
 - [x] Add exact/reference-board enrichment for RTX 3090 Founders Edition and Intel Arc B580 Limited Edition without transferring those dimensions to arbitrary partner cards.
 - [x] Allow board-partner GPU MPNs to discover official manufacturer pages automatically when the manufacturer registry can verify them.
 - [x] Prefer structured GPU properties/spec tables/manual fields over flattened manufacturer-page prose for dimensions, connectors and PSU requirements.
-- [x] Extract explicit GPU board partner, PCB/board revision and VBIOS identity from listing/spec text when present.
+- [x] Extract explicit GPU board partner, PCB/board revision and VBIOS identity from listing/spec text and structured source fields when present.
 - [ ] Expand NVIDIA coverage to other 12GB/16GB/24GB/32GB cards when live pricing justifies catalog inclusion.
 - [ ] Expand AMD coverage to additional maintained ROCm/Vulkan cards with useful VRAM-per-dollar.
 - [ ] Expand Intel Arc coverage as current/used pricing changes.
@@ -131,6 +135,7 @@
 - [x] Preserve pair-level CPU/BIOS manufacturer support provenance in compatible-build results.
 - [x] Preserve boot-readiness as a firmware/installability signal rather than a performance metric.
 - [x] Feed explicit SSD controller/NAND/interface, RAM topology, GPU board/VBIOS/host context and mobile SKU/SoC identity into adaptive power matching.
+- [x] Allow verified structured manufacturer identity facts to narrow adaptive power identities without replacing stronger direct measurements.
 - [ ] Add confidence-aware performance ranges only when multiple independent compatible real sources justify them.
 - [ ] Add model-family presets beyond the default transparent Q4 decision-capacity screen.
 - [ ] Benchmark the ThinkPad L14 as an optional local reference/calibration node.
