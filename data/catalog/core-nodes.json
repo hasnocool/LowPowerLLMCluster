@@ -31,7 +31,9 @@
       "hardware_class": "mini_pc",
       "software_maturity": "mainstream_linux",
       "risk_level": "medium",
-      "memory_capacity_gb": 256,
+      "memory_capacity_gb": 32,
+      "memory_config_status": "included",
+      "max_memory_gb": null,
       "price_status": "observed_market",
       "lifecycle_status": "current"
     },
@@ -66,7 +68,9 @@
       "hardware_class": "mini_pc",
       "software_maturity": "mainstream_linux",
       "risk_level": "medium",
-      "memory_capacity_gb": 64,
+      "memory_capacity_gb": null,
+      "memory_config_status": "configurable",
+      "max_memory_gb": null,
       "price_status": "observed_market",
       "lifecycle_status": "current"
     },
@@ -101,7 +105,9 @@
       "hardware_class": "mini_pc",
       "software_maturity": "mainstream_linux",
       "risk_level": "low",
-      "memory_capacity_gb": 256,
+      "memory_capacity_gb": null,
+      "memory_config_status": "configurable",
+      "max_memory_gb": null,
       "price_status": "observed_market",
       "lifecycle_status": "current"
     },
@@ -136,7 +142,9 @@
       "hardware_class": "mini_pc",
       "software_maturity": "mainstream_linux",
       "risk_level": "low",
-      "memory_capacity_gb": 256,
+      "memory_capacity_gb": null,
+      "memory_config_status": "configurable",
+      "max_memory_gb": null,
       "price_status": "observed_market",
       "lifecycle_status": "current"
     }
