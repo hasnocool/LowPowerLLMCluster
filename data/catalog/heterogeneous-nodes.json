@@ -32,7 +32,9 @@
       "plain_language": "The BC-250 is the weird bargain worth tracking. It combines CPU and GPU access to 16GB of very fast GDDR6, which can make it surprisingly attractive for Vulkan inference. The tradeoff is significant: firmware, cooling, power delivery, Linux setup and GPU support are community-driven rather than plug-and-play. Treat every benchmark as board/revision/software specific and never assume a 40-CU unlock is safe or functional on every unit.",
       "source_notes": "August 2026 community sale reports place individual boards around US$130-190. Community documentation reports 6C/12T, 16GB unified GDDR6 and working llama.cpp Vulkan inference. No official AMD retail specification page was found; experimental claims must remain community-labelled.",
       "price_status": "observed_market",
-      "lifecycle_status": "current"
+      "lifecycle_status": "current",
+      "memory_config_status": "fixed",
+      "max_memory_gb": 16
     },
     {
       "id": "dev-nvidia-jetson-orin-nano-super-8g",
@@ -66,7 +68,9 @@
       "plain_language": "This is one of the cleanest efficiency references in the catalog. NVIDIA gives it a mature CUDA/TensorRT/JetPack stack, and the board can run in a 7-25W envelope. The catch is memory: 8GB makes it excellent for small LLMs, embeddings, vision and control-plane AI, but it is not a replacement for a 32-96GB x86 node when model capacity is the goal.",
       "source_notes": "NVIDIA currently lists the developer kit at US$249 and documents up to 67 INT8 TOPS, 102 GB/s memory bandwidth and 7-25W configurable power.",
       "price_status": "observed_market",
-      "lifecycle_status": "current"
+      "lifecycle_status": "current",
+      "memory_config_status": "fixed",
+      "max_memory_gb": 8
     },
     {
       "id": "sbc-orange-pi-5-plus-32g",
@@ -99,7 +103,9 @@
       "plain_language": "A 32GB RK3588 board is interesting because it puts much more RAM than most SBCs into a very small power envelope. It can be a useful lightweight inference or always-on worker, but software support is less uniform than x86 or Jetson. Vulkan/NPU acceleration must be benchmarked with the exact Linux image and runtime instead of assumed from the 6-TOPS marketing number.",
       "source_notes": "Orange Pi documents the 32GB model, RK3588 CPU, Mali-G610, 6-TOPS NPU and dual 2.5GbE. Alibaba results currently show Orange Pi 5 Plus families from roughly US$144.50 upward; exact 32GB SKU pricing must be confirmed.",
       "price_status": "observed_market",
-      "lifecycle_status": "current"
+      "lifecycle_status": "current",
+      "memory_config_status": "fixed",
+      "max_memory_gb": 32
     },
     {
       "id": "sbc-radxa-rock5-itxplus-32g",
@@ -132,7 +138,9 @@
       "plain_language": "This is the SBC that most resembles a real cluster motherboard. It fits Mini-ITX infrastructure, can carry 32GB of fast LPDDR5-class memory and has much richer storage/network expansion than tiny hobby boards. It is not the fastest LLM node, but its low power and dense packaging make it interesting for many-node experiments.",
       "source_notes": "ALLNET China lists the 32GB ITX+ reference at US$235 but currently shows it sold out. Radxa documentation describes the RK3588 platform and low-power design.",
       "price_status": "observed_market",
-      "lifecycle_status": "current"
+      "lifecycle_status": "current",
+      "memory_config_status": "fixed",
+      "max_memory_gb": 32
     },
     {
       "id": "board-minisforum-bd795m-7945hx",
@@ -153,7 +161,7 @@
       "threads": 32,
       "architecture": "Zen 4",
       "memory_type": "2x DDR5 SO-DIMM",
-      "memory_capacity_gb": 96,
+      "memory_capacity_gb": null,
       "igpu": "basic integrated Radeon graphics; CPU throughput is the main attraction",
       "network": "2.5GbE",
       "storage": "NVMe + SATA",
@@ -165,7 +173,9 @@
       "plain_language": "This is not the lowest-watt node, but it belongs in the project because it shows how far laptop silicon can scale when placed on a standard motherboard. Sixteen Zen 4 cores plus replaceable DDR5 and a full PCIe slot make it a strong heavy-worker reference, especially if benchmarks find an efficient power cap well below maximum boost power.",
       "source_notes": "MINISFORUM currently lists the BD795M at US$367.90 with a soldered Ryzen 9 7945HX, 16 cores/32 threads and standard mATX-style expansion.",
       "price_status": "observed_market",
-      "lifecycle_status": "current"
+      "lifecycle_status": "current",
+      "memory_config_status": "configurable",
+      "max_memory_gb": 96
     },
     {
       "id": "board-framework13-ai5-340",
@@ -186,7 +196,7 @@
       "threads": 12,
       "architecture": "Zen 5 / Zen 5c family",
       "memory_type": "DDR5 SO-DIMM platform",
-      "memory_capacity_gb": 96,
+      "memory_capacity_gb": null,
       "igpu": "Radeon integrated graphics; NPU present on Ryzen AI platform",
       "network": "requires Framework expansion/network choices",
       "storage": "M.2 NVMe",
@@ -198,7 +208,9 @@
       "plain_language": "Framework mainboards are expensive compared with Alibaba barebones, but they are unusually clean standalone laptop motherboards: documented, modular and intended to be reused outside a laptop chassis. They make an excellent control/reference platform for comparing bargain boards against a maintainable commercial design.",
       "source_notes": "Framework currently shows the Ryzen AI 5 340 Laptop 13 mainboard at a US$399 sale price.",
       "price_status": "observed_market",
-      "lifecycle_status": "current"
+      "lifecycle_status": "current",
+      "memory_config_status": "configurable",
+      "max_memory_gb": 96
     }
   ]
 }
