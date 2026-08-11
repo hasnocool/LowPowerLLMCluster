@@ -49,19 +49,23 @@ jobs:
           else
             echo "name=daily-market" >> "$GITHUB_OUTPUT"
           fi
-      - name: Refresh market evidence
+      - name: Refresh market evidence and change intelligence
         run: llm-cluster-refresh run "${{ steps.profile.outputs.name }}"
+      - name: Show significant changes
+        run: cat reports/current/daily-changes.md || true
       - name: Show stale listing warnings
         run: llm-cluster-refresh stale --hours 72
+      - name: Show source budgets
+        run: llm-cluster-refresh budgets
       - name: Commit refreshed evidence
         shell: bash
         run: |
-          if git diff --quiet -- data/market reports/current; then
-            echo "No market evidence changes."
+          if git diff --quiet -- data/market data/evidence reports/current; then
+            echo "No market/evidence changes."
             exit 0
           fi
           git config user.name "LowPowerLLMCluster market bot"
           git config user.email "actions@users.noreply.github.com"
-          git add data/market reports/current
-          git commit -m "chore: refresh market evidence [skip ci]"
+          git add data/market data/evidence reports/current
+          git commit -m "chore: refresh market intelligence [skip ci]"
           git push
