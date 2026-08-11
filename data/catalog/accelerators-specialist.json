@@ -20,7 +20,9 @@
       "peak_int8_tops": 4,
       "power_target_w": 2,
       "power_scope": "accelerator_estimate_from_2_TOPS_per_watt",
-      "precision_formats": ["INT8"],
+      "precision_formats": [
+        "INT8"
+      ],
       "software_stack": "TensorFlow Lite / Edge TPU compiler / PyCoral / libedgetpu",
       "llm_support": "not_supported_general_llm",
       "llm_candidate": false,
@@ -52,7 +54,11 @@
       "power_target_w": 5,
       "power_max_w": 10,
       "power_scope": "four_chip_module_typical_and_tdp_reference",
-      "precision_formats": ["Group-BF16 activations", "INT8", "INT4 weights"],
+      "precision_formats": [
+        "Group-BF16 activations",
+        "INT8",
+        "INT4 weights"
+      ],
       "software_stack": "MemryX SDK / Python / C++",
       "llm_support": "not_supported_large_llm",
       "llm_candidate": false,
@@ -87,7 +93,7 @@
       "software_maturity": "eol_legacy_stack",
       "risk_level": "high",
       "lifecycle_status": "discontinued",
-      "plain_language": "NCS2 is deliberately kept as an EOL reference. It may appear cheaply on the used market and can still offload old OpenVINO vision workloads, but its frozen software track and limited model class make it a poor target for new LLM deployment. Tracking it teaches the catalog how to say ‘cheap but obsolete.’",
+      "plain_language": "NCS2 is deliberately kept as an EOL reference. It may appear cheaply on the used market and can still offload old OpenVINO vision workloads, but its frozen software track and limited model class make it a poor target for new LLM deployment. Tracking it teaches the catalog how to say “cheap but obsolete.”",
       "source_notes": "Intel marks NCS2 discontinued; OpenVINO support is maintained on the 2022.3.x LTS track. No current used price is recorded."
     }
   ]
