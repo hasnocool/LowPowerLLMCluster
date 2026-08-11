@@ -33,7 +33,9 @@
       "risk_level": "low",
       "lifecycle_status": "current",
       "plain_language": "One of the cleanest low-power accelerator candidates because it combines dedicated model memory, a shipping generative-AI software path and extremely low accelerator power. The 8GB memory ceiling keeps it in the small-LLM/VLM specialist role rather than making it a replacement for 64GB Ryzen workers.",
-      "source_notes": "Raspberry Pi lists the AI HAT+ 2 at US$200 with 8GB onboard RAM and Hailo-10H. Hailo lists 40 TOPS INT4 / 20 TOPS INT8 and 2.5W typical chip power. Power is accelerator-only, not Raspberry Pi 5 system power."
+      "source_notes": "Raspberry Pi lists the AI HAT+ 2 at US$200 with 8GB onboard RAM and Hailo-10H. Hailo lists 40 TOPS INT4 / 20 TOPS INT8 and 2.5W typical chip power. Power is accelerator-only, not Raspberry Pi 5 system power.",
+      "memory_config_status": "fixed",
+      "max_memory_gb": 8
     },
     {
       "id": "accel-firefly-core1688jd4-8g",
@@ -68,7 +70,9 @@
       "risk_level": "medium",
       "lifecycle_status": "current",
       "plain_language": "BM1688 is interesting because SOPHGO maintains an actual LLM/VLM deployment stack rather than leaving us to infer usefulness from TOPS. The module can act more like a tiny standalone AI computer than a dumb PCIe card, although its memory size still limits model scale.",
-      "source_notes": "Firefly store snapshot showed US$339 for the 8GB/32GB SoM. SOPHGO LLM-TPU explicitly supports BM1688 with Qwen, Llama, DeepSeek and multimodal models."
+      "source_notes": "Firefly store snapshot showed US$339 for the 8GB/32GB SoM. SOPHGO LLM-TPU explicitly supports BM1688 with Qwen, Llama, DeepSeek and multimodal models.",
+      "memory_config_status": "fixed",
+      "max_memory_gb": 8
     },
     {
       "id": "accel-bm1684x-devboard-16g",
@@ -100,7 +104,9 @@
       "risk_level": "medium",
       "lifecycle_status": "current",
       "plain_language": "The price is not attractive yet, but BM1684X earns a place because it has 16GB of local memory and an actively maintained LLM compiler/runtime with multi-chip support. It is a software-compatibility reference we can use while hunting much cheaper used or direct-China BM1684X systems.",
-      "source_notes": "Observed reseller price US$914.12. SOPHGO ecosystem references describe BM1684X systems with 16GB LPDDR4X, 32 TOPS INT8 and LLM deployment support. Verify the exact board configuration before purchase."
+      "source_notes": "Observed reseller price US$914.12. SOPHGO ecosystem references describe BM1684X systems with 16GB LPDDR4X, 32 TOPS INT8 and LLM deployment support. Verify the exact board configuration before purchase.",
+      "memory_config_status": "fixed",
+      "max_memory_gb": 16
     },
     {
       "id": "accel-tenstorrent-wormhole-n150s",
@@ -137,7 +143,9 @@
       "risk_level": "medium",
       "lifecycle_status": "current_previous_generation",
       "plain_language": "This is not a low-watt worker, but it is an important architectural reference: real LLM support, 12GB GDDR6 and accelerator-to-accelerator links hundreds of times faster than ordinary 2.5GbE. It lets the project compare cheap low-power nodes against purpose-built scalable AI silicon without pretending they solve the same problem.",
-      "source_notes": "Tenstorrent lists n150s at US$999. Official specifications list 12GB GDDR6, 288GB/s bandwidth and up to 160W board power."
+      "source_notes": "Tenstorrent lists n150s at US$999. Official specifications list 12GB GDDR6, 288GB/s bandwidth and up to 160W board power.",
+      "memory_config_status": "fixed",
+      "max_memory_gb": 12
     }
   ]
 }
