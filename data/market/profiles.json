@@ -2,7 +2,7 @@
   "schema_version": 1,
   "profiles": {
     "daily-market": {
-      "description": "Daily public/current-market refresh with optional credentialed structured sources.",
+      "description": "Daily public/current-market refresh across compact nodes, accelerators and discrete GPUs.",
       "sources": ["manufacturer", "mouser", "digikey", "ebay"],
       "queries": [
         "Ryzen 8845HS mini PC",
@@ -12,7 +12,12 @@
         "Jetson Orin Nano Super",
         "Hailo-10H",
         "BM1688",
-        "Alveo U50"
+        "Alveo U50",
+        "GeForce RTX 5060 Ti 16GB",
+        "GeForce RTX 3090 24GB",
+        "Radeon RX 9070 16GB",
+        "Intel Arc B580 12GB",
+        "Intel Arc A770 16GB"
       ],
       "refresh_fx": true,
       "currencies": ["USD", "EUR", "GBP", "JPY", "CNY", "AUD"],
@@ -23,10 +28,10 @@
       "landed_cost_change_pct": 8,
       "benchmark_change_pct": 10,
       "source_budgets": {
-        "manufacturer": {"max_queries_per_run": 8, "daily_request_budget": 64},
-        "mouser": {"max_queries_per_run": 8, "daily_request_budget": 48},
-        "digikey": {"max_queries_per_run": 8, "daily_request_budget": 48},
-        "ebay": {"max_queries_per_run": 8, "daily_request_budget": 64}
+        "manufacturer": {"max_queries_per_run": 13, "daily_request_budget": 96},
+        "mouser": {"max_queries_per_run": 13, "daily_request_budget": 72},
+        "digikey": {"max_queries_per_run": 13, "daily_request_budget": 72},
+        "ebay": {"max_queries_per_run": 13, "daily_request_budget": 96}
       },
       "retry": {
         "attempts": 4,
@@ -35,7 +40,7 @@
       }
     },
     "weekly-deep-scan": {
-      "description": "Broader weekly refresh for unusual, EOL and high-memory hardware.",
+      "description": "Broader weekly refresh for unusual, EOL, high-memory and GPU bargain hardware.",
       "sources": ["manufacturer", "mouser", "digikey", "ebay"],
       "queries": [
         "Alveo U50",
@@ -49,7 +54,13 @@
         "SOPHGO BM1688",
         "Orange Pi 5 Plus 32GB",
         "Radxa ROCK 5 ITX 32GB",
-        "Turing RK1 32GB"
+        "Turing RK1 32GB",
+        "GeForce RTX 5060 Ti 16GB",
+        "GeForce RTX 3090 24GB",
+        "Radeon RX 9070 16GB",
+        "Radeon RX 9070 XT 16GB",
+        "Intel Arc B580 12GB",
+        "Intel Arc A770 16GB"
       ],
       "refresh_fx": true,
       "generate_reports": true,
@@ -59,10 +70,10 @@
       "landed_cost_change_pct": 10,
       "benchmark_change_pct": 12,
       "source_budgets": {
-        "manufacturer": {"max_queries_per_run": 12, "daily_request_budget": 80},
-        "mouser": {"max_queries_per_run": 12, "daily_request_budget": 60},
-        "digikey": {"max_queries_per_run": 12, "daily_request_budget": 60},
-        "ebay": {"max_queries_per_run": 12, "daily_request_budget": 80}
+        "manufacturer": {"max_queries_per_run": 18, "daily_request_budget": 120},
+        "mouser": {"max_queries_per_run": 18, "daily_request_budget": 90},
+        "digikey": {"max_queries_per_run": 18, "daily_request_budget": 90},
+        "ebay": {"max_queries_per_run": 18, "daily_request_budget": 120}
       },
       "retry": {
         "attempts": 5,
