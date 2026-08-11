@@ -12,6 +12,8 @@ from .decision import generate_daily_recommendations, render_daily_recommendatio
 from .intelligence import generate_change_intelligence, render_daily_change_report
 from .manufacturer_discovery import load_discovery_config
 from .ops import run_profile, stale_listings, write_current_reports
+from .power_evidence import aggregate_power_observations, load_power_evidence
+from .power_ingestion import refresh_power_evidence
 from .spec_enrichment import load_spec_enrichment_config
 from .tco import apply_tco_to_summary, break_even_analysis, load_tco_scenarios, render_tco_report
 
@@ -42,11 +44,21 @@ def _print_spec_evidence() -> None:
 
 def _print_manufacturer_associations() -> None:
     path = project_root() / "data" / "market" / "manufacturer-associations.json"; payload = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"associations": {}}
-    rows = list((payload.get("associations") or {}).values())
-    print(f"Associations: {len(rows)}")
+    rows = list((payload.get("associations") or {}).values()); print(f"Associations: {len(rows)}")
     for row in sorted(rows, key=lambda item: (str(item.get("manufacturer") or ""), str(item.get("mpn") or ""))):
         score = row.get("identity_score"); score_text = f"{float(score):.3f}" if score is not None else "-"
         print(f"{str(row.get('status') or '-'):<13} {str(row.get('manufacturer') or '-'):<18} {str(row.get('mpn') or '-'):<24} score={score_text:<5} {row.get('source_url') or ''}")
+
+
+def _print_power_evidence(part_id: str | None = None) -> None:
+    payload = load_power_evidence(); rows = list(payload.get("observations") or []); print(f"Power observations: {len(rows)}")
+    if part_id:
+        part = _part(part_id); aggregate = aggregate_power_observations(part, payload)
+        print(json.dumps({"part_id": part_id, "aggregate": aggregate}, indent=2, sort_keys=True)); return
+    for row in rows:
+        identity = row.get("identity") or {}; eligible = "use" if row.get("eligible_for_device_power") is not False else "research"
+        value = row.get("load_w") if row.get("load_w") is not None else row.get("idle_w")
+        print(f"{eligible:<8} {str(row.get('source_type') or '-'):<19} {float(value):>8.2f}W  {identity.get('exact_id') or identity.get('model') or identity.get('family') or identity.get('category') or '-'}")
 
 
 def main() -> int:
@@ -55,6 +67,8 @@ def main() -> int:
     stale = sub.add_parser("stale", help="show active listings not observed recently"); stale.add_argument("--hours", type=float, default=48.0)
     sub.add_parser("reports", help="regenerate all current-market buying reports")
     sub.add_parser("refresh-bom", help="fetch online BOM costs, auto-discover manufacturer specs, enrich exact SKUs, and rebuild compatibility combinations")
+    sub.add_parser("refresh-power-evidence", help="ingest explicit catalog/manufacturer and compatible benchmark power evidence into learned profiles")
+    power = sub.add_parser("power-evidence", help="inspect learned power evidence/distributions"); power.add_argument("part_id", nargs="?")
     sub.add_parser("bom-config", help="show live BOM product-query and compatibility configuration")
     sub.add_parser("spec-config", help="show exact-SKU manufacturer specification associations and extraction policy")
     sub.add_parser("spec-evidence", help="show persisted field-level manufacturer specification evidence")
@@ -68,6 +82,8 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.command == "run": print(json.dumps(asyncio.run(run_profile(args.profile)), indent=2, sort_keys=True)); return 0
+    if args.command == "refresh-power-evidence": print(json.dumps(refresh_power_evidence(), indent=2, sort_keys=True)); return 0
+    if args.command == "power-evidence": _print_power_evidence(args.part_id); return 0
     if args.command == "refresh-bom":
         result = asyncio.run(refresh_bom_market()); summary = {component: {"candidate_count": row.get("candidate_count", 0), "selected": (row.get("selected") or {}).get("landed", {}).get("landed_cad"), "source": (row.get("selected") or {}).get("listing", {}).get("source"), "spec_enrichment": (row.get("selected") or {}).get("spec_enrichment")} for component, row in result.get("components", {}).items()}
         print(json.dumps({"generated_at": result.get("generated_at"), "spec_enriched_candidate_count": result.get("spec_enriched_candidate_count", 0), "components": summary, "compatible_builds": result.get("compatible_builds", {})}, indent=2, sort_keys=True)); return 0
