@@ -163,6 +163,42 @@
       "reproducibility": 0.8,
       "hardware_configuration": "NVIDIA Jetson Orin Nano 8GB; JetPack 6.2 Super Mode",
       "notes": "NVIDIA-published generation throughput. Keep separate from community llama.cpp/CUDA results."
+    },
+    {
+      "id": "bc250-stock24-llama32-3b-q4km-vulkan-decode",
+      "part_id": "special-amd-bc250-16g",
+      "source_type": "community_measured",
+      "source_url": "https://github.com/akandr/bc250/blob/main/Readme.md",
+      "model": "Llama 3.2 3B",
+      "quantization": "Q4_K_M",
+      "runtime": "llama.cpp",
+      "runtime_version": "b9265 / Ollama 0.20.0",
+      "backend": "Vulkan RADV 25.3.4",
+      "workload": "decode",
+      "metric": "throughput",
+      "value": 80.6,
+      "unit": "tokens/s",
+      "reproducibility": 0.85,
+      "hardware_configuration": "AMD BC-250 16GB; verified stock 24-CU; Fedora 43; oberon governor 1500 MHz; Q4_0 KV cache; n=3 median",
+      "notes": "Exact-board community measurement from the documented stock 24-CU configuration. Do not mix with 40-CU unlock results."
+    },
+    {
+      "id": "bc250-stock24-llama32-3b-q4km-vulkan-prefill",
+      "part_id": "special-amd-bc250-16g",
+      "source_type": "community_measured",
+      "source_url": "https://github.com/akandr/bc250/blob/main/Readme.md",
+      "model": "Llama 3.2 3B",
+      "quantization": "Q4_K_M",
+      "runtime": "llama.cpp",
+      "runtime_version": "b9265 / Ollama 0.20.0",
+      "backend": "Vulkan RADV 25.3.4",
+      "workload": "prefill",
+      "metric": "throughput",
+      "value": 384.9,
+      "unit": "tokens/s",
+      "reproducibility": 0.85,
+      "hardware_configuration": "AMD BC-250 16GB; verified stock 24-CU; Fedora 43; oberon governor 1500 MHz; Q4_0 KV cache; n=3 median",
+      "notes": "Exact-board community measurement from the documented stock 24-CU configuration. Separate prefill from decode and from unlocked firmware configurations."
     }
   ]
 }
