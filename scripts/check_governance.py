@@ -41,6 +41,7 @@ def main() -> int:
     required = [
         "README.md", "PARTS.md", "TODO.md", "CHANGELOG.md", "AGENTS.md",
         "docs/PROJECT_CHARTER.md", "docs/GUARDRAILS.md", "docs/ACCELERATORS.md", "docs/AUTONOMOUS_REFRESH.md", "docs/CHANGE_INTELLIGENCE.md",
+        "docs/DECISION_QUALITY.md", "docs/GPUS.md",
         "specs/HARDWARE_CATALOG.md", "specs/EVIDENCE.md", "specs/MARKET_INTELLIGENCE.md", "specs/BENCHMARKING.md", "specs/SCORING.md",
         "specs/hardware-catalog.schema.json", "specs/hardware-part.schema.json",
         "specs/benchmark.schema.json", "specs/benchmark-profile.schema.json",
@@ -48,6 +49,8 @@ def main() -> int:
         "benchmarks/README.md", "results/README.md",
         "src/lowpower_llm_cluster/market.py", "src/lowpower_llm_cluster/sources.py", "src/lowpower_llm_cluster/market_cli.py",
         "src/lowpower_llm_cluster/ops.py", "src/lowpower_llm_cluster/refresh_cli.py", "src/lowpower_llm_cluster/intelligence.py",
+        "src/lowpower_llm_cluster/decision.py",
+        "data/catalog/gpus.json",
         "data/market/sources.json", "data/market/profiles.json", "data/market/watchlists.json", "data/market/price-history.json", "data/market/listing-state.json",
         "data/market/fx-cad.json", "data/market/fx-history.json", "data/evidence/performance.json",
         ".github/workflows/autonomous-refresh.yml",
@@ -65,16 +68,32 @@ def main() -> int:
     catalog = json.loads((ROOT / "data/parts.json").read_text(encoding="utf-8"))
     if catalog.get("schema_version") != 3:
         errors.append("data/parts.json schema_version must be 3")
+    categories = set(catalog.get("candidate_categories", []))
+    if "gpu_accelerator" not in categories:
+        errors.append("data/parts.json must keep gpu_accelerator as a first-class candidate category")
+    if "catalog/gpus.json" not in set(catalog.get("part_files", [])):
+        errors.append("data/parts.json must include catalog/gpus.json")
 
     source_config = json.loads((ROOT / "data/market/sources.json").read_text(encoding="utf-8"))
     if source_config.get("schema_version") != 1:
         errors.append("data/market/sources.json schema_version must be 1")
+    if not source_config.get("gpu_reference_urls"):
+        errors.append("data/market/sources.json must retain official GPU reference coverage")
+
     profiles = json.loads((ROOT / "data/market/profiles.json").read_text(encoding="utf-8"))
     if profiles.get("schema_version") != 1 or not profiles.get("profiles"):
         errors.append("data/market/profiles.json must define schema_version 1 and at least one profile")
+    profile_text = json.dumps(profiles).casefold()
+    for required_gpu in ("rtx 5060 ti", "rtx 3090", "rx 9070", "arc b580"):
+        if required_gpu not in profile_text:
+            errors.append(f"autonomous profiles lost GPU sourcing query: {required_gpu}")
+
     watchlists = json.loads((ROOT / "data/market/watchlists.json").read_text(encoding="utf-8"))
     if watchlists.get("schema_version") != 1 or not isinstance(watchlists.get("watchlists"), list):
         errors.append("data/market/watchlists.json must define schema_version 1 and a watchlists array")
+    watch_ids = {str(row.get("id")) for row in watchlists.get("watchlists", [])}
+    if "gpu-value" not in watch_ids:
+        errors.append("data/market/watchlists.json must retain the gpu-value watchlist")
 
     source_text = (ROOT / "data/market/sources.json").read_text(encoding="utf-8")
     for forbidden in ("api_key", "client_secret", "access_token"):
