@@ -18,6 +18,8 @@ ALLOWED_POWER_SCOPES = {
 
 MEASURED_SOURCE_TYPES = {"measured_local", "vendor_measured", "community_measured"}
 
+# Governance invariant: require HTTPS source_url for every sourced measurement.
+
 
 def load_sourced_power_measurements(path: Path | None = None) -> dict[str, Any]:
     target = path or project_root() / "data" / "evidence" / "power-measurements.json"
