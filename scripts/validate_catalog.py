@@ -1,4 +1,3 @@
-# scripts/validate_catalog.py
 from __future__ import annotations
 
 import sys
@@ -15,7 +14,7 @@ REQUIRED = {
     "id", "category", "name", "vendor", "price_min_usd", "price_max_usd",
     "price_status", "moq", "url", "verified_on", "listing_status", "plain_language",
 }
-LLM_REQUIRED = {"hardware_class", "memory_capacity_gb", "software_maturity", "risk_level"}
+LLM_REQUIRED = {"hardware_class", "software_maturity", "risk_level", "memory_config_status"}
 ACCELERATOR_CATEGORIES = {
     "npu_accelerator", "tpu_accelerator", "ai_asic_accelerator", "fpga_accelerator",
     "adaptive_soc", "decommissioned_accelerator",
@@ -25,6 +24,9 @@ ACCELERATOR_REQUIRED = {
     "workload_role", "software_stack", "software_maturity", "risk_level", "lifecycle_status",
 }
 VALID_RISK = {"low", "medium", "high"}
+VALID_MEMORY_STATUS = {"included", "fixed", "configurable", "unknown"}
+VALID_PERFORMANCE_SOURCE = {"measured_local", "community_measured", "vendor_measured", "derived_estimate", "spec_based_estimate", "unknown"}
+VALID_CONFIDENCE = {"high", "medium", "low", "unknown"}
 
 
 def main() -> int:
@@ -76,8 +78,24 @@ def main() -> int:
             llm_missing = LLM_REQUIRED - part.keys()
             if llm_missing:
                 errors.append(f"{part_id}: LLM candidate missing {sorted(llm_missing)}")
-            if float(part.get("memory_capacity_gb", 0)) <= 0:
-                errors.append(f"{part_id}: LLM candidate memory_capacity_gb must be positive")
+            if part.get("memory_config_status") not in VALID_MEMORY_STATUS:
+                errors.append(f"{part_id}: invalid memory_config_status")
+            installed = part.get("memory_capacity_gb")
+            board_max = part.get("max_memory_gb")
+            cpu_max = part.get("cpu_max_memory_gb")
+            if installed is None and board_max is None and cpu_max is None:
+                errors.append(f"{part_id}: LLM candidate needs installed, board-max, or CPU-max memory evidence")
+            if part.get("memory_config_status") in {"included", "fixed"} and installed is None:
+                errors.append(f"{part_id}: included/fixed memory status requires memory_capacity_gb")
+            if part.get("memory_config_status") == "configurable" and installed is not None:
+                errors.append(f"{part_id}: configurable/barebone entry should not present memory_capacity_gb as included")
+
+        evidence = part.get("performance_evidence")
+        if evidence:
+            if evidence.get("source_type") not in VALID_PERFORMANCE_SOURCE:
+                errors.append(f"{part_id}: invalid performance_evidence.source_type")
+            if evidence.get("confidence") not in VALID_CONFIDENCE:
+                errors.append(f"{part_id}: invalid performance_evidence.confidence")
 
         if part.get("category") in ACCELERATOR_CATEGORIES:
             accel_missing = ACCELERATOR_REQUIRED - part.keys()
