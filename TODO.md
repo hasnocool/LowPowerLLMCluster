@@ -50,7 +50,13 @@
 - [x] Enrich motherboard lane/M.2 facts, PSU connectors, chassis clearances and exact/reference GPU board requirements before compatibility solving.
 - [x] Allow exact GPU board facts to promote provisional builds or reject physically/electrically invalid combinations.
 - [x] Persist manufacturer spec evidence and expose `spec-config` / `spec-evidence` CLI views.
-- [ ] Expand exact-SKU manufacturer associations across more board-partner GPUs, PSUs, coolers, cases, RAM and SSD products discovered by live sourcing.
+- [x] Preserve manufacturer + MPN identity from structured distributor/manufacturer listings for enrichment.
+- [x] Add automatic official-manufacturer association discovery using manufacturer registry, official search/sitemap candidates and conservative MPN/model identity scoring.
+- [x] Cache verified/not-verified manufacturer associations with expiry so exact-SKU coverage grows across refreshes without repeated discovery work.
+- [x] Add conservative automatic compatibility-field parsing for CPU, motherboard, PSU, chassis, cooler and exact GPU manufacturer pages.
+- [x] Expose manufacturer discovery configuration and cached associations through CLI views.
+- [ ] Expand the manufacturer registry and stable manufacturer search-page templates as live sourcing encounters new brands.
+- [ ] Add richer structured-data parsers for manufacturer JSON-LD `additionalProperty`, product tables and downloadable spec PDFs before falling back to text regexes.
 - [ ] Add compatibility validation for owned hosts: PCIe generation/lanes, physical slots, PSU connectors/headroom, chassis clearance and cooling capacity.
 - [ ] Add BIOS/CPU support-table version checks for exact motherboard + CPU combinations where manufacturer support pages expose them.
 - [ ] Add province presets plus tariff/HS-code evidence without pretending customs treatment is universal.
@@ -71,6 +77,7 @@
 - [x] Feed current sourced host/BOM product costs into GPU complete-node TCO where online listings pass confidence/compatibility filters.
 - [x] Solve cheapest complete host builds per tracked GPU while rejecting known socket/memory/power/clearance incompatibilities.
 - [x] Add exact/reference-board enrichment for RTX 3090 Founders Edition and Intel Arc B580 Limited Edition without transferring those dimensions to arbitrary partner cards.
+- [x] Allow board-partner GPU MPNs to discover official manufacturer pages automatically when the manufacturer registry can verify them.
 - [ ] Expand NVIDIA coverage to other 12GB/16GB/24GB/32GB cards when live pricing justifies catalog inclusion.
 - [ ] Expand AMD coverage to additional maintained ROCm/Vulkan cards with useful VRAM-per-dollar.
 - [ ] Expand Intel Arc coverage as current/used pricing changes.
@@ -85,6 +92,7 @@
 - [x] Add exact-product Jetson and stock BC-250 community/vendor measurements without copying them to similar hardware.
 - [x] Preserve TGP/TBP/board-power evidence separately while using it only as an explicitly low-confidence complete-node TCO planning input.
 - [x] Preserve manufacturer compatibility evidence field-by-field with source URL, timestamp, extraction method and association identity.
+- [x] Preserve automatic association identity score/cache state separately from extracted compatibility evidence.
 - [ ] Add confidence-aware performance ranges only when multiple independent compatible real sources justify them.
 - [ ] Add model-family presets beyond the default transparent Q4 decision-capacity screen.
 - [ ] Benchmark the ThinkPad L14 as an optional local reference/calibration node.
