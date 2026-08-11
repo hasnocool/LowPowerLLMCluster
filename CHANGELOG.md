@@ -58,7 +58,13 @@ All notable changes to this project will be documented here.
 - Field-level manufacturer-spec provenance with source URL, observation time, extraction method, association ID and confidence.
 - Exact/reference GPU board enrichment that can supply dimensions, slot width, PSU, connector, PCIe and Resizable BAR requirements without copying them to arbitrary partner cards.
 - Initial exact/reference spec associations for MSI B550-A PRO, MSI PRO B660M-A DDR4, Corsair RM750e, Corsair 4000D Airflow, Intel Core i5-12400, RTX 3090 Founders Edition and Intel Arc B580 Limited Edition.
-- Persisted `data/market/spec-evidence.json` and `data/market/compatible-builds.json` evidence/build state.
+- Automatic manufacturer association discovery using normalized manufacturer + MPN identity, an official-domain registry, manufacturer-owned search pages when configured, bounded official sitemap discovery and conservative page identity scoring.
+- Persistent verified/not-verified manufacturer association cache with expiry so exact-SKU coverage grows across refreshes without repeatedly rediscovering the same product page.
+- Structured-source manufacturer/MPN preservation in Mouser, DigiKey and manufacturer JSON-LD listings.
+- Conservative automatic manufacturer-page compatibility parsing for CPU, motherboard, PSU, chassis, cooler and exact GPU facts.
+- Automatic manufacturer evidence retains association origin, cache-hit state, identity score and field-level extraction provenance.
+- `llm-cluster-refresh manufacturer-config` and `manufacturer-associations` inspection commands.
+- Persisted `data/market/spec-evidence.json`, `data/market/manufacturer-associations.json` and `data/market/compatible-builds.json` evidence/build state.
 - `llm-cluster-refresh spec-config`, `spec-evidence`, `refresh-bom`, and `compatible-builds` operator workflows.
 - `docs/EXACT_SKU_ENRICHMENT.md` methodology and extension guide.
 - `llm-cluster-refresh tco`, `recommendations --scenario`, ownership flags, `break-even`, and `tco-scenarios` commands.
@@ -71,6 +77,7 @@ All notable changes to this project will be documented here.
 - `specs/MARKET_INTELLIGENCE.md` and tests for matching, history deduplication, seller confidence, lifecycle tracking, landed-cost math, evidence ingestion, compatible aggregation, JSON-LD normalization, CAD report behavior, retry policy, stale detection, source budgets and change-alert deduplication.
 - Decision-quality and TCO tests covering GPU VRAM model-fit screening, all-time-low detection, trend/volatility, opportunity expiry, alert prioritization, host infrastructure, ownership reuse, board-power scope and complete-system comparisons.
 - Exact-SKU enrichment tests covering association priority, field provenance, provisional-to-compatible promotion and manufacturer-evidence-driven rejection.
+- Automatic manufacturer discovery/parser tests covering cache reuse, PSU connectors/power, motherboard lane-sharing facts, chassis clearances and exact GPU physical requirements.
 
 ### Changed
 
@@ -85,7 +92,8 @@ All notable changes to this project will be documented here.
 - Final recommendation ordering incorporates complete-node acquisition and scenario operating cost so component-only sticker prices cannot hide required infrastructure.
 - Already-owned compatible infrastructure now has zero incremental acquisition cost while remaining part of complete-node operating-power calculations.
 - Exact manufacturer specification facts override weaker title-derived compatibility facts only at the individual field level.
-- Generic GPU family listings remain provisional for board-specific dimensions/connectors unless an exact/reference-board association is verified.
+- Generic GPU family listings remain provisional for board-specific dimensions/connectors unless an exact/reference-board association or automatically verified board-partner MPN association exists.
+- Automatic manufacturer discovery never broadens authority beyond the configured official manufacturer domains.
 - Complete-build ranking prefers fully compatible builds, then better manufacturer-spec coverage, before relying on provisional unknowns.
 
 ## [0.4.1] - 2026-08-10
