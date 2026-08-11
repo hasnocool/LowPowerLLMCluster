@@ -35,11 +35,25 @@ All notable changes to this project will be documented here.
 - Significant price-drop, stock-return, new-product, landed-cost-change and compatible benchmark regression/improvement alerts.
 - Fingerprint-based alert deduplication so historical changes are not re-emitted every refresh.
 - Compact `reports/current/daily-changes.md` and machine-readable `daily-changes.json` change-intelligence outputs.
-- `llm-cluster-refresh` CLI for profile execution, health inspection, stale warnings, source budgets, watchlists, alerts and report regeneration.
-- Scheduled GitHub Actions refresh that can use optional marketplace secrets, refresh Bank of Canada FX, regenerate current reports/change intelligence and commit changed evidence.
+- First-class `gpu_accelerator` catalog/sourcing category with fixed-VRAM and explicit board-power semantics.
+- Initial discrete-GPU reference catalog covering RTX 5060 Ti 16GB, RTX 3090 24GB, RX 9070/9070 XT 16GB, Arc B580 12GB and Arc A770 16GB.
+- GPU sourcing queries in both autonomous refresh profiles plus a dedicated `gpu-value` watchlist.
+- Official NVIDIA/AMD/Intel GPU specification/reference URLs in the source registry without treating launch/reference pages as live street prices.
+- Decision-quality engine using price-history position, conservative model-capacity fit, evidence confidence, opportunity freshness and price stability.
+- Native-currency new-all-time-low detection so FX movement cannot fabricate a seller-price record.
+- Price trend and volatility metrics for matched product histories.
+- Source-class-aware opportunity freshness/expiry with seller end-time support when parseable.
+- P1-P4 alert prioritization using alert type/severity, magnitude, current recommendation, confidence and opportunity urgency.
+- Ranked `Buy`, `Watch`, `Ignore` and `Experimental` daily recommendations.
+- `reports/current/daily-recommendations.md` and machine-readable `daily-recommendations.json` outputs.
+- `llm-cluster-refresh recommendations` command.
+- `docs/GPUS.md` and `docs/DECISION_QUALITY.md` guides.
+- `llm-cluster-refresh` CLI for profile execution, health inspection, stale warnings, source budgets, watchlists, alerts, recommendations and report regeneration.
+- Scheduled GitHub Actions refresh that can use optional marketplace secrets, refresh Bank of Canada FX, regenerate current reports/change intelligence/decision reports and commit changed evidence.
 - `docs/AUTONOMOUS_REFRESH.md` and `docs/CHANGE_INTELLIGENCE.md` operational guides.
 - `llm-cluster-market` CLI with `discover`, `history`, `landed`, `refresh-fx`, `ingest-performance`, `aggregate-performance`, and `report` workflows.
 - `specs/MARKET_INTELLIGENCE.md` and tests for matching, history deduplication, seller confidence, lifecycle tracking, landed-cost math, evidence ingestion, compatible aggregation, JSON-LD normalization, CAD report behavior, retry policy, stale detection, source budgets and change-alert deduplication.
+- Decision-quality tests covering GPU VRAM model-fit screening, all-time-low detection, trend/volatility, opportunity expiry and alert prioritization.
 
 ### Changed
 
@@ -49,6 +63,8 @@ All notable changes to this project will be documented here.
 - Benchmark evidence stays attached to the exact tested product/configuration instead of being copied across boards that merely share a SoC.
 - CAD reports prefer active live listing observations and fall back to clearly labeled catalog midpoint pricing only when sourced FX is available.
 - Community energy-efficiency evidence preserves its published measurement boundary; internal Jetson rail telemetry is not relabeled as complete-node wall-input power.
+- Discrete GPU TGP/TBP is treated as host/PSU/cooling friction, never as complete-node tokens/joule.
+- Daily recommendations are explainable buying decisions rather than synthetic hardware-performance rankings.
 
 ## [0.4.1] - 2026-08-10
 
