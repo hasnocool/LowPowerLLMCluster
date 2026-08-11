@@ -17,6 +17,7 @@ The project currently recognizes:
 - `embedded_board`
 - `specialty_board`
 - `control_plane`
+- `gpu_accelerator`
 - `npu_accelerator`
 - `tpu_accelerator`
 - `ai_asic_accelerator`
@@ -65,7 +66,7 @@ LLM candidates additionally carry:
 
 ## Accelerator fields
 
-Every NPU, TPU, AI ASIC, FPGA/adaptive platform or decommissioned accelerator should additionally record:
+Every GPU, NPU, TPU, AI ASIC, FPGA/adaptive platform or decommissioned accelerator should additionally record:
 
 - `accelerator_family`
 - `accelerator`
@@ -79,23 +80,46 @@ Every NPU, TPU, AI ASIC, FPGA/adaptive platform or decommissioned accelerator sh
 - `power_scope` when a power number is present
 - `peak_int4_tops`, `peak_int8_tops`, `peak_fp16_tflops` only when sourced
 
-`llm_support` is more important than a TOPS number. Examples include `vendor_supported`, `research_only`, `not_supported_general_llm`, and `unproven_for_project`.
+`llm_support` is more important than a TOPS number. Examples include `mature_cuda_llama_cpp`, `rocm_and_vulkan_candidate`, `oneapi_sycl_vulkan_candidate`, `vendor_supported`, `research_only`, `not_supported_general_llm`, and `unproven_for_project`.
+
+## Discrete GPU rules
+
+`gpu_accelerator` is a first-class sourcing category.
+
+A discrete GPU entry must record:
+
+- fixed VRAM in `memory_capacity_gb`;
+- `memory_config_status: fixed`;
+- memory type when known;
+- host mode/requirements;
+- software/runtime path;
+- board power only with an explicit board-power scope;
+- lifecycle/current-vs-used-market status;
+- exact reference/source URL.
+
+Reference GPU identity and exact board-partner SKU are different evidence layers. Cooler, clocks, connectors, warranty, BIOS, condition and seller history belong in listing/configuration evidence when available.
+
+GPU VRAM is valid input to the conservative model-fit screen. It is not host system RAM and it is not expandable.
 
 ## Power scope rule
 
-Never compare accelerator chip power with complete-node wall power without labelling the scope. Examples:
+Never compare accelerator chip/board power with complete-node wall power without labelling the scope. Examples:
 
+- `accelerator_board_tgp`
+- `accelerator_board_tbp`
+- `accelerator_board_power_reference`
 - `accelerator_chip_typical`
-- `accelerator_board_tdp`
 - `four_chip_module_typical_and_tdp_reference`
 - `K26_SOM_typical_and_max`
 - measured `complete_node_input`
 
-Only measured complete-node power belongs in final system efficiency rankings.
+Only measured complete-node power belongs in final system energy-efficiency rankings. GPU board TGP/TBP may be used as deployment/PSU/cooling friction, not canonical tokens/joule.
 
 ## Price rules
 
 A range on a multi-variant page is not the price of a specific SKU. Secondary-market pricing should be recent and explicitly marked. Manufacturer MSRP and vendor-store price are different evidence classes and should keep distinct `price_status` values.
+
+For GPU references, unresolved catalog price is acceptable because the autonomous market layer is intended to discover current board-partner and used listings. Do not freeze a launch MSRP into the catalog and later present it as a current street price.
 
 ## Inclusion test
 
@@ -105,6 +129,7 @@ Examples:
 
 - unusually high memory bandwidth per dollar;
 - sub-15W 32GB node;
+- 16/24GB discrete GPU whose live price makes local LLM inference compelling;
 - dedicated 8GB GenAI NPU at a few watts;
 - low-cost TPU with a maintained LLM compiler;
 - scalable AI ASIC with high-speed chip interconnect;
@@ -114,8 +139,12 @@ Examples:
 
 ## Memory configuration rule
 
-`memory_capacity_gb` means RAM actually included/fixed in that exact referenced product configuration. Barebones use `null` and may record a verified `max_memory_gb`. `cpu_max_memory_gb` remains processor-theoretical metadata and must never be presented as included or board-verified memory.
+`memory_capacity_gb` means RAM/VRAM actually included or fixed in that exact referenced product configuration. Barebones use `null` and may record a verified `max_memory_gb`. `cpu_max_memory_gb` remains processor-theoretical metadata and must never be presented as included or board-verified memory.
+
+For discrete GPUs, `memory_capacity_gb` is fixed VRAM and `memory_config_status` must be `fixed`.
 
 ## Performance evidence rule
 
 Catalog inclusion does not require owning or benchmarking the product. When throughput evidence exists, optionally attach `performance_evidence` with source type, confidence, URL and notes as defined in `specs/EVIDENCE.md`. Unknown performance is valid. Do not fill the gap with fake tokens/sec.
+
+GPU TOPS/TFLOPS, shader counts, memory bandwidth and TGP/TBP must not be converted directly into LLM throughput or complete-node efficiency.
