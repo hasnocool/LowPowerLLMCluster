@@ -55,6 +55,8 @@ jobs:
         run: cat reports/current/daily-changes.md || true
       - name: Show Buy Watch Ignore Experimental recommendations
         run: cat reports/current/daily-recommendations.md || true
+      - name: Show complete-node TCO
+        run: cat reports/current/daily-tco.md || true
       - name: Show stale listing warnings
         run: llm-cluster-refresh stale --hours 72
       - name: Show source budgets
