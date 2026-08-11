@@ -5,9 +5,18 @@ from lowpower_llm_cluster.spec_enrichment import associate_spec_source, extract_
 
 
 def candidate_facts() -> dict:
+    motherboard = {
+        "compatibility_facts": {"socket": "AM4", "memory_type": "DDR4", "gpu_slot": "PCIe x16", "gpu_slot_lanes": 16, "pcie_generation": 4, "form_factors": ["ATX"], "supports_nvme_m2": True},
+        "spec_enrichment": {
+            "structured_document": {
+                "cpu_support_matrix": [{"cpu_model": "Ryzen 5 5600", "minimum_bios_version": "7C56vA9", "support_status": "supported", "source_type": "manufacturer_support_table"}],
+                "cpu_support_matrix_complete": False,
+            }
+        },
+    }
     return {
-        "cpu_host": {"compatibility_facts": {"socket": "AM4", "memory_types": ["DDR4"]}},
-        "motherboard": {"compatibility_facts": {"socket": "AM4", "memory_type": "DDR4", "gpu_slot": "PCIe x16", "gpu_slot_lanes": 16, "pcie_generation": 4, "form_factors": ["ATX"], "supports_nvme_m2": True}},
+        "cpu_host": {"compatibility_facts": {"socket": "AM4", "memory_types": ["DDR4"], "cpu_model": "Ryzen 5 5600"}, "listing": {"title": "AMD Ryzen 5 5600"}},
+        "motherboard": motherboard,
         "host_ram_32gb": {"compatibility_facts": {"memory_type": "DDR4"}},
         "storage_1tb": {"compatibility_facts": {"interface": "NVMe"}},
         "psu_750w": {"compatibility_facts": {"wattage_w": 750, "gpu_power_connectors": ["8-pin", "12V-2x6"]}},
