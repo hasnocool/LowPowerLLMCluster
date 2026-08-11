@@ -20,6 +20,7 @@ from .market import (
     refresh_bank_of_canada_fx,
     update_listing_presence,
 )
+from .reports import build_report_rows, named_reports, render_report
 from .sources import DigiKeyAdapter, EbayBrowseAdapter, ManufacturerJsonLdAdapter, MouserAdapter
 
 
@@ -51,6 +52,11 @@ def build_parser() -> argparse.ArgumentParser:
     aggregate = sub.add_parser("aggregate-performance", help="aggregate only compatible measured benchmark records")
     aggregate.add_argument("part_id")
     aggregate.add_argument("--include-estimates", action="store_true")
+
+    report = sub.add_parser("report", help="render CAD buying reports from live market evidence plus labelled catalog fallbacks")
+    report.add_argument("name", choices=["under-100", "under-250", "under-500", "32gb-plus", "low-power", "weird-bargains", "eol-bargains", "measured-evidence", "all"])
+    report.add_argument("--tax-rate", type=float, default=0.12, help="planning tax rate; default 12%% for a BC-style planning view")
+    report.add_argument("--json", action="store_true", help="emit machine-readable JSON")
     return parser
 
 
@@ -103,6 +109,21 @@ async def _refresh_fx(args: argparse.Namespace) -> int:
     return 0
 
 
+def _report(args: argparse.Namespace) -> int:
+    rows = build_report_rows(load_catalog()["parts"], tax_rate=args.tax_rate)
+    reports = named_reports(rows)
+    selected = reports if args.name == "all" else {args.name: reports[args.name]}
+    if args.json:
+        print(json.dumps(selected, indent=2, sort_keys=True))
+        return 0
+    for index, (name, values) in enumerate(selected.items()):
+        if index:
+            print()
+        title = name.replace("-", " ").title()
+        print(render_report(values, title))
+    return 0
+
+
 def main() -> int:
     args = build_parser().parse_args()
     if args.command == "discover":
@@ -143,6 +164,8 @@ def main() -> int:
         if not groups:
             print("No compatible records found.")
         return 0
+    if args.command == "report":
+        return _report(args)
     return 2
 
 
