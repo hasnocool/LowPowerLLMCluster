@@ -228,10 +228,7 @@ def extract_automatic_spec_fields(component: str, text: str, source_url: str, ob
             connectors.append("8-pin")
         if connectors:
             facts["gpu_power_connectors"] = sorted(set(connectors))
-        high_power = _first_int([
-            r"12V[- ]?2x6[^0-9]{0,40}(\d{3,4})\s*W",
-            r"12VHPWR[^0-9]{0,40}(\d{3,4})\s*W",
-        ], raw, minimum=300, maximum=700)
+        high_power = _first_int([r"12V[- ]?2x6[^0-9]{0,40}(\d{3,4})\s*W", r"12VHPWR[^0-9]{0,40}(\d{3,4})\s*W"], raw, minimum=300, maximum=700)
         if high_power:
             facts["native_12v2x6_w"] = high_power
     elif component == "chassis":
@@ -361,6 +358,15 @@ async def enrich_candidate(component: str, candidate: dict[str, Any], config: di
         client=client,
         target_cpu=str(target_cpu) if target_cpu else None,
     )
+
+    seller_firmware = configuration.get("seller_firmware_evidence")
+    if component == "motherboard" and isinstance(seller_firmware, dict) and (seller_firmware.get("board_revision") or seller_firmware.get("installed_bios_version")):
+        structured_stats["seller_firmware"] = dict(seller_firmware)
+        flashback_state = dict(structured_stats.get("bios_flashback") or {})
+        flashback_state["seller_firmware_evidence"] = dict(seller_firmware)
+        flashback_state["revision_bios_history"] = list(structured_stats.get("revision_bios_history") or [])
+        structured_stats["bios_flashback"] = flashback_state
+
     _fill_missing(facts, evidence, structured_facts, structured_evidence)
 
     if automatic:
