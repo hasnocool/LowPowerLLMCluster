@@ -14,9 +14,10 @@ def main() -> int:
         "src/lowpower_llm_cluster/mobile_platform.py", "src/lowpower_llm_cluster/apple_resolution.py",
         "src/lowpower_llm_cluster/firmware_readiness.py", "src/lowpower_llm_cluster/manufacturer_support.py",
         "src/lowpower_llm_cluster/firmware_discovery.py", "src/lowpower_llm_cluster/power_evidence.py",
-        "docs/APPLE_MOBILE_NODES.md", "docs/FIRMWARE_BOOT_READINESS.md",
+        "src/lowpower_llm_cluster/power_ingestion.py",
+        "docs/APPLE_MOBILE_NODES.md", "docs/FIRMWARE_BOOT_READINESS.md", "docs/POWER_ESTIMATION.md",
         "tests/test_mobile_platform.py", "tests/test_apple_resolution.py", "tests/test_firmware_readiness.py",
-        "tests/test_manufacturer_support.py", "tests/test_firmware_discovery.py", "tests/test_power_evidence.py",
+        "tests/test_manufacturer_support.py", "tests/test_firmware_discovery.py", "tests/test_power_evidence.py", "tests/test_power_ingestion.py",
     ]
     for rel in required:
         if not (ROOT / rel).exists(): errors.append(f"required mobile/firmware/power artifact missing: {rel}")
@@ -70,11 +71,20 @@ def main() -> int:
         errors.append("structured motherboard enrichment lost API completeness propagation")
 
     power_source=(ROOT/"src/lowpower_llm_cluster/power_evidence.py").read_text(encoding="utf-8")
-    for term in ("def hardware_power_identity","def aggregate_power_observations","load_p25_w","load_p75_w","exact_sku_or_model_identifier","configuration_conflict","power_evidence_distribution"):
+    for term in ("def hardware_power_identity","def aggregate_power_observations","load_p25_w","load_p75_w","exact_sku_or_model_identifier","configuration_conflict","power_evidence_distribution","eligible_for_device_power"):
         if term not in power_source: errors.append(f"self-improving power evidence lost invariant: {term}")
     model_source=(ROOT/"src/lowpower_llm_cluster/power_model.py").read_text(encoding="utf-8")
     for term in ("aggregate_power_observations",'"distribution": learned',"match_level"):
         if term not in model_source: errors.append(f"power model lost learned evidence priority: {term}")
+    ingestion_source=(ROOT/"src/lowpower_llm_cluster/power_ingestion.py").read_text(encoding="utf-8")
+    for term in ("def catalog_power_observations","def benchmark_power_observations","def refresh_power_evidence","throughput_divided_by_tokens_per_joule","eligible_for_device_power","USABLE_DEVICE_SCOPES"):
+        if term not in ingestion_source: errors.append(f"automatic power ingestion lost evidence/scope guardrail: {term}")
+    cli_source=(ROOT/"src/lowpower_llm_cluster/refresh_cli.py").read_text(encoding="utf-8")
+    for term in ("refresh-power-evidence","power-evidence","refresh_power_evidence"):
+        if term not in cli_source: errors.append(f"power evidence CLI lost operator surface: {term}")
+    ops_source=(ROOT/"src/lowpower_llm_cluster/ops.py").read_text(encoding="utf-8")
+    if "refresh_power_evidence" not in ops_source or '"power_evidence": power_result' not in ops_source:
+        errors.append("autonomous refresh must update learned power evidence before decision/TCO reports")
 
     compatibility_source=(ROOT/"src/lowpower_llm_cluster/compatibility.py").read_text(encoding="utf-8")
     for term in ("boot_readiness_score",'"boot_readiness"'):
