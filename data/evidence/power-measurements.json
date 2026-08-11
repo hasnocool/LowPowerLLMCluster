@@ -6,5 +6,43 @@
     "require_explicit_hardware_identity": true,
     "notes": "Add only measured vendor/community/local power observations with enough identity to avoid combining incompatible configurations. Internal-rail observations may be retained but are research-only for complete-device power estimation."
   },
-  "records": []
+  "records": [
+    {
+      "id": "notebookcheck-mbp16-2021-m1max-32gpu-64gb-2tb",
+      "part_id": "apple-macbook-pro-m1-pro-max",
+      "source_type": "community_measured",
+      "source_url": "https://www.notebookcheck.net/Apple-MacBook-Pro-16-2021-M1-Max-Laptop-Review-Full-Performance-without-Throttling.581437.0.html",
+      "power_scope": "complete_node_input",
+      "measurement_method": "Metrahit Energy wall-input measurement",
+      "workload": "Notebookcheck load-average power test",
+      "identity": {
+        "model": "apple m1 max",
+        "category": "apple silicon system",
+        "memory_gb": 64,
+        "storage_gb": 2048,
+        "apple_soc": "apple m1 max",
+        "apple_gpu_cores": 32,
+        "screen_inches": 16.2
+      },
+      "idle_w": 16.4,
+      "load_w": 94.0,
+      "max_w": 135.0,
+      "notes": "Exact reviewed configuration: MacBook Pro 16 2021, M1 Max 32-core GPU, 64GB unified memory, 2TB SSD. Idle value is the review's average idle measurement; load is the review's average load measurement."
+    },
+    {
+      "id": "techpowerup-msi-rtx3090-gaming-x-trio-gaming",
+      "source_type": "community_measured",
+      "source_url": "https://www.techpowerup.com/review/msi-geforce-rtx-3090-gaming-x-trio/29.html",
+      "power_scope": "accelerator_board_power",
+      "measurement_method": "TechPowerUp graphics-card-only power measurement",
+      "workload": "gaming",
+      "identity": {
+        "model": "msi geforce rtx 3090 gaming x trio",
+        "category": "gpu accelerator",
+        "gpu_board_partner": "msi"
+      },
+      "load_w": 350.0,
+      "notes": "Review reports gaming power around 350W for the MSI Gaming X Trio. This is graphics-card-only power and must not be treated as complete-node wall input."
+    }
+  ]
 }
