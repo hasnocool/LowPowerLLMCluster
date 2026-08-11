@@ -5,7 +5,8 @@
     "manufacturer_https_only": true,
     "unknown_fields_remain_unknown": true,
     "field_level_provenance_required": true,
-    "configured_constants_require_verified_page_identity": true
+    "configured_constants_require_verified_page_identity": true,
+    "gpu_family_names_do_not_imply_board_partner_dimensions": true
   },
   "associations": [
     {
@@ -93,6 +94,39 @@
         "memory_types": {"constant": ["DDR4", "DDR5"]},
         "pcie_generation": {"constant": 5},
         "tdp_w": {"constant": 65}
+      }
+    },
+    {
+      "id": "nvidia-rtx-3090-founders-edition",
+      "component": "gpu",
+      "manufacturer": "NVIDIA",
+      "match_terms": ["RTX 3090 Founders Edition", "GeForce RTX 3090 FE", "RTX 3090 FE"],
+      "verify_terms_any": ["Founders Edition Card Dimensions", "313 mm", "3-Slot"],
+      "source_url": "https://www.nvidia.com/en-us/geforce/graphics-cards/30-series/rtx-3090/",
+      "fields": {
+        "gpu_length_mm": {"constant": 313},
+        "gpu_slots": {"constant": 3},
+        "minimum_psu_w": {"constant": 750},
+        "power_connectors": {"constant": ["8-pin"]},
+        "minimum_pcie_generation": {"constant": 4},
+        "minimum_pcie_lanes": {"constant": 16}
+      }
+    },
+    {
+      "id": "intel-arc-b580-limited-edition",
+      "component": "gpu",
+      "manufacturer": "Intel",
+      "match_terms": ["Arc B580 Limited Edition", "Intel B580 Limited Edition"],
+      "verify_terms_any": ["Intel B580 Limited Edition", "272mm", "Resizable"],
+      "source_url": "https://www.intel.com/content/www/us/en/support/articles/000091128/graphics/intel-arc-dedicated-graphics-family.html",
+      "fields": {
+        "gpu_length_mm": {"constant": 272},
+        "gpu_slots": {"constant": 2},
+        "minimum_psu_w": {"constant": 600},
+        "power_connectors": {"constant": ["8-pin"]},
+        "minimum_pcie_generation": {"constant": 3},
+        "minimum_pcie_lanes": {"constant": 16},
+        "requires_resizable_bar": {"constant": true}
       }
     }
   ]
