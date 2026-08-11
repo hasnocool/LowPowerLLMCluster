@@ -6,6 +6,8 @@ All notable changes to this project will be documented here.
 
 ### Added
 
+- Harvested exact measured-power evidence across multiple hardware classes: M1 Max and M4-family Apple systems, Minisforum UM780 XTX, Pixel 10 Pro XL, Galaxy S26 Ultra, and MSI RTX 3090 Gaming X Trio board-only power.
+- `docs/EVIDENCE_HARVESTING.md` with per-category identity requirements, power-boundary rules, current measured coverage, and the highest-value remaining evidence gaps.
 - Automatic listing-time extraction of explicit SSD/NVMe controller, NAND type, storage interface, GPU board partner/revision/VBIOS, RAM topology, mobile SKU/SoC variant and accelerator host-context facts.
 - Seller-stated PCB revision and currently installed BIOS/UEFI evidence for structured marketplace listings, retained below manufacturer evidence in confidence/authority.
 - Revision-scoped BIOS history ingestion from official manufacturer BIOS API payloads when board/PCB revision metadata is explicitly present.
@@ -42,7 +44,7 @@ All notable changes to this project will be documented here.
 - Named `daily-market` and `weekly-deep-scan` autonomous refresh profiles.
 - Per-source `max_queries_per_run` and daily request-budget caps with persisted UTC-day usage state.
 - Configurable watchlists for exact parts, categories, keywords, sources, memory and target-power constraints.
-- Significant price-drop, stock-return, new-product, landed-cost-change and compatible benchmark regression/improvement alerts.
+- Significant price-drop, stock-return and new-product alerts.
 - Fingerprint-based alert deduplication so historical changes are not re-emitted every refresh.
 - Compact `reports/current/daily-changes.md` and machine-readable `daily-changes.json` change-intelligence outputs.
 - First-class `gpu_accelerator` catalog/sourcing category with fixed-VRAM and explicit board-power semantics.
