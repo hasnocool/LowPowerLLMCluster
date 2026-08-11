@@ -14,8 +14,15 @@
 - [x] Add compatibility-preserving benchmark aggregation.
 - [x] Add CAD buying reports: under CA$100/250/500, 32GB+, low-power, weird-hardware, EOL, measured-evidence.
 - [x] Add an exact-hardware benchmark reference product and seed sourced RK1/RK3588 llama.cpp evidence.
+- [x] Add source health history and consecutive-failure tracking.
+- [x] Add transient HTTP retry/backoff with jitter and Retry-After handling.
+- [x] Add stale-listing warnings without deleting historical observations.
+- [x] Add named daily/weekly autonomous discovery profiles.
+- [x] Add scheduled GitHub refresh with automatic FX and current-market report regeneration.
+- [x] Add additional exact-hardware Jetson Orin Nano Super community/vendor benchmark evidence.
 - [ ] Add province presets plus tariff/HS-code evidence without pretending customs treatment is universal.
-- [ ] Add source health history, rate-limit/backoff telemetry, and stale-source warnings.
+- [ ] Add source-specific rate-limit budget telemetry and next-allowed-request timestamps.
+- [ ] Add alert thresholds for repeated source failures, newly stale listings, and major price changes.
 - [ ] Add more structured used-market sources where official/legal API access exists.
 - [ ] Normalize form factor, dimensions, DC input, PSU/cooling and host requirements.
 - [ ] Verify board-level RAM maximums instead of relying on CPU theoretical limits.
@@ -25,6 +32,7 @@
 
 - [x] Ingest sourced vendor/community performance records with model/runtime/workload provenance.
 - [x] Keep compatible measurements grouped by exact benchmark signature instead of averaging unlike runs.
+- [x] Add additional exact-product Jetson community/vendor measurements without copying them to other Orin products.
 - [ ] Add confidence-aware performance ranges only when multiple independent compatible real sources justify them.
 - [ ] Add model-family presets to the safe model-fit screen.
 - [ ] Track published/estimated power boundaries without calling TDP complete-node watts.
