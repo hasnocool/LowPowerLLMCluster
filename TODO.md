@@ -24,13 +24,34 @@
 - [x] Add benchmark regression/improvement detection for compatible exact-hardware signatures.
 - [x] Add source query/run budgets with persisted daily estimated request usage.
 - [x] Add compact generated daily change-intelligence reports.
+- [x] Make discrete GPUs a first-class `gpu_accelerator` sourcing category.
+- [x] Seed current/used GPU references across NVIDIA CUDA, AMD ROCm/Vulkan and Intel oneAPI/SYCL ecosystems.
+- [x] Add GPU queries to daily/weekly autonomous sourcing profiles and a dedicated GPU-value watchlist.
+- [x] Add decision-quality scoring from price history, model fit, confidence, freshness and volatility.
+- [x] Add native-currency new-all-time-low detection.
+- [x] Add price trend and volatility metrics.
+- [x] Add opportunity freshness/expiry semantics.
+- [x] Add P1-P4 alert prioritization.
+- [x] Add ranked Buy / Watch / Ignore / Experimental daily recommendations.
 - [ ] Add province presets plus tariff/HS-code evidence without pretending customs treatment is universal.
+- [ ] Persist historical landed-CAD snapshots so pure FX movement can be compared without recomputing old observations at current FX.
+- [ ] Add exact host/PSU/cooling total-cost models for discrete GPUs and host-attached accelerators.
 - [ ] Add provider-reported remaining quota/reset timestamps when APIs expose them.
 - [ ] Add notification delivery adapters for email/webhook/chat after alert evidence is generated.
 - [ ] Add more structured used-market sources where official/legal API access exists.
 - [ ] Normalize form factor, dimensions, DC input, PSU/cooling and host requirements.
 - [ ] Verify board-level RAM maximums instead of relying on CPU theoretical limits.
-- [ ] Add more direct-China and used-market mini PCs, mobile boards, SBCs and unusual accelerators.
+- [ ] Add more direct-China and used-market mini PCs, mobile boards, SBCs, GPUs and unusual accelerators.
+
+## GPU coverage
+
+- [x] Track RTX 5060 Ti 16GB, RTX 3090 24GB, RX 9070/9070 XT 16GB, Arc B580 12GB and Arc A770 16GB reference products.
+- [ ] Expand NVIDIA coverage to other 12GB/16GB/24GB/32GB cards when live pricing justifies catalog inclusion.
+- [ ] Expand AMD coverage to additional maintained ROCm/Vulkan cards with useful VRAM-per-dollar.
+- [ ] Expand Intel Arc coverage as current/used pricing changes.
+- [ ] Add workstation/datacenter GPU watches when used prices cross practical local-LLM thresholds.
+- [ ] Ingest exact-GPU llama.cpp/vLLM/MLC/community measurements only when board/runtime/model provenance is sufficient.
+- [ ] Add used-GPU condition signals such as board-partner SKU, cooler/fan notes, return policy and seller history where the source provides them.
 
 ## Evidence & estimates
 
@@ -38,10 +59,10 @@
 - [x] Keep compatible measurements grouped by exact benchmark signature instead of averaging unlike runs.
 - [x] Add exact-product Jetson and stock BC-250 community/vendor measurements without copying them to similar hardware.
 - [ ] Add confidence-aware performance ranges only when multiple independent compatible real sources justify them.
-- [ ] Add model-family presets to the safe model-fit screen.
-- [ ] Track published/estimated power boundaries without calling TDP complete-node watts.
+- [ ] Add model-family presets beyond the default transparent Q4 decision-capacity screen.
+- [ ] Track published/estimated power boundaries without calling TDP/TGP/TBP complete-node watts.
 - [ ] Benchmark the ThinkPad L14 as an optional local reference/calibration node.
-- [ ] Import additional useful BC-250/RK3588/Jetson/Hailo/SOPHGO results only when exact hardware/runtime provenance is available.
+- [ ] Import additional useful BC-250/RK3588/Jetson/Hailo/SOPHGO/GPU results only when exact hardware/runtime provenance is available.
 
 ## Hardware discovery
 
@@ -57,4 +78,4 @@
 - [ ] Keep `llm-cluster-bench` adapters healthy as runtimes change.
 - [ ] Add importers for third-party benchmark records.
 - [ ] Keep specialist vision/audio metrics separate from LLM throughput.
-- [ ] Do not make benchmarking a prerequisite for catalog releases.
+- [ ] Do not make benchmarking a prerequisite for catalog releases or daily recommendations.
