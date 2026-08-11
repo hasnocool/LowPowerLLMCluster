@@ -2,7 +2,7 @@
 
 Use before merging or publishing a meaningful change.
 
-1. Determine semantic-version impact.
+1. Confirm the change preserves the catalog-first charter and determine semantic-version impact.
 2. Keep `VERSION`, `pyproject.toml`, package `__version__`, and latest CHANGELOG version aligned.
 3. Update README/PARTS/TODO/specs when their truth changed.
 4. Run `python scripts/check_governance.py`.

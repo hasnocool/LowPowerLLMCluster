@@ -1,10 +1,12 @@
 # Catalog Curation Skill
 
-Use when adding, removing or refreshing hardware data.
+Use for the project's primary workflow: adding, correcting or refreshing products.
 
-- `data/parts.json` is the manifest; editable hardware records live in `data/catalog/*.json`. Together they are authoritative. Do not hand-edit generated `PARTS.md` as the source.
-- Preserve the verification date and direct URL.
-- Distinguish exact-SKU price from a variant family range.
-- Keep secondary-market and sold-out references visible when they remain technically useful, but mark status accurately.
-- Deduplicate by actual platform/configuration, not seller title.
-- Run `python scripts/validate_catalog.py`, `python scripts/render_parts_table.py`, and governance checks.
+1. Read the charter, guardrails, `specs/HARDWARE_CATALOG.md` and `specs/EVIDENCE.md`.
+2. `data/parts.json` is the manifest; editable records live under `data/catalog/*.json`.
+3. Preserve exact configuration, verification date, price/source URL and listing status.
+4. Distinguish included/fixed RAM from configurable board maximum and CPU theoretical maximum.
+5. Unknown performance is valid. Never fill missing throughput with TOPS-based arithmetic.
+6. When real vendor/community/local performance exists, attach provenance/confidence rather than copying a naked number.
+7. Keep sold-out/EOL references when technically useful, but mark lifecycle/availability accurately.
+8. Regenerate `PARTS.md` and run catalog/governance/tests.

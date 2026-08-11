@@ -3,18 +3,24 @@
 Before changing the project, an agent must:
 
 1. read `AGENTS.md`, `docs/PROJECT_CHARTER.md`, and `docs/GUARDRAILS.md`;
-2. identify whether the task changes catalog data, architecture, benchmarks, runtime code or release state;
+2. identify whether the task changes catalog data, sourcing, evidence/estimation semantics, optional benchmarks, runtime code or release state;
 3. use the matching skill under `.agents/skills/`;
-4. preserve source attribution and confidence labels;
+4. preserve source attribution, memory semantics and confidence labels;
 5. run the validation suite;
 6. update docs and CHANGELOG for user-visible behavior/schema changes.
 
-Before declaring a hardware candidate better than another, the agent must state whether the conclusion comes from manufacturer specifications, listing data, community measurements or project measurements.
+## Default task priority
+
+When work could reasonably be either product/catalog work or benchmark-lab work, prefer the catalog task. Product discovery, exact configuration, current pricing, compatibility and evidence quality are the project's primary deliverables.
+
+## Claims
+
+Before calling one product better than another, say what dimension is being compared: price, included RAM, verified memory potential, software maturity, sourced measured throughput, measured energy efficiency, or another explicit factor. Do not turn a catalog score into a performance claim.
 
 ## Accelerator changes
 
-When a task adds or changes NPU/TPU/AI-ASIC/FPGA/adaptive/EOL accelerator data, agents must also read `.agents/skills/accelerator-research/SKILL.md` and `docs/ACCELERATORS.md`. Accelerator entries require runtime evidence and explicit power scope; TOPS alone is insufficient.
+Read `.agents/skills/accelerator-research/SKILL.md` and `docs/ACCELERATORS.md`. Runtime evidence is required before marking an accelerator as a plausible LLM candidate, but a full benchmark is not required to catalog/watch it.
 
 ## Benchmark changes
 
-When a task changes benchmark orchestration, metrics, power collection or result interpretation, agents must also read `.agents/skills/benchmark-hardware/SKILL.md`, `docs/BENCHMARK_HARNESS.md`, and `specs/BENCHMARKING.md`. Run `python scripts/validate_benchmark_profiles.py` and the test suite. New runtime adapters must preserve non-blocking subprocess/telemetry behavior and the workload/power-boundary rules.
+Benchmark work is optional supporting evidence. When modifying it, read `.agents/skills/benchmark-hardware/SKILL.md`, `docs/BENCHMARK_HARNESS.md`, and `specs/BENCHMARKING.md`, preserve non-blocking behavior, validate profiles, and keep workload/power boundaries explicit.

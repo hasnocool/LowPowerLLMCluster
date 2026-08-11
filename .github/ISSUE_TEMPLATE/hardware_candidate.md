@@ -1,39 +1,39 @@
 ---
 name: Hardware candidate
-about: Propose a node, NPU, TPU, AI ASIC, FPGA/adaptive SoC or unusual/decommissioned platform
+about: Propose a mini PC, board, accelerator, component or unusual/decommissioned platform
 title: "hardware: "
 labels: []
 assignees: []
 ---
 
-## Candidate
+## Candidate / exact configuration
 
-## Hardware / accelerator family
-
-## Why it may be interesting
-
-## Intended workload
-
-LLM/VLM, embeddings, vision, audio, custom FPGA research, or another specialist workload?
+## Why someone might buy or track it
 
 ## Current price and URL
 
 Use `unresolved` rather than guessing when a current price cannot be verified.
 
-## Memory capacity / bandwidth
+## Included/fixed RAM vs configurable/max RAM
 
-## Expected power and measurement scope
+Do not substitute the CPU theoretical maximum for the board/product configuration.
 
-Chip, module, board, SOM, or complete-node power?
+## Runtime / OS / compiler compatibility
 
-## Host requirements / attachment
+## Published power and its scope
 
-## Runtime / compiler / model support evidence
+Chip, board, package/TDP, SOM, or complete-node?
 
-## Lifecycle status
+## Performance evidence, if any
 
-Current, EOL, discontinued, secondary-market-only, experimental, etc.
+Vendor measured, community measured, local measured, derived/spec estimate, or unknown? Include source URL and confidence. **Unknown is acceptable.**
 
-## Risks or unknowns
+## Host / PSU / cooling / storage requirements
 
-## What benchmark would validate the hypothesis?
+## Lifecycle / availability
+
+## Risks and unknowns
+
+## Optional benchmark question
+
+If somebody eventually owns this hardware, what measurement would be most useful? This is optional and does not block catalog inclusion.

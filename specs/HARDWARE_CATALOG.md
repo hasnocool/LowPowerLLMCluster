@@ -4,7 +4,7 @@
 
 `data/parts.json` is the catalog manifest and points to category-sized JSON fragments under `data/catalog/`. Together they are the source of truth for purchasable hardware and market references. `PARTS.md` is generated from them.
 
-Catalog schema **v3** adds first-class accelerator and lifecycle metadata and allows an unresolved price to be represented honestly as `null`. The manifest is described by `specs/hardware-catalog.schema.json`; category fragments are described by `specs/hardware-part.schema.json`.
+Catalog schema **v3** adds first-class accelerator and lifecycle metadata and allows an unresolved price to be represented honestly as `null`. v0.4.1 extends the same schema compatibly with catalog-first memory/evidence fields; the manifest version stays v3 because existing fragment structure remains compatible. The manifest is described by `specs/hardware-catalog.schema.json`; category fragments are described by `specs/hardware-part.schema.json`.
 
 ## Candidate categories
 
@@ -55,7 +55,7 @@ LLM candidates additionally carry:
 - `hardware_class`
 - `llm_candidate`
 - processor/architecture fields where known
-- `memory_type` and `memory_capacity_gb`
+- `memory_type`, `memory_capacity_gb`, `max_memory_gb` and `memory_config_status` where known
 - memory bandwidth when a trustworthy value is available
 - storage/network/expandability when applicable
 - `power_target_w` or a clearly labelled power range when known
@@ -111,3 +111,11 @@ Examples:
 - FPGA platform for custom ternary/INT4 transformer datapaths;
 - obsolete enterprise accelerator that may become compelling below a threshold used price;
 - fixed-function accelerator that saves total cluster energy by offloading vision.
+
+## Memory configuration rule
+
+`memory_capacity_gb` means RAM actually included/fixed in that exact referenced product configuration. Barebones use `null` and may record a verified `max_memory_gb`. `cpu_max_memory_gb` remains processor-theoretical metadata and must never be presented as included or board-verified memory.
+
+## Performance evidence rule
+
+Catalog inclusion does not require owning or benchmarking the product. When throughput evidence exists, optionally attach `performance_evidence` with source type, confidence, URL and notes as defined in `specs/EVIDENCE.md`. Unknown performance is valid. Do not fill the gap with fake tokens/sec.

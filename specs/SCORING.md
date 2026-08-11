@@ -1,37 +1,35 @@
-# Scoring Specification
+# Catalog Scoring Specification
 
-## Two-stage ranking
+## Purpose
 
-### Stage A — discovery/screening
+`llm-cluster rank` is a **shopping/research shortlist**, not a simulated benchmark. Its job is to surface products worth investigating or buying.
 
-Before hardware is benchmarked, `llm-cluster rank` uses a deliberately conservative heuristic based on:
+The score may use:
 
-- usable memory capacity
-- target power
-- price
-- trustworthy memory bandwidth when available
-- software maturity
-- hardware risk
-- useful cluster I/O
+- current acquisition price;
+- included/fixed memory or discounted configurable memory potential;
+- published power hints, clearly distinguished from complete-node measurements;
+- software maturity;
+- lifecycle/availability;
+- setup/ownership risk.
 
-It is a shortlist score only.
+The score must not use TOPS, TFLOPS or invented tokens/sec.
 
-### Stage B — measured ranking
+## Memory confidence
 
-Once measurements exist, the preferred score must be workload-specific and based on real data such as:
+Memory contributes according to evidence quality:
 
-- generation tokens/joule
-- prompt tokens/joule
-- generation tokens per purchase dollar
-- maximum useful model/context capacity
-- idle energy cost
-- software/reliability penalty
-- complete node cost including required RAM, storage, cooling and PSU
+1. included/fixed RAM — strongest;
+2. verified board maximum — useful but requires additional purchase;
+3. CPU theoretical maximum — weak and heavily discounted;
+4. unknown — little/no capacity credit.
 
-Never combine fundamentally different workloads into one unexplained number. Show the component metrics next to any composite score.
+This prevents a barebone with a CPU that theoretically supports 256GB from appearing to include 256GB.
 
-## Accelerator rule
+## Performance evidence is separate
 
-Peak TOPS/TFLOPS are **not** inputs to Stage A scoring. Precision formats, compiler coverage, memory architecture and workload shapes differ too much for a raw compute number to be comparable. Accelerators can receive screening scores only when `llm_candidate=true`, pricing is resolved, usable model memory is known and a real LLM/VLM runtime path exists.
+When vendor/community/local performance exists, display it alongside source type and confidence. Do not multiply a weak benchmark into the catalog score. Product discovery and performance evidence are separate dimensions.
 
-Fixed-function specialist accelerators should be evaluated with workload-specific metrics such as frames/joule or whole-cluster energy saved, not forced into a tokens/joule ranking.
+## Optional measured comparisons
+
+The benchmark subsystem can compare genuinely compatible results (same model/workload dimensions) using measured tokens/sec, complete-node energy and acquisition cost. Those results are evidence records, not prerequisites for catalog inclusion.

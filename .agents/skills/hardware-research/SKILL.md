@@ -1,12 +1,13 @@
 # Hardware Research Skill
 
-Use when discovering new mini PCs, dev boards, SBCs, embedded boards or specialty compute.
+Use when discovering new mini PCs, boards, accelerators or unusual compute.
 
-1. Read the charter and guardrails.
-2. Start from the hypothesis: why could this hardware be unusually useful for local LLM inference?
-3. Prefer manufacturer specifications for silicon/memory/power modes.
-4. Find a current purchasable listing or a clearly labelled reference price.
-5. Search runtime/community evidence for Linux and llama.cpp/backend compatibility.
-6. Record risks and missing information instead of filling gaps with assumptions.
-7. Add the candidate to the appropriate `data/catalog/*.json` fragment (and update the manifest only when adding a new fragment), regenerate `PARTS.md`, and update `docs/SOURCES.md`.
-8. Never call TOPS, TFLOPS, bandwidth or core count a measured LLM result.
+1. Start with the catalog question: **why might someone buy or track this product?**
+2. Find the exact product/configuration, current/reference price and direct URL.
+3. Prefer manufacturer sources for silicon, memory interfaces and official power modes.
+4. Record software/runtime compatibility and maintenance burden.
+5. Search for vendor/community benchmark evidence when useful, but do not require it for inclusion.
+6. Record missing facts explicitly instead of guessing.
+7. For barebones, separate included RAM from board maximum and CPU theoretical maximum.
+8. Add to the correct `data/catalog/*.json`, regenerate `PARTS.md`, update sources, validate.
+9. Never call TOPS, TFLOPS, bandwidth or core count a measured LLM result.
