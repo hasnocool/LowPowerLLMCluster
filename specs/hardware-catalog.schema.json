@@ -1,31 +1,26 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/lowpowerllmcluster/hardware-catalog.schema.json",
-  "title": "LowPowerLLMCluster hardware catalog",
+  "title": "LowPowerLLMCluster catalog manifest",
   "type": "object",
-  "required": ["schema_version", "snapshot_date", "currency", "parts"],
+  "required": ["schema_version", "snapshot_date", "currency", "candidate_categories", "part_files"],
   "properties": {
-    "schema_version": {"const": 2},
+    "schema_version": {"const": 3},
     "snapshot_date": {"type": "string", "format": "date"},
     "currency": {"const": "USD"},
-    "parts": {
+    "project_scope": {"type": "string"},
+    "candidate_categories": {
       "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["id", "category", "name", "vendor", "price_min_usd", "price_max_usd", "moq", "url", "verified_on", "listing_status", "plain_language"],
-        "properties": {
-          "id": {"type": "string", "minLength": 3},
-          "category": {"type": "string"},
-          "price_min_usd": {"type": "number", "minimum": 0},
-          "price_max_usd": {"type": "number", "minimum": 0},
-          "moq": {"type": "integer", "minimum": 1},
-          "url": {"type": "string", "format": "uri"},
-          "verified_on": {"type": "string", "format": "date"},
-          "llm_candidate": {"type": "boolean"},
-          "memory_capacity_gb": {"type": "number", "exclusiveMinimum": 0},
-          "risk_level": {"enum": ["low", "medium", "high"]}
-        }
-      }
+      "items": {"type": "string", "minLength": 1},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "part_files": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^catalog/.+\\.json$"},
+      "minItems": 1,
+      "uniqueItems": true
     }
-  }
+  },
+  "additionalProperties": false
 }

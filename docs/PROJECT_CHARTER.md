@@ -12,7 +12,10 @@ Find, measure and combine unusually cost-effective hardware into a low-power dis
 - embedded/industrial boards
 - edge-AI developer kits
 - decommissioned or specialty compute boards such as AMD BC-250
-- discrete accelerators only when they improve the system-level efficiency/cost case
+- NPUs, TPUs and AI ASICs with usable model/runtime paths
+- FPGAs and adaptive SoCs for custom low-precision/transformer research
+- decommissioned accelerators when secondary-market value may justify software/integration risk
+- fixed-function accelerators when they improve whole-cluster efficiency by offloading specialist workloads
 - ultra-low-power control-plane nodes
 - networking, memory, storage and DC-power infrastructure required by the cluster
 

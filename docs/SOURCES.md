@@ -43,3 +43,39 @@ A marketplace page is evidence of a current advertised listing, not a guarantee 
 ### BC-250 evidence warning
 
 No normal AMD retail specification page was found for the BC-250. Treat its detailed behavior, inference benchmarks and unofficial CU-unlock information as community evidence unless independently measured by this project.
+
+## Accelerator sources — added 2026-08-10
+
+### GenAI-capable accelerator references
+
+- Hailo-10H chip: https://hailo.ai/products/ai-accelerators/hailo-10h-ai-accelerator/
+- Hailo-10H M.2 module: https://hailo.ai/products/ai-accelerators/hailo-10h-m-2-ai-acceleration-module/
+- Raspberry Pi AI HAT+ 2: https://www.raspberrypi.com/products/ai-hat-plus-2/
+- Raspberry Pi AI HAT documentation: https://www.raspberrypi.com/documentation/accessories/ai-hat-plus.html
+- SOPHGO LLM-TPU: https://github.com/sophgo/LLM-TPU
+- Firefly Core-1688JD4 BM1688 SoM: https://www.firefly.store/products/core-1688jd4-core-board
+- BM1684X reseller snapshot: https://www.chinaglobalmall.com/products/10424124037010
+- Tenstorrent accelerator cards/current prices: https://tenstorrent.com/en/hardware/cards
+- Tenstorrent Wormhole specifications: https://docs.tenstorrent.com/docs-test/core/latest/aibs/wormhole/specifications.html
+- Tenstorrent model/software compatibility: https://tenstorrent.com/developers
+
+### FPGA and adaptive computing
+
+- AMD Kria K26 / KV260: https://www.amd.com/en/products/system-on-modules/kria/k26.html
+- AMD KV260 Vitis AI DPU reference: https://docs.amd.com/r/3.0-English/ug1354-xilinx-ai-sdk/KV260-Vision-AI-Starter-Kit
+- AMD Versal AI Edge Series Gen 2: https://www.amd.com/en/products/adaptive-socs-and-fpgas/versal/gen2/ai-edge-series.html
+- AMD Alveo U50 FPGA/HBM2 specifications: https://docs.amd.com/r/en-US/ds965-u50/Summary
+
+### Specialist and decommissioned accelerators
+
+- Google Coral USB Accelerator: https://www.coral.ai/products/accelerator/
+- MemryX MX3 chip datasheet: https://developer.memryx.com/specs/mx3_datasheet.html
+- MemryX MX3 M.2 module: https://developer.memryx.com/specs/M.2_datasheet.html
+- MemryX 2026 module-price reference: https://devblog.memryx.com/introduction-to-integrating-computer-vision-into-hardware-projects/
+- AMD Alveo V70 discontinued accelerator: https://www.amd.com/en/products/accelerators/alveo/v70/a-v70-p16g-pq-g.html
+- Intel Neural Compute Stick 2 specifications: https://www.intel.com/content/www/us/en/products/sku/140109/intel-neural-compute-stick-2/specifications.html
+- Intel NCS2 discontinuation notice: https://www.intel.com/content/www/us/en/support/articles/000093181/boards-and-kits.html
+
+### Accelerator evidence warning
+
+TOPS/TFLOPS values are recorded only as architecture/discovery metadata. They are not used as measured LLM performance. Accelerator chip/module power must not be compared directly with complete-node wall power unless the measurement boundary is explicitly aligned.

@@ -11,15 +11,30 @@ def project_root() -> Path:
 
 
 def load_catalog(path: Path | None = None) -> dict[str, Any]:
+    """Load the catalog manifest and transparently merge its part fragments."""
     catalog_path = path or project_root() / "data" / "parts.json"
     with catalog_path.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
+        data: dict[str, Any] = json.load(handle)
+
+    if "parts" in data:
+        return data
+
+    parts: list[dict[str, Any]] = []
+    for relative_path in data.get("part_files", []):
+        fragment_path = catalog_path.parent / str(relative_path)
+        with fragment_path.open("r", encoding="utf-8") as handle:
+            fragment = json.load(handle)
+        parts.extend(fragment.get("parts", []))
+
+    return {**data, "parts": parts}
 
 
-def midpoint_price(part: dict[str, Any]) -> float:
-    low = float(part["price_min_usd"])
-    high = float(part["price_max_usd"])
-    return (low + high) / 2.0
+def midpoint_price(part: dict[str, Any]) -> float | None:
+    low = part.get("price_min_usd")
+    high = part.get("price_max_usd")
+    if low is None or high is None:
+        return None
+    return (float(low) + float(high)) / 2.0
 
 
 def llm_candidates(parts: list[dict[str, Any]]) -> list[dict[str, Any]]:

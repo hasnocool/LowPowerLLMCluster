@@ -13,18 +13,24 @@ def money(value: float) -> str:
     return f"${value:,.2f}"
 
 
+def display_price(part: dict[str, Any]) -> str:
+    mid = midpoint_price(part)
+    return money(mid) if mid is not None else "unknown"
+
+
 def rank_nodes(parts: list[dict[str, Any]]) -> int:
     nodes = llm_candidates(parts)
-    nodes.sort(key=node_score, reverse=True)
+    nodes.sort(key=lambda part: (node_score(part), midpoint_price(part) is not None), reverse=True)
     print("Score  Mid price  Target W  Class                 Candidate")
     print("-----  ---------  --------  --------------------  --------------------------------------------")
     for part in nodes:
         target = part.get("power_target_w") or part.get("ctdp_min_w") or "?"
         print(
-            f"{node_score(part):5.2f}  {money(midpoint_price(part)):>9}  {str(target):>8}  "
+            f"{node_score(part):5.2f}  {display_price(part):>9}  {str(target):>8}  "
             f"{str(part.get('hardware_class', part['category']))[:20]:20}  {part['name']}"
         )
     print("\nScores are cross-platform screening heuristics, not measured inference performance.")
+    print("TOPS/TFLOPS are discovery metadata and are deliberately excluded from the screening score.")
     print("Use benchmark data before making a purchase decision.")
     return 0
 
@@ -40,6 +46,11 @@ def bom(parts: list[dict[str, Any]], ids: list[str]) -> int:
         if part_id not in by_id:
             raise SystemExit(f"Unknown part id: {part_id}")
         part = by_id[part_id]
+        if part.get("price_min_usd") is None or part.get("price_max_usd") is None:
+            raise SystemExit(
+                f"Part {part_id} has unresolved pricing ({part.get('price_status')}); "
+                "resolve a current price before including it in a BOM."
+            )
         low = float(part["price_min_usd"]) * count
         high = float(part["price_max_usd"]) * count
         total_min += low

@@ -48,3 +48,14 @@ Benchmarks must record hardware revision, firmware/BIOS, OS/kernel, runtime comm
 ## 10. Automation guardrail
 
 Price refreshers must be non-blocking when integrated into asynchronous services, rate-limited, source-attributed and able to fail without corrupting the last known-good catalog.
+## 11. Accelerator capability is workload-specific
+
+NPU, TPU, AI ASIC and FPGA labels do not imply general LLM compatibility. Record the compiler/runtime path and intended workload. Fixed-function vision hardware remains a specialist unless a reproducible transformer path exists.
+
+## 12. Power boundaries must be explicit
+
+Accelerator chip power, module power, board TDP and complete-node input power are different measurements. Store the boundary with every number and use complete-node measurements for final tokens/joule comparisons.
+
+## 13. EOL hardware needs an exit-risk penalty
+
+Discontinued hardware can be a bargain, but frozen drivers, unavailable toolchains, missing replacement parts and unsupported kernels are part of ownership cost. Keep lifecycle status visible and do not invent a price when the current used market has not been resolved.

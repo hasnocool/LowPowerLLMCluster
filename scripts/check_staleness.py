@@ -2,11 +2,15 @@
 from __future__ import annotations
 
 import argparse
-import json
+import sys
 from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from lowpower_llm_cluster.catalog import load_catalog  # noqa: E402
+
 CATALOG = ROOT / "data" / "parts.json"
 
 
@@ -14,7 +18,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--days", type=int, default=30)
     args = parser.parse_args()
-    data = json.loads(CATALOG.read_text(encoding="utf-8"))
+    data = load_catalog(CATALOG)
     today = date.today()
     stale = []
     for part in data["parts"]:

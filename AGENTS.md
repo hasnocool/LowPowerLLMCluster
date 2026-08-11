@@ -11,7 +11,7 @@ Before making changes, read:
 
 ## Project purpose
 
-Build a low-cost, low-power distributed local-LLM inference platform by discovering and **measuring** the best commodity and unusual hardware: mobile-CPU boards, mini PCs, SBCs, dev boards, embedded systems, edge-AI kits and specialty hardware such as AMD BC-250.
+Build a low-cost, low-power distributed local-LLM inference platform by discovering and **measuring** the best commodity and unusual hardware: mobile-CPU boards, mini PCs, SBCs, dev boards, embedded systems, edge-AI kits, NPUs, TPUs, AI ASICs, FPGAs, adaptive SoCs and decommissioned/specialty hardware such as AMD BC-250 and Alveo-class accelerators.
 
 ## Rules that may not be traded away
 
@@ -23,6 +23,8 @@ Build a low-cost, low-power distributed local-LLM inference platform by discover
 - Preserve source URLs, source type and verification dates for market data.
 - Prefer whole requests on one suitable node; treat network model sharding as an optional capacity fallback.
 - Experimental hardware must keep explicit risk/software-maturity labels.
+- Accelerator entries must distinguish LLM-capable, specialist-only, research-only and unproven runtime paths; TOPS alone never grants `llm_candidate=true`.
+- Host-attached accelerators must eventually be measured with host cost and complete-node power, not accelerator-only power.
 - Any async service code must use non-blocking I/O and thread-safe operations; move blocking work off the event loop.
 - Update README, PARTS.md, CHANGELOG.md, TODO.md and relevant docs/specs when their truth changes.
 - Use semantic versioning.

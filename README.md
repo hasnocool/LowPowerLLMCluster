@@ -43,28 +43,29 @@ The router sends a complete request to the best node. That normally works better
 
 ## The project is intentionally hardware-agnostic
 
-Laptop-class Ryzen remains a strong baseline, but v0.2 broadens the hunt:
+Laptop-class Ryzen remains a strong baseline, but v0.3 now treats **NPUs, TPUs, AI ASICs, FPGAs, adaptive SoCs and decommissioned accelerators as first-class research families**:
 
 ```text
-                         HARDWARE DISCOVERY FUNNEL
+                              HARDWARE DISCOVERY FUNNEL
 
-     mini PCs        dev boards        SBCs         specialty boards
-        │                │               │                 │
-        ▼                ▼               ▼                 ▼
-   Ryzen 8845HS      Jetson Orin      RK3588          AMD BC-250
-   Ryzen AI 300      edge AI kits     32GB ARM       unified GDDR6
-        │                │               │                 │
-        └────────────────┴───────┬───────┴─────────────────┘
-                                 ▼
-                         SAME BENCHMARK SUITE
-                                 │
-            ┌────────────────────┼────────────────────┐
-            ▼                    ▼                    ▼
-        tokens/sec           wall watts           model capacity
-            │                    │                    │
-            └────────────────────┼────────────────────┘
-                                 ▼
-                        tokens/joule + $/value
+ mini PCs / boards      SBCs / dev kits       GenAI accelerators       FPGA / EOL
+        │                    │                       │                     │
+        ▼                    ▼                       ▼                     ▼
+ Ryzen 7735U/8845HS      RK3588 / Jetson        Hailo-10H NPU        AMD Kria / Versal
+ mobile CPU boards       32GB ARM nodes         SOPHGO BM1688        Alveo U50 / V70
+ AMD BC-250              edge systems           Tenstorrent ASIC     old Movidius VPUs
+        │                    │                       │                     │
+        └────────────────────┴──────────────┬────────┴─────────────────────┘
+                                           ▼
+                                 WORKLOAD-AWARE TESTING
+                                           │
+                    ┌──────────────────────┼──────────────────────┐
+                    ▼                      ▼                      ▼
+                tokens/sec              wall watts          specialist offload
+                    │                      │                      │
+                    └──────────────────────┼──────────────────────┘
+                                           ▼
+                              tokens/joule + tokens/$ + fit
 ```
 
 The rule is **measure first, specialize second**. Weird hardware is welcome, but an experimental driver hack never becomes a normal recommendation just because one benchmark is fast. See [Project Charter](docs/PROJECT_CHARTER.md) and [Guardrails](docs/GUARDRAILS.md).
@@ -79,6 +80,11 @@ The rule is **measure first, specialize second**. Weird hardware is welcome, but
 | Mini-ITX ARM | Radxa ROCK 5 ITX+ | standard physical form factor and 32GB option | availability and RK3588 software ecosystem |
 | high-core mobile CPU board | MINISFORUM BD795M | 16C/32T laptop silicon on standard mATX with PCIe | much higher power than tiny nodes |
 | modular laptop mainboard | Framework Ryzen AI | documented standalone board and maintainable ecosystem | expensive versus direct-China barebones |
+| GenAI NPU | Hailo-10H / AI HAT+ 2 | 8GB dedicated RAM, explicit LLM/VLM support and very low accelerator power | small-model memory ceiling; host power still counts |
+| edge TPU / AI SoC | SOPHGO BM1688/BM1684X | maintained LLM-TPU stack with Qwen/Llama/DeepSeek support | smaller ecosystem and model conversion workflow |
+| open AI ASIC | Tenstorrent Wormhole | real text-generation stack, GDDR6 and high-speed multi-card links | 160W board power; reference rather than low-power worker |
+| adaptive FPGA SoC | AMD Kria / Versal | lets us test custom INT4/ternary/BitNet transformer datapaths | engineering effort; stock TOPS are not LLM benchmarks |
+| decommissioned accelerator | Alveo U50/V70, old VPUs | secondary-market hardware can become attractive after enterprise liquidation | frozen/limited software and uncertain used pricing |
 
 ## Current best leads
 
@@ -89,8 +95,34 @@ The rule is **measure first, specialize second**. Weird hardware is welcome, but
 | most expandable | Topton FU05 Ryzen 7 8745HS | **$310-375** | dual 2.5GbE, 2x DDR5, 2x NVMe and OCuLink |
 | premium performance/watt | Ryzen AI 9 HX 370 barebone | **$720** | 12C/24T, 15-54W configurable CPU envelope and Radeon 890M |
 | cheap cluster switch | EDUP 8-port 2.5GbE | **$19.90-30** | enough ports for a small worker cluster |
+| low-power GenAI accelerator | Raspberry Pi AI HAT+ 2 / Hailo-10H 8GB | **$200** | 40 TOPS INT4, dedicated memory, explicit LLM/VLM support |
+| low-cost TPU SoM | Firefly BM1688 8GB | **$339** | official SOPHGO LLM-TPU path for Qwen/Llama/DeepSeek-class models |
+| FPGA research kit | AMD Kria KV260 | **$249 MSRP** | affordable programmable transformer/low-precision research platform |
+| open AI-ASIC reference | Tenstorrent Wormhole n150s | **$999** | 12GB GDDR6, 288GB/s and fast accelerator interconnect; high-power comparison node |
 
 See **[PARTS.md](PARTS.md)** for URLs, MOQ, seller information, verification status and the reasoning behind every listing.
+
+
+## Why specialist accelerators belong in the cluster
+
+The project does **not** assume every accelerator should run an LLM. A small fixed-function device can still reduce total power if it handles vision, detection, audio or embeddings while the larger LLM node sleeps. Devices only receive `llm_candidate=true` when there is a real model/runtime path—not because their marketing page has a large TOPS number.
+
+```text
+                    incoming request
+                           │
+                           ▼
+                   classify workload
+                           │
+          ┌────────────────┼────────────────┐
+          ▼                ▼                ▼
+       vision           small LLM        large LLM
+          │                │                │
+          ▼                ▼                ▼
+   Coral / MemryX     Hailo / SOPHGO    Ryzen / BC-250
+      ~few watts       dedicated AI       large memory
+```
+
+See [docs/ACCELERATORS.md](docs/ACCELERATORS.md) for the accelerator taxonomy, lifecycle rules and benchmark requirements.
 
 ## Why laptop-class CPUs?
 
@@ -163,6 +195,7 @@ LowPowerLLMCluster/
 │   ├── MODEL_PLACEMENT.md    RAM/model placement strategy
 │   ├── NETWORKING.md         2.5/10GbE reasoning
 │   ├── POWER.md              efficiency strategy
+│   ├── ACCELERATORS.md       NPU/TPU/ASIC/FPGA/EOL accelerator strategy
 │   ├── ROADMAP.md            software/hardware roadmap
 │   ├── SOURCING.md           seller questions/checklist
 │   └── SOURCES.md            manufacturer + marketplace sources

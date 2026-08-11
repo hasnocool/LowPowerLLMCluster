@@ -41,21 +41,23 @@ def main() -> int:
 
     required = [
         "README.md", "PARTS.md", "TODO.md", "CHANGELOG.md", "AGENTS.md",
-        "docs/PROJECT_CHARTER.md", "docs/GUARDRAILS.md",
+        "docs/PROJECT_CHARTER.md", "docs/GUARDRAILS.md", "docs/ACCELERATORS.md",
         "specs/HARDWARE_CATALOG.md", "specs/BENCHMARKING.md", "specs/SCORING.md",
+        "specs/hardware-catalog.schema.json", "specs/hardware-part.schema.json",
         ".agents/skills/hardware-research/SKILL.md",
         ".agents/skills/catalog-curation/SKILL.md",
         ".agents/skills/benchmark-hardware/SKILL.md",
         ".agents/skills/architecture-review/SKILL.md",
         ".agents/skills/release-governance/SKILL.md",
+        ".agents/skills/accelerator-research/SKILL.md",
     ]
     for rel in required:
         if not (ROOT / rel).exists():
             errors.append(f"required governance artifact missing: {rel}")
 
     catalog = json.loads((ROOT / "data/parts.json").read_text(encoding="utf-8"))
-    if catalog.get("schema_version") != 2:
-        errors.append("data/parts.json schema_version must be 2")
+    if catalog.get("schema_version") != 3:
+        errors.append("data/parts.json schema_version must be 3")
 
     return fail(errors)
 

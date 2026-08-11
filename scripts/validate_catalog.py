@@ -1,43 +1,42 @@
 # scripts/validate_catalog.py
 from __future__ import annotations
 
-import json
 import sys
 from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from lowpower_llm_cluster.catalog import load_catalog  # noqa: E402
+
 CATALOG = ROOT / "data" / "parts.json"
 REQUIRED = {
-    "id",
-    "category",
-    "name",
-    "vendor",
-    "price_min_usd",
-    "price_max_usd",
-    "moq",
-    "url",
-    "verified_on",
-    "listing_status",
-    "plain_language",
+    "id", "category", "name", "vendor", "price_min_usd", "price_max_usd",
+    "price_status", "moq", "url", "verified_on", "listing_status", "plain_language",
 }
-LLM_REQUIRED = {
-    "hardware_class",
-    "memory_capacity_gb",
-    "software_maturity",
-    "risk_level",
+LLM_REQUIRED = {"hardware_class", "memory_capacity_gb", "software_maturity", "risk_level"}
+ACCELERATOR_CATEGORIES = {
+    "npu_accelerator", "tpu_accelerator", "ai_asic_accelerator", "fpga_accelerator",
+    "adaptive_soc", "decommissioned_accelerator",
+}
+ACCELERATOR_REQUIRED = {
+    "hardware_class", "accelerator_family", "accelerator", "host_mode", "llm_support",
+    "workload_role", "software_stack", "software_maturity", "risk_level", "lifecycle_status",
 }
 VALID_RISK = {"low", "medium", "high"}
 
 
 def main() -> int:
-    data = json.loads(CATALOG.read_text(encoding="utf-8"))
+    data = load_catalog(CATALOG)
     seen: set[str] = set()
     errors: list[str] = []
     valid_categories = set(data.get("candidate_categories", []))
 
-    if data.get("schema_version") != 2:
-        errors.append("catalog schema_version must be 2")
+    if data.get("schema_version") != 3:
+        errors.append("catalog schema_version must be 3")
+    if not data.get("part_files"):
+        errors.append("catalog v3 manifest must define part_files")
 
     for part in data.get("parts", []):
         missing = REQUIRED - part.keys()
@@ -51,8 +50,18 @@ def main() -> int:
         if valid_categories and part.get("category") not in valid_categories:
             errors.append(f"{part_id}: unknown category {part.get('category')!r}")
 
-        if float(part.get("price_min_usd", 0)) > float(part.get("price_max_usd", 0)):
-            errors.append(f"{part_id}: minimum price exceeds maximum")
+        low = part.get("price_min_usd")
+        high = part.get("price_max_usd")
+        if (low is None) != (high is None):
+            errors.append(f"{part_id}: price_min_usd and price_max_usd must both be null or both numeric")
+        if low is not None and high is not None:
+            if float(low) > float(high):
+                errors.append(f"{part_id}: minimum price exceeds maximum")
+            if float(low) <= 0:
+                errors.append(f"{part_id}: known price must be positive; use null when unresolved")
+        elif "watch" not in str(part.get("price_status", "")) and "not_resolved" not in str(part.get("price_status", "")):
+            errors.append(f"{part_id}: unresolved price needs an explicit watch/not_resolved price_status")
+
         try:
             date.fromisoformat(part.get("verified_on", ""))
         except ValueError:
@@ -60,21 +69,29 @@ def main() -> int:
         if not str(part.get("url", "")).startswith("https://"):
             errors.append(f"{part_id}: URL must use https://")
 
+        if part.get("risk_level") is not None and part.get("risk_level") not in VALID_RISK:
+            errors.append(f"{part_id}: risk_level must be one of {sorted(VALID_RISK)}")
+
         if part.get("llm_candidate", False):
             llm_missing = LLM_REQUIRED - part.keys()
             if llm_missing:
                 errors.append(f"{part_id}: LLM candidate missing {sorted(llm_missing)}")
-            if part.get("risk_level") not in VALID_RISK:
-                errors.append(f"{part_id}: risk_level must be one of {sorted(VALID_RISK)}")
             if float(part.get("memory_capacity_gb", 0)) <= 0:
-                errors.append(f"{part_id}: memory_capacity_gb must be positive")
+                errors.append(f"{part_id}: LLM candidate memory_capacity_gb must be positive")
+
+        if part.get("category") in ACCELERATOR_CATEGORIES:
+            accel_missing = ACCELERATOR_REQUIRED - part.keys()
+            if accel_missing:
+                errors.append(f"{part_id}: accelerator entry missing {sorted(accel_missing)}")
+            if not part.get("precision_formats") and part.get("lifecycle_status") != "discontinued":
+                errors.append(f"{part_id}: accelerator entry needs precision_formats")
 
     if errors:
         print("Catalog validation failed:", file=sys.stderr)
         for error in errors:
             print(f"- {error}", file=sys.stderr)
         return 1
-    print(f"Validated {len(seen)} catalog entries from snapshot {data['snapshot_date']}.")
+    print(f"Validated {len(seen)} catalog entries from snapshot {data['snapshot_date']} (schema v3).")
     return 0
 
 

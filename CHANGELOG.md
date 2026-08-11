@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented here.
 
+## [0.3.0] - 2026-08-10
+
+### Added
+
+- First-class NPU, TPU, AI ASIC, FPGA/adaptive-SoC and decommissioned-accelerator catalog categories.
+- Hailo-10H / Raspberry Pi AI HAT+ 2, SOPHGO BM1688 and BM1684X, Tenstorrent Wormhole n150s, AMD Kria KV260, AMD Versal AI Edge Gen 2, AMD Alveo V70, Google Coral Edge TPU, MemryX MX3 and Intel NCS2 reference entries.
+- `docs/ACCELERATORS.md` with workload-routing, TOPS guardrails and accelerator benchmark requirements.
+- Reusable `accelerator-research` agent skill.
+- Accelerator metadata for family, host mode, software stack, LLM support, lifecycle, precision formats, power scope and workload role.
+- Catalog schema v3 support for unresolved/EOL pricing without fake zero-dollar values.
+- Modular catalog manifest plus category-sized JSON fragments to reduce merge conflicts as the hardware universe grows.
+
+### Changed
+
+- Screening and BOM code now handles unresolved prices safely.
+- LLM screening explicitly excludes TOPS/TFLOPS from the heuristic.
+- Fixed-function vision accelerators are cataloged as specialists rather than mislabeled LLM workers.
+- Project charter and guardrails now cover accelerator power boundaries, runtime evidence and lifecycle risk.
+
 ## [0.2.0] - 2026-08-10
 
 ### Added

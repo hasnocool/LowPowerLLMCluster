@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/lowpowerllmcluster/hardware-part.schema.json",
+  "title": "LowPowerLLMCluster catalog fragment",
+  "type": "object",
+  "required": ["parts"],
+  "properties": {
+    "parts": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/part"}
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "part": {
+      "type": "object",
+      "required": [
+        "id", "category", "name", "vendor", "price_min_usd", "price_max_usd",
+        "price_status", "moq", "url", "verified_on", "listing_status", "plain_language"
+      ],
+      "properties": {
+        "id": {"type": "string", "minLength": 3},
+        "category": {"type": "string", "minLength": 1},
+        "name": {"type": "string", "minLength": 3},
+        "vendor": {"type": "string", "minLength": 1},
+        "price_min_usd": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "price_max_usd": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "price_status": {"type": "string", "minLength": 3},
+        "moq": {"type": "integer", "minimum": 1},
+        "url": {"type": "string", "format": "uri"},
+        "source_url": {"type": "string", "format": "uri"},
+        "verified_on": {"type": "string", "format": "date"},
+        "listing_status": {"type": "string", "minLength": 1},
+        "hardware_class": {"type": "string"},
+        "accelerator_family": {"type": "string"},
+        "accelerator": {"type": "string"},
+        "host_mode": {"type": "string"},
+        "host_requirements": {"type": "string"},
+        "llm_support": {"type": "string"},
+        "workload_role": {"type": "string"},
+        "software_stack": {"type": "string"},
+        "precision_formats": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "llm_candidate": {"type": "boolean"},
+        "memory_capacity_gb": {"type": "number", "exclusiveMinimum": 0},
+        "memory_bandwidth_gbps": {"type": "number", "exclusiveMinimum": 0},
+        "peak_int4_tops": {"type": "number", "minimum": 0},
+        "peak_int8_tops": {"type": "number", "minimum": 0},
+        "peak_fp16_tflops": {"type": "number", "minimum": 0},
+        "power_target_w": {"type": "number", "exclusiveMinimum": 0},
+        "power_max_w": {"type": "number", "exclusiveMinimum": 0},
+        "power_scope": {"type": "string"},
+        "software_maturity": {"type": "string"},
+        "risk_level": {"enum": ["low", "medium", "high"]},
+        "lifecycle_status": {"type": "string"},
+        "plain_language": {"type": "string", "minLength": 10},
+        "source_notes": {"type": "string"}
+      }
+    }
+  }
+}

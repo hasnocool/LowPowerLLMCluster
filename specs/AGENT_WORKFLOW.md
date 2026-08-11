@@ -10,3 +10,7 @@ Before changing the project, an agent must:
 6. update docs and CHANGELOG for user-visible behavior/schema changes.
 
 Before declaring a hardware candidate better than another, the agent must state whether the conclusion comes from manufacturer specifications, listing data, community measurements or project measurements.
+
+## Accelerator changes
+
+When a task adds or changes NPU/TPU/AI-ASIC/FPGA/adaptive/EOL accelerator data, agents must also read `.agents/skills/accelerator-research/SKILL.md` and `docs/ACCELERATORS.md`. Accelerator entries require runtime evidence and explicit power scope; TOPS alone is insufficient.

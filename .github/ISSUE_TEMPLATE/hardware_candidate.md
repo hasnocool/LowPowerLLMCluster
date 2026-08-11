@@ -1,6 +1,6 @@
 ---
 name: Hardware candidate
-about: Propose a board, mini PC, SBC, dev kit or unusual compute platform
+about: Propose a node, NPU, TPU, AI ASIC, FPGA/adaptive SoC or unusual/decommissioned platform
 title: "hardware: "
 labels: []
 assignees: []
@@ -8,15 +8,31 @@ assignees: []
 
 ## Candidate
 
-## Why it may be interesting for LLM inference
+## Hardware / accelerator family
+
+## Why it may be interesting
+
+## Intended workload
+
+LLM/VLM, embeddings, vision, audio, custom FPGA research, or another specialist workload?
 
 ## Current price and URL
 
+Use `unresolved` rather than guessing when a current price cannot be verified.
+
 ## Memory capacity / bandwidth
 
-## Expected power range
+## Expected power and measurement scope
 
-## Linux/runtime support evidence
+Chip, module, board, SOM, or complete-node power?
+
+## Host requirements / attachment
+
+## Runtime / compiler / model support evidence
+
+## Lifecycle status
+
+Current, EOL, discontinued, secondary-market-only, experimental, etc.
 
 ## Risks or unknowns
 
