@@ -32,7 +32,9 @@
       "risk_level": "medium",
       "lifecycle_status": "current",
       "plain_language": "KV260 is here as a programmable-architecture laboratory, not because its stock DPU is a great LLM engine. It gives us a relatively affordable way to test custom INT4, ternary/BitNet, sparse-attention or streaming transformer datapaths and measure whether FPGA specialization can beat general-purpose hardware per watt.",
-      "source_notes": "AMD lists KV260 at US$249 MSRP. The K26 SOM is specified at 7.5W typical / 15W maximum; Vitis AI documentation lists 1.23 TOPS INT8 for the stock B4096 DPU implementation."
+      "source_notes": "AMD lists KV260 at US$249 MSRP. The K26 SOM is specified at 7.5W typical / 15W maximum; Vitis AI documentation lists 1.23 TOPS INT8 for the stock B4096 DPU implementation.",
+      "memory_config_status": "fixed",
+      "max_memory_gb": 4
     },
     {
       "id": "accel-amd-versal-ai-edge-gen2-reference",
@@ -126,7 +128,9 @@
       "risk_level": "high",
       "lifecycle_status": "legacy_secondary_market_verify_support",
       "plain_language": "U50 is a particularly interesting pure-FPGA research target because its 8GB HBM2 can feed custom logic at far higher bandwidth than ordinary DDR. It is not a plug-and-play LLM card: its value would come from implementing or porting a transformer datapath, so used price and software effort must be counted before it can compete with simpler GPUs/APUs.",
-      "source_notes": "AMD documentation lists 8GB HBM2, 316GB/s bandwidth and a 75W maximum power limit. Current secondary-market price is intentionally unresolved in this snapshot."
+      "source_notes": "AMD documentation lists 8GB HBM2, 316GB/s bandwidth and a 75W maximum power limit. Current secondary-market price is intentionally unresolved in this snapshot.",
+      "memory_config_status": "fixed",
+      "max_memory_gb": 8
     }
   ]
 }
