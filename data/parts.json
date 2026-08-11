@@ -32,6 +32,7 @@
     "catalog/heterogeneous-nodes.json",
     "catalog/benchmarked-reference-nodes.json",
     "catalog/apple-low-power.json",
+    "catalog/mobile-devices.json",
     "catalog/gpus.json",
     "catalog/accelerators-genai.json",
     "catalog/accelerators-research.json",
