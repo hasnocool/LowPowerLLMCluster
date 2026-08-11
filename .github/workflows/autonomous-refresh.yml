@@ -1,0 +1,67 @@
+name: Autonomous market refresh
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: Refresh profile
+        required: true
+        default: daily-market
+        type: choice
+        options:
+          - daily-market
+          - weekly-deep-scan
+  schedule:
+    - cron: "17 14 * * *"
+    - cron: "41 15 * * 0"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: autonomous-market-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      MOUSER_API_KEY: ${{ secrets.MOUSER_API_KEY }}
+      DIGIKEY_CLIENT_ID: ${{ secrets.DIGIKEY_CLIENT_ID }}
+      DIGIKEY_ACCESS_TOKEN: ${{ secrets.DIGIKEY_ACCESS_TOKEN }}
+      EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
+      EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -e .
+      - name: Resolve profile
+        id: profile
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "name=${{ inputs.profile }}" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.event.schedule }}" == "41 15 * * 0" ]]; then
+            echo "name=weekly-deep-scan" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=daily-market" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Refresh market evidence
+        run: llm-cluster-refresh run "${{ steps.profile.outputs.name }}"
+      - name: Show stale listing warnings
+        run: llm-cluster-refresh stale --hours 72
+      - name: Commit refreshed evidence
+        shell: bash
+        run: |
+          if git diff --quiet -- data/market reports/current; then
+            echo "No market evidence changes."
+            exit 0
+          fi
+          git config user.name "LowPowerLLMCluster market bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/market reports/current
+          git commit -m "chore: refresh market evidence [skip ci]"
+          git push
