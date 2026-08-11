@@ -5,6 +5,7 @@ import argparse
 import asyncio
 import json
 
+from .bom_sourcing import load_bom_config, refresh_bom_market
 from .catalog import load_catalog, project_root
 from .decision import generate_daily_recommendations, render_daily_recommendations
 from .intelligence import generate_change_intelligence, render_daily_change_report
@@ -29,6 +30,8 @@ def main() -> int:
     run = sub.add_parser("run", help="run a named scheduled discovery profile"); run.add_argument("profile")
     stale = sub.add_parser("stale", help="show active listings not observed recently"); stale.add_argument("--hours", type=float, default=48.0)
     sub.add_parser("reports", help="regenerate all current-market buying reports")
+    sub.add_parser("refresh-bom", help="fetch current online product data/costs for required TCO BOM components")
+    sub.add_parser("bom-config", help="show live BOM product-query and selection configuration")
     recommendations = sub.add_parser("recommendations", help="regenerate the ownership/TCO-aware decision report")
     recommendations.add_argument("--scenario", default="mixed-3yr"); recommendations.add_argument("--ownership", default="new-build"); recommendations.add_argument("--owned", help="comma-separated extra owned component IDs")
     tco = sub.add_parser("tco", help="show ownership-aware complete-node acquisition and operating-cost ranking")
@@ -42,6 +45,11 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.command == "run": print(json.dumps(asyncio.run(run_profile(args.profile)), indent=2, sort_keys=True)); return 0
+    if args.command == "refresh-bom":
+        result = asyncio.run(refresh_bom_market())
+        summary = {component: {"candidate_count": row.get("candidate_count", 0), "selected": (row.get("selected") or {}).get("landed", {}).get("landed_cad"), "source": (row.get("selected") or {}).get("listing", {}).get("source")} for component, row in result.get("components", {}).items()}
+        print(json.dumps({"generated_at": result.get("generated_at"), "components": summary}, indent=2, sort_keys=True)); return 0
+    if args.command == "bom-config": print(json.dumps(load_bom_config(), indent=2, sort_keys=True)); return 0
     if args.command == "stale":
         rows = stale_listings(stale_after_hours=args.hours)
         for row in rows: print(f"{row['stale_hours']:7.1f}h  {row['source']:<20} {row['title']}")
