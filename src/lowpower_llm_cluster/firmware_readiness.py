@@ -70,7 +70,7 @@ def boot_readiness_score(cpu_bios: dict[str,Any], flashback: dict[str,Any] | Non
     if shipped_bios_meets_minimum is None and minimum and shipped_version:
         version_comparison=shipped_bios_meets_requirement(str(shipped_version),str(minimum),source_url=cpu_bios.get("source_url") or flashback.get("source_url"),provider=cpu_bios.get("provider"))
         shipped_bios_meets_minimum=version_comparison.get("meets_minimum")
-        if shipped_bios_meets_minimum is None: warnings.append(f"Board explicitly ships with BIOS {shipped_version}, but safe vendor-specific ordering against required {minimum} is unresolved.")
+        if shipped_bios_meets_minimum is None: warnings.append(f"Board explicitly ships with BIOS {shipped_version}, but safe vendor-specific version ordering against required {minimum} is unresolved.")
         elif shipped_bios_meets_minimum is False: warnings.append(f"Board explicitly ships with BIOS {shipped_version}, which is older than required {minimum} by {version_comparison.get('reason')}.")
     if pair_status=="unsupported": score=0; readiness="not_bootable_with_selected_cpu"
     elif pair_status=="supported" and not minimum: score=96; readiness="ready_by_support_evidence"
