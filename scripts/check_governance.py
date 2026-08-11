@@ -24,19 +24,17 @@ def main() -> int:
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     init = (ROOT / "src/lowpower_llm_cluster/__init__.py").read_text(encoding="utf-8")
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-    py_match = re.search(r'^version = "([^"]+)"', pyproject, re.MULTILINE)
-    init_match = re.search(r'__version__ = "([^"]+)"', init)
-    change_match = re.search(r'^## \[([^]]+)\]', changelog, re.MULTILINE)
+    py_match = re.search(r'^version = "([^"]+)"', pyproject, re.MULTILINE); init_match = re.search(r'__version__ = "([^"]+)"', init); change_match = re.search(r'^## \[([^]]+)\]', changelog, re.MULTILINE)
     found = {"VERSION": version, "pyproject.toml": py_match.group(1) if py_match else None, "package __version__": init_match.group(1) if init_match else None, "CHANGELOG latest": change_match.group(1) if change_match else None}
     for source, value in found.items():
         if value != version: errors.append(f"{source} is {value!r}, expected {version!r}")
 
     required = [
         "README.md", "PARTS.md", "TODO.md", "CHANGELOG.md", "AGENTS.md",
-        "docs/PROJECT_CHARTER.md", "docs/GUARDRAILS.md", "docs/ACCELERATORS.md", "docs/AUTONOMOUS_REFRESH.md", "docs/CHANGE_INTELLIGENCE.md", "docs/DECISION_QUALITY.md", "docs/GPUS.md", "docs/TOTAL_COST_OF_OWNERSHIP.md",
+        "docs/PROJECT_CHARTER.md", "docs/GUARDRAILS.md", "docs/ACCELERATORS.md", "docs/AUTONOMOUS_REFRESH.md", "docs/CHANGE_INTELLIGENCE.md", "docs/DECISION_QUALITY.md", "docs/GPUS.md", "docs/TOTAL_COST_OF_OWNERSHIP.md", "docs/LIVE_BOM_SOURCING.md",
         "specs/HARDWARE_CATALOG.md", "specs/EVIDENCE.md", "specs/MARKET_INTELLIGENCE.md", "specs/BENCHMARKING.md", "specs/SCORING.md", "specs/hardware-catalog.schema.json", "specs/hardware-part.schema.json", "specs/benchmark.schema.json", "specs/benchmark-profile.schema.json", "specs/adapter-output.schema.json", "docs/BENCHMARK_HARNESS.md", "benchmarks/README.md", "results/README.md",
-        "src/lowpower_llm_cluster/market.py", "src/lowpower_llm_cluster/sources.py", "src/lowpower_llm_cluster/market_cli.py", "src/lowpower_llm_cluster/ops.py", "src/lowpower_llm_cluster/refresh_cli.py", "src/lowpower_llm_cluster/intelligence.py", "src/lowpower_llm_cluster/decision.py", "src/lowpower_llm_cluster/tco.py",
-        "data/catalog/gpus.json", "data/market/sources.json", "data/market/profiles.json", "data/market/watchlists.json", "data/market/tco-scenarios.json", "data/market/price-history.json", "data/market/listing-state.json", "data/market/fx-cad.json", "data/market/fx-history.json", "data/evidence/performance.json", ".github/workflows/autonomous-refresh.yml",
+        "src/lowpower_llm_cluster/market.py", "src/lowpower_llm_cluster/sources.py", "src/lowpower_llm_cluster/market_cli.py", "src/lowpower_llm_cluster/ops.py", "src/lowpower_llm_cluster/refresh_cli.py", "src/lowpower_llm_cluster/intelligence.py", "src/lowpower_llm_cluster/decision.py", "src/lowpower_llm_cluster/tco.py", "src/lowpower_llm_cluster/bom_sourcing.py",
+        "data/catalog/gpus.json", "data/market/sources.json", "data/market/profiles.json", "data/market/watchlists.json", "data/market/tco-scenarios.json", "data/market/bom-sourcing.json", "data/market/bom-current.json", "data/market/bom-price-history.json", "data/market/price-history.json", "data/market/listing-state.json", "data/market/fx-cad.json", "data/market/fx-history.json", "data/evidence/performance.json", ".github/workflows/autonomous-refresh.yml",
         ".agents/skills/hardware-research/SKILL.md", ".agents/skills/catalog-curation/SKILL.md", ".agents/skills/benchmark-hardware/SKILL.md", ".agents/skills/architecture-review/SKILL.md", ".agents/skills/release-governance/SKILL.md", ".agents/skills/accelerator-research/SKILL.md",
     ]
     for rel in required:
@@ -60,20 +58,27 @@ def main() -> int:
         if not profile.get("tco_scenario"): errors.append(f"refresh profile {profile_name} must select a TCO scenario")
 
     tco = json.loads((ROOT / "data/market/tco-scenarios.json").read_text(encoding="utf-8"))
-    if tco.get("schema_version") != 3 or not tco.get("energy_scenarios"):
-        errors.append("data/market/tco-scenarios.json must define schema_version 3 and energy scenarios")
+    if tco.get("schema_version") != 3 or not tco.get("energy_scenarios"): errors.append("data/market/tco-scenarios.json must define schema_version 3 and energy scenarios")
     component_costs = tco.get("component_costs_cad") or {}
-    for required_component in ("cpu_host", "motherboard", "host_ram_32gb", "storage_1tb", "psu_750w", "pcie_adapter", "cooling", "chassis"):
+    required_components = ("cpu_host", "motherboard", "host_ram_32gb", "storage_1tb", "psu_750w", "pcie_adapter", "cooling", "chassis")
+    for required_component in required_components:
         if required_component not in component_costs: errors.append(f"TCO scenario lost required discrete-GPU BOM component: {required_component}")
     ownership_profiles = tco.get("ownership_profiles") or {}
     for required_profile in ("new-build", "reuse-host-core", "reuse-complete-host", "reuse-everything"):
         if required_profile not in ownership_profiles: errors.append(f"TCO scenario lost ownership profile: {required_profile}")
-    tco_source = (ROOT / "src/lowpower_llm_cluster/tco.py").read_text(encoding="utf-8")
-    cli_source = (ROOT / "src/lowpower_llm_cluster/refresh_cli.py").read_text(encoding="utf-8")
+
+    bom = json.loads((ROOT / "data/market/bom-sourcing.json").read_text(encoding="utf-8"))
+    if bom.get("schema_version") != 1: errors.append("data/market/bom-sourcing.json schema_version must be 1")
+    for required_component in required_components:
+        if required_component not in (bom.get("components") or {}): errors.append(f"live BOM sourcing lost component query: {required_component}")
+    if not set(bom.get("sources") or []) & {"mouser", "digikey", "ebay"}: errors.append("live BOM sourcing must retain at least one structured online source")
+
+    tco_source = (ROOT / "src/lowpower_llm_cluster/tco.py").read_text(encoding="utf-8"); cli_source = (ROOT / "src/lowpower_llm_cluster/refresh_cli.py").read_text(encoding="utf-8"); bom_source = (ROOT / "src/lowpower_llm_cluster/bom_sourcing.py").read_text(encoding="utf-8")
     for required_function in ("def break_even_analysis", "def ownership_components"):
         if required_function not in tco_source: errors.append(f"TCO engine must retain {required_function.split()[-1]}")
-    if '"break-even"' not in cli_source or '"--ownership"' not in cli_source:
-        errors.append("refresh CLI must retain break-even and ownership-aware TCO options")
+    if "sourced_component_costs" not in tco_source: errors.append("TCO engine must consume sourced BOM costs when available")
+    if '"break-even"' not in cli_source or '"--ownership"' not in cli_source or '"refresh-bom"' not in cli_source: errors.append("refresh CLI must retain break-even, ownership and refresh-bom workflows")
+    if "async def refresh_bom_market" not in bom_source: errors.append("live BOM source engine must retain refresh_bom_market")
 
     watchlists = json.loads((ROOT / "data/market/watchlists.json").read_text(encoding="utf-8"))
     if watchlists.get("schema_version") != 1 or not isinstance(watchlists.get("watchlists"), list): errors.append("data/market/watchlists.json must define schema_version 1 and a watchlists array")
