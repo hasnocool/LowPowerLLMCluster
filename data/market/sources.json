@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "manufacturer_jsonld_urls": [
+    "https://www.raspberrypi.com/products/ai-hat-plus-2/",
+    "https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/",
+    "https://frame.work/products/mainboard-amd-ai300",
+    "https://www.minisforum.com/products/minisforum-bd795m",
+    "https://tenstorrent.com/en/hardware/cards"
+  ],
+  "structured_sources": {
+    "mouser": {
+      "credential_env": ["MOUSER_API_KEY"],
+      "docs": "https://api.mouser.com/api/docs/ui/index"
+    },
+    "digikey": {
+      "credential_env": ["DIGIKEY_CLIENT_ID", "DIGIKEY_ACCESS_TOKEN"],
+      "docs": "https://developer.digikey.com/products/product-information-v4"
+    },
+    "ebay-ca": {
+      "credential_env": ["EBAY_CLIENT_ID", "EBAY_CLIENT_SECRET"],
+      "docs": "https://developer.ebay.com/api-docs/buy/api-browse.html"
+    }
+  },
+  "fx": {
+    "provider": "Bank of Canada Valet API",
+    "currencies": ["USD", "EUR", "GBP", "JPY", "CNY", "AUD"],
+    "docs": "https://www.bankofcanada.ca/valet/docs"
+  }
+}
