@@ -32,6 +32,12 @@ def compatible_build():
                 "confidence": "exact",
             }],
             "cpu_support_matrix_complete": False,
+            "bios_flashback": {
+                "status": "supported",
+                "feature_name": "Flash BIOS Button",
+                "cpu_less_update_explicit": True,
+                "confidence": "high",
+            },
         }
     }
     return {
@@ -57,6 +63,9 @@ def test_compatible_build_checks_all_major_dimensions_and_bios_pair():
     assert result["failures"] == []
     assert result["cpu_bios"]["status"] == "supported"
     assert result["cpu_bios"]["minimum_bios_version"] == "7C56vA9"
+    assert result["boot_readiness"]["score"] == 88
+    assert result["boot_readiness"]["cpu_less_update_explicit"] is True
+    assert result["boot_readiness"]["performance_claim"] is False
     assert any("7C56vA9" in warning for warning in result["warnings"])
 
 
@@ -117,6 +126,7 @@ def test_explicit_unsupported_cpu_bios_pair_is_rejected():
     assert pair["status"] == "unsupported"
     result = evaluate_build_compatibility(build, gpu())
     assert result["status"] == "incompatible"
+    assert result["boot_readiness"]["score"] == 0
     assert any("cpu_bios_support" in item for item in result["failures"])
 
 
@@ -128,6 +138,7 @@ def test_partial_matrix_absence_is_unresolved_not_false_unsupported():
     assert pair["status"] == "unresolved"
     result = evaluate_build_compatibility(build, gpu())
     assert result["status"] == "provisionally_compatible"
+    assert result["boot_readiness"]["score"] == 54
     assert "cpu_bios_support" in result["unknowns"]
 
 
@@ -144,8 +155,9 @@ def test_solver_rejects_cheaper_incompatible_path():
     good = compatible_build()
     components = {name: {"candidates": [value]} for name, value in good.items()}
     bad_board = row("motherboard", {"socket": "LGA1700", "memory_type": "DDR4", "gpu_slot": "PCIe x16", "gpu_slot_lanes": 16, "form_factors": ["ATX"], "supports_nvme_m2": True}, 10)
-    bad_board["spec_enrichment"] = {"structured_document": {"cpu_support_matrix": [], "cpu_support_matrix_complete": False}}
+    bad_board["spec_enrichment"] = {"structured_document": {"cpu_support_matrix": [], "cpu_support_matrix_complete": False, "bios_flashback": {"status": "unknown"}}}
     components["motherboard"]["candidates"].insert(0, bad_board)
     builds = construct_compatible_builds(components, gpu_part=gpu(), maximum_builds=5)
     assert builds
     assert all(build["components"]["motherboard"]["compatibility_facts"]["socket"] == "AM4" for build in builds)
+    assert builds[0]["compatibility"]["boot_readiness"]["score"] == 88
