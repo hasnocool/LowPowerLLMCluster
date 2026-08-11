@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from .catalog import project_root
+from .power_identity import enrich_power_identity, identity_specificity
 
 POWER_SOURCE_WEIGHTS = {
     "measured_local": 1.00,
@@ -21,28 +22,8 @@ def _norm(value: Any) -> str:
     return " ".join(str(value or "").casefold().replace("-", " ").split())
 
 
-def _token(part: dict[str, Any], *keys: str) -> str | None:
-    for key in keys:
-        value = part.get(key)
-        if value not in (None, ""):
-            return _norm(value)
-    return None
-
-
 def hardware_power_identity(part: dict[str, Any]) -> dict[str, Any]:
-    """Build increasingly broad power-matching identities without guessing missing SKU data."""
-    config = dict(part.get("configuration") or {})
-    exact_id = _token(config, "apple_part_number", "model_identifier", "apple_a_number", "mpn") or _token(part, "mpn", "model_number", "sku")
-    model = _token(config, "soc", "chip", "model") or _token(part, "name")
-    family = _token(part, "accelerator_family", "hardware_class") or _token(config, "soc")
-    return {
-        "exact_id": exact_id,
-        "model": model,
-        "family": family,
-        "category": _norm(part.get("category")),
-        "memory_gb": part.get("memory_capacity_gb") or config.get("memory_capacity_gb"),
-        "storage_gb": config.get("storage_gb"),
-    }
+    return enrich_power_identity(part)
 
 
 def load_power_evidence(path: Path | None = None) -> dict[str, Any]:
@@ -58,20 +39,47 @@ def save_power_evidence(payload: dict[str, Any], path: Path | None = None) -> No
     target.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _same(left: Any, right: Any) -> bool:
+    if isinstance(left, dict) and isinstance(right, dict):
+        for key, value in right.items():
+            if key in left and _norm(left[key]) != _norm(value):
+                return False
+        return True
+    return _norm(left) == _norm(right)
+
+
 def observation_match_level(part: dict[str, Any], observation: dict[str, Any]) -> tuple[int, str]:
+    """Match at the narrowest compatible identity without averaging conflicting hardware."""
     identity = hardware_power_identity(part)
     observed = dict(observation.get("identity") or {})
-    if identity.get("exact_id") and _norm(observed.get("exact_id")) == identity["exact_id"]:
-        for key in ("memory_gb", "storage_gb"):
-            if observed.get(key) is not None and identity.get(key) is not None and float(observed[key]) != float(identity[key]):
-                return 0, "configuration_conflict"
-        return 4, "exact_sku_or_model_identifier"
-    if identity.get("model") and _norm(observed.get("model")) == identity["model"]:
-        return 3, "exact_model"
-    if identity.get("family") and _norm(observed.get("family")) == identity["family"]:
-        return 2, "hardware_family"
-    if identity.get("category") and _norm(observed.get("category")) == identity["category"]:
-        return 1, "category"
+
+    conflict_fields = (
+        "memory_gb", "storage_gb", "apple_model_identifier", "apple_part_number",
+        "apple_gpu_cores", "screen_inches", "storage_controller", "nand_type",
+        "gpu_board_mpn", "gpu_board_revision", "gpu_vbios", "host_cpu",
+        "host_motherboard", "host_psu", "host_ram_gb", "device_sku",
+        "mobile_soc", "mobile_soc_variant", "ram_topology",
+    )
+    for key in conflict_fields:
+        if observed.get(key) not in (None, "", {}) and identity.get(key) not in (None, "", {}) and not _same(identity[key], observed[key]):
+            return 0, f"configuration_conflict:{key}"
+
+    exact_keys = (
+        "exact_id", "apple_model_identifier", "apple_part_number", "device_sku",
+        "gpu_board_mpn", "gpu_board_revision", "storage_controller", "nand_type",
+    )
+    matched_exact = [key for key in exact_keys if observed.get(key) not in (None, "") and identity.get(key) not in (None, "") and _same(identity[key], observed[key])]
+    if matched_exact:
+        specificity = min(99, 40 + identity_specificity({key: observed.get(key) for key in observed if key in identity}))
+        label = "hardware_specific:" + "+".join(sorted(matched_exact))
+        return specificity, label
+
+    if identity.get("model") and observed.get("model") and _same(identity["model"], observed["model"]):
+        return 30, "exact_model"
+    if identity.get("family") and observed.get("family") and _same(identity["family"], observed["family"]):
+        return 20, "hardware_family"
+    if identity.get("category") and observed.get("category") and _same(identity["category"], observed["category"]):
+        return 10, "category"
     return 0, "no_match"
 
 
@@ -89,16 +97,14 @@ def _percentile(values: list[float], fraction: float) -> float:
 
 
 def aggregate_power_observations(part: dict[str, Any], payload: dict[str, Any] | None = None) -> dict[str, Any] | None:
-    """Aggregate only evidence allowed to represent device/board power; retain rail-only data in the store for research."""
+    """Aggregate only the narrowest compatible power evidence distribution."""
     payload = payload or load_power_evidence()
     candidates: list[tuple[int, str, dict[str, Any]]] = []
     for row in payload.get("observations") or []:
         if row.get("eligible_for_device_power") is False:
             continue
         level, label = observation_match_level(part, row)
-        if level <= 0:
-            continue
-        if row.get("idle_w") is None and row.get("load_w") is None:
+        if level <= 0 or (row.get("idle_w") is None and row.get("load_w") is None):
             continue
         candidates.append((level, label, row))
     if not candidates:
