@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lowpower-llm-cluster"
-version = "0.4.0"
-description = "Hardware catalog, BOM calculator, and design notes for low-power distributed local LLM inference clusters."
+version = "0.4.1"
+description = "Catalog-first research and buying planner for low-power local LLM hardware, with optional benchmark evidence tooling."
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}

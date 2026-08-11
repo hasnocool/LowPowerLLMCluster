@@ -1,9 +1,9 @@
-# src/lowpower_llm_cluster/scoring.py
 from __future__ import annotations
 
 from typing import Any
 
 from .catalog import midpoint_price
+from .evidence import memory_basis
 
 _MATURITY = {
     "mature_jetpack_cuda": 1.00,
@@ -19,46 +19,48 @@ _MATURITY = {
     "eol_legacy_stack": 0.25,
 }
 _RISK = {"low": 1.0, "medium": 0.82, "high": 0.58}
+_STATUS = {
+    "current_reference": 1.0, "available": 1.0, "observed_market": 0.95,
+    "market_reference": 0.85, "watch": 0.65, "sold_out_reference": 0.45,
+}
 
 
-def node_score(part: dict[str, Any]) -> float:
-    """Return a transparent *screening* score, never a benchmark claim.
+def catalog_score(part: dict[str, Any]) -> float:
+    """Buying/research shortlist score; deliberately not an inference benchmark.
 
-    Cross-platform shortlist scores reward affordable usable memory, low target
-    power, software maturity and useful I/O. Accelerator TOPS/TFLOPS are *not*
-    multiplied into the score because they are not comparable across runtimes,
-    precisions or workloads. Measured inference data belongs in benchmark records.
+    Rewards affordability, memory *potential*, low published power hints, software
+    maturity, lifecycle/availability and lower ownership risk. It never uses TOPS,
+    TFLOPS or invented tokens/sec. Configurable/unverified memory is discounted.
     """
     if not part.get("llm_candidate", part.get("category") == "compute_node"):
         return 0.0
-
-    mid_price = midpoint_price(part)
-    if mid_price is None:
+    mid = midpoint_price(part)
+    if mid is None:
         return 0.0
 
-    price = max(mid_price, 1.0)
-    memory = max(float(part.get("memory_capacity_gb") or part.get("cpu_max_memory_gb") or 1), 1.0)
-    power = max(float(part.get("power_target_w") or part.get("ctdp_min_w") or part.get("default_tdp_w") or 25), 1.0)
-    bandwidth = float(part.get("memory_bandwidth_gbps") or 0.0)
+    memory_gb, _, memory_conf = memory_basis(part)
+    memory = max(memory_gb or 8.0, 1.0)
+    power_hint = part.get("power_target_w") or part.get("ctdp_min_w") or part.get("default_tdp_w")
+    power = max(float(power_hint or 30.0), 1.0)
 
-    memory_term = min(memory, 128.0) / 32.0
-    power_term = 25.0 / power
-    value_term = 250.0 / price
-    bandwidth_term = 1.0 + min(bandwidth, 500.0) / 1000.0
+    value_term = min(2.5, 250.0 / max(float(mid), 1.0))
+    memory_term = min(memory, 128.0) / 32.0 * memory_conf
+    power_term = min(2.0, 25.0 / power)
     maturity_term = _MATURITY.get(str(part.get("software_maturity", "")), 0.70)
     risk_term = _RISK.get(str(part.get("risk_level", "medium")), 0.82)
+    status_term = _STATUS.get(str(part.get("listing_status", "")), 0.80)
 
-    io_bonus = 1.0
-    network = str(part.get("network", "")).lower()
-    expansion = str(part.get("expandability", "")).lower()
-    host_mode = str(part.get("host_mode", "")).lower()
-    if "2.5" in network:
-        io_bonus += 0.08
-    if "oculink" in expansion or "pcie x16" in expansion:
-        io_bonus += 0.08
-    if "nvme" in str(part.get("storage", "")).lower():
-        io_bonus += 0.04
-    if host_mode in {"m2_pcie_gen3_x2", "pcie_x16", "pcie_x8"}:
-        io_bonus += 0.03
+    score = 20.0 * (
+        0.30 * min(value_term, 2.0) / 2.0
+        + 0.28 * min(memory_term, 2.0) / 2.0
+        + 0.16 * min(power_term, 2.0) / 2.0
+        + 0.14 * maturity_term
+        + 0.07 * risk_term
+        + 0.05 * status_term
+    )
+    return round(score, 2)
 
-    return round(memory_term * power_term * value_term * bandwidth_term * maturity_term * risk_term * io_bonus, 2)
+
+def node_score(part: dict[str, Any]) -> float:
+    """Backward-compatible alias for the catalog-first shortlist score."""
+    return catalog_score(part)
