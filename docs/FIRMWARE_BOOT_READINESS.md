@@ -2,79 +2,83 @@
 
 CPU/socket compatibility is not enough to guarantee that a motherboard will boot a selected CPU. This layer turns manufacturer firmware evidence into an explicit boot-readiness signal.
 
-## Support-endpoint discovery
+## Linked support-endpoint discovery
 
-`firmware_readiness.discover_support_endpoints()` scans a verified manufacturer product page for same-manufacturer links that look like:
+`firmware_readiness.discover_support_endpoints()` scans a verified manufacturer product page for same-manufacturer CPU-support, BIOS/UEFI/firmware and download links. Third-party links are rejected.
 
-- CPU / processor support lists
-- BIOS / UEFI / firmware pages
-- support/download pages
+## Unlinked support/API discovery
 
-Third-party links are rejected. Candidate endpoints are scored and bounded so the project can fetch the most likely CPU-support/API/download surfaces without unrestricted crawling.
+`firmware_discovery.py` adds a second bounded pass when linked evidence is incomplete. It can derive candidate official surfaces from:
+
+- provider-specific support URL patterns for ASUS, MSI, Gigabyte/AORUS and ASRock;
+- model/MPN tokens already verified on the product page;
+- XHR/JSON/API URLs exposed inside manufacturer JavaScript;
+- official `robots.txt` sitemap declarations;
+- official sitemap entries matching the product model and support/CPU/BIOS paths.
+
+Only HTTPS resources on the verified manufacturer host are eligible. Discovery is bounded (`MAX_DISCOVERY_FETCHES = 8`) and does not become an unrestricted crawler.
+
+The strongest CPU matrix found is retained. A complete matrix beats partial/static evidence; a larger partial result may increase coverage but cannot claim completeness.
 
 ## Manufacturer support API / pagination ingestion
 
-`manufacturer_support.ingest_support_endpoint()` and `ingest_ranked_support_endpoints()` fetch ranked CPU-support endpoints asynchronously and normalize common manufacturer JSON/API and HTML-table shapes into the same pair-level CPU/BIOS row format used by the build solver.
+`manufacturer_support.ingest_support_endpoint()` normalizes common JSON/API and HTML-table shapes into pair-level CPU/BIOS rows. Traversal is bounded to 64 pages and remains on the verified host.
 
-The ingestor recognizes ASUS, MSI, Gigabyte/AORUS and ASRock host families while retaining a conservative generic parser for other official manufacturers. The provider label identifies the parsing/evidence path; it does not relax source authority.
+A matrix becomes `cpu_support_matrix_complete=true` only from explicit end-of-data evidence:
 
-Network traversal is bounded to 64 pages and remains on the verified manufacturer's host. A `next` URL that escapes that host is not followed.
+- explicit total-page count and final page reached;
+- explicit total-row count and fetched range reaches that count;
+- explicit `hasMore=false` / equivalent.
 
-### Completeness proofs
+If an explicit total count disagrees with the final deduplicated rows, completeness is revoked. Short responses, empty next links and static HTML do not prove completeness.
 
-A matrix becomes `cpu_support_matrix_complete=true` only when the endpoint supplies explicit pagination evidence proving the end of the dataset. Accepted proof classes are:
+## BIOS release history
 
-- explicit total-page count and the last page has been reached;
-- explicit total-row count and the fetched page range reaches that count;
-- explicit `hasMore=false` / equivalent end-of-pagination state.
+Unlinked/linked BIOS API candidates are also inspected for release-history records. Normalized rows preserve:
 
-When an explicit total row count is present, the final deduplicated matrix row count must equal it. A mismatch revokes completeness rather than silently trusting the response.
+- BIOS version;
+- release date when supplied;
+- official download URL when supplied;
+- manufacturer source URL;
+- source class and confidence.
 
-A static HTML support table, a short API response, an empty next link, or a page that simply returns fewer records than expected is **not** sufficient completeness proof.
+The history is evidence, not a version-ordering oracle. Vendor-specific version comparators are required before arbitrary strings such as `A9`, `AB`, `F12`, or `7C56vAB` can be ordered safely.
 
-During structured motherboard enrichment:
+## Hardware revision evidence
 
-1. verified static HTML CPU/BIOS rows are retained first;
-2. discovered official CPU-support endpoints are fetched with the existing async HTTP client;
-3. a complete API matrix may replace the static matrix and set completeness true;
-4. a larger partial API matrix may replace a smaller static matrix to improve coverage but remains incomplete;
-5. a smaller partial API result cannot erase stronger existing static coverage.
+Verified manufacturer text can retain explicit PCB/board/hardware revision identifiers such as `Rev. 1.2`. Revision evidence is stored separately because a firmware history can differ across board revisions.
 
-The selected endpoint, provider, attempts and completeness proof remain in `structured_document.support_api` for auditability.
+A manufacture date by itself is **not** used to infer either revision or shipped BIOS.
 
 ## BIOS Flashback / CPU-less update evidence
 
-`detect_bios_flashback()` recognizes explicit manufacturer feature names such as:
+`detect_bios_flashback()` recognizes manufacturer feature names such as USB BIOS FlashBack, Flash BIOS Button, Q-Flash Plus and BIOS Flash Button. High-confidence CPU-less recovery still requires explicit wording equivalent to `without installing a CPU` / `no CPU required`.
 
-- USB BIOS FlashBack
-- BIOS FlashBack
-- Flash BIOS Button
-- Q-Flash Plus
-- BIOS Flash Button
-
-A feature-name match alone is not treated as proof that a CPU-less update is possible. High confidence requires explicit text such as `without installing a CPU` / `no CPU required`.
+The same verified text may also expose an explicit factory/shipped BIOS version. Statements such as `ships with BIOS A9 from factory` are retained; `manufactured 2025-08` or `latest BIOS AB` are not treated as shipped-firmware evidence.
 
 ## Boot-readiness score
 
-`boot_readiness_score()` combines pair-level CPU/BIOS evidence with firmware recovery evidence.
+`boot_readiness_score()` combines pair-level CPU/BIOS evidence, Flashback/recovery evidence, and explicit shipped-BIOS evidence.
 
 Typical semantics:
 
-- `0`: manufacturer evidence says the CPU is unsupported.
-- `~34`: CPU support and recovery path unresolved.
-- `~48`: CPU is supported only at/after a minimum BIOS, but evidence says no CPU-less recovery path exists.
-- `~62`: CPU is supported at/after a minimum BIOS, but shipped BIOS and recovery capability are unknown.
-- `~78`: Flashback-like capability is documented, but CPU-less operation is not explicit.
-- `~88`: minimum BIOS may be required and manufacturer explicitly documents CPU-less update/recovery.
-- `~96`: support evidence does not require a minimum BIOS.
-- `98`: seller/manufacturer evidence explicitly proves the shipped BIOS meets the required minimum.
+- `0`: CPU explicitly unsupported;
+- `~34`: support and recovery unresolved;
+- `~48`: minimum BIOS required and no CPU-less path documented;
+- `~62`: supported, but shipped BIOS/recovery unresolved;
+- `~78`: Flashback documented, CPU-less behavior not explicit;
+- `~88`: minimum BIOS may be needed and CPU-less recovery is explicitly documented;
+- `~96`: support row requires no minimum BIOS;
+- `98`: explicit shipped BIOS is proven sufficient.
 
-The score is a readiness/friction signal, not a performance score.
+For now, exact equality between shipped BIOS and minimum BIOS is sufficient proof. A different version string remains unresolved unless a manufacturer-specific comparator is implemented; lexical or date-based guessing is prohibited.
 
-## Matrix completeness
+The score remains an installation/readiness signal, never a performance metric.
 
-Absence from an unproven support table remains unresolved. Once an explicitly complete manufacturer API matrix is persisted, absence can safely become an unsupported pair result under the existing compatibility semantics.
+## Matrix completeness and pair semantics
 
-## Remaining enrichment
+Absence from an incomplete matrix remains unresolved. Absence from an explicitly complete manufacturer matrix may safely become unsupported under the existing CPU+motherboard pair rules.
 
-The next refinements are discovery of support/API surfaces that are not linked from the verified product page, BIOS download history, motherboard hardware revision mapping, and seller evidence for shipped BIOS version. Those must remain evidence-backed; chipset age is not a substitute for firmware proof.
+## Remaining firmware accuracy work
+
+The largest remaining gaps are vendor-specific BIOS version ordering, richer board-revision mapping, seller-side revision/BIOS evidence, and historical factory-shipping metadata where a manufacturer actually publishes it. These must remain evidence-backed; chipset age or manufacture date is not a substitute for firmware proof.
