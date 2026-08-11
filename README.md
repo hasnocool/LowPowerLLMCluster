@@ -89,6 +89,46 @@ llm-cluster-refresh recommendations
 
 Transient HTTP/network failures use exponential backoff and jitter; rate-limited/failed sources cannot manufacture disappearance events. Source budgets, watchlists, price-drop alerts, stock returns, all-time lows, benchmark changes and decision reports remain separate evidence layers.
 
+## Automatic hardware identity enrichment
+
+Identity is now enriched **before** matching, price history, adaptive power learning, TCO, and recommendations. Structured source data is preferred over prose: schema.org `additionalProperty`, DigiKey parameters, distributor attributes/specifications, and eBay aspects can preserve explicit identity fields such as:
+
+- SSD/NVMe controller, NAND type/revision, interface, and capacity;
+- GPU board partner/MPN, PCB/board revision, VBIOS, and explicit host CPU/motherboard/PSU/RAM context;
+- DIMM/module count, per-module capacity, channel topology, and DDR/LPDDR generation;
+- mobile device SKU/model, SoC, and explicit SoC variant.
+
+Marketplace short descriptions are also fed into the conservative text fallback. Existing structured values always win; text only fills missing explicit facts and never guesses silicon, PCB revisions, GPU bins, SSD controllers, NAND, or SoC variants.
+
+These increasingly narrow identities feed the self-improving power model, so an exact SSD controller/NAND combination or GPU board + host configuration can form its own measured power distribution instead of contaminating a broad family average.
+
+See `docs/AUTOMATIC_IDENTITY_ENRICHMENT.md` and `docs/HARDWARE_POWER_IDENTITY.md`.
+
+## Firmware and first-boot readiness
+
+Motherboard firmware evidence is evaluated separately from performance. The project preserves CPU support matrices, minimum BIOS versions, vendor-aware version ordering, BIOS Flashback/CPU-less recovery, generic BIOS history, and revision-scoped manufacturer BIOS history.
+
+Structured marketplace listings can additionally retain seller-stated **PCB revision + currently installed BIOS/UEFI**. Seller evidence is lower authority than manufacturer evidence, but it can improve first-boot confidence after conservative correlation:
+
+```text
+seller board revision 1.2
+        +
+seller installed BIOS F14
+        +
+manufacturer revision-1.2 history contains F14
+        +
+selected CPU requires F12
+        +
+Gigabyte-safe comparison: F14 > F12
+        │
+        ▼
+ready_by_correlated_seller_installed_firmware
+```
+
+A seller claim never overwrites an official CPU-support matrix, factory/shipped-BIOS statement, or manufacturer BIOS history. Unknown vendor version formats remain unresolved.
+
+See `docs/FIRMWARE_BOOT_READINESS.md` and `docs/BIOS_VERSIONING.md`.
+
 ## Evidence, not pretend precision
 
 Performance provenance remains explicit:
@@ -142,6 +182,10 @@ llm-cluster fit special-amd-bc250-16g --params-b 14 --bits 4
 - `data/market/price-history.json` — append-only market observations.
 - `data/evidence/performance.json` — sourced benchmark evidence.
 - `reports/current/` — current buying, change, decision and TCO reports.
+- `docs/AUTOMATIC_IDENTITY_ENRICHMENT.md` — listing/manufacturer identity extraction rules.
+- `docs/HARDWARE_POWER_IDENTITY.md` — narrow identity and learned power-distribution methodology.
+- `docs/FIRMWARE_BOOT_READINESS.md` — CPU/BIOS, Flashback and boot-readiness evidence.
+- `docs/BIOS_VERSIONING.md` — conservative vendor BIOS ordering.
 - `docs/DECISION_QUALITY.md` — recommendation methodology.
 - `docs/TOTAL_COST_OF_OWNERSHIP.md` — complete-node cost methodology.
 - `docs/GPUS.md` — GPU sourcing and evidence rules.
