@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "watchlists": [
+    {
+      "id": "budget-llm-nodes",
+      "description": "Affordable general-purpose LLM nodes and high-memory boards.",
+      "enabled": true,
+      "match": {
+        "categories": ["compute_node", "mini_pc", "sbc", "dev_board", "embedded_board", "specialty_board"],
+        "min_memory_gb": 16
+      },
+      "alerts": {
+        "price_drop_pct": 10,
+        "landed_cost_change_pct": 8,
+        "stock_return": true,
+        "new_product": true,
+        "benchmark_change_pct": 12
+      }
+    },
+    {
+      "id": "weird-accelerators",
+      "description": "Unusual, specialist and decommissioned accelerators worth watching for bargains.",
+      "enabled": true,
+      "match": {
+        "categories": ["specialty_board", "npu_accelerator", "tpu_accelerator", "ai_asic_accelerator", "fpga_accelerator", "adaptive_soc", "decommissioned_accelerator"]
+      },
+      "alerts": {
+        "price_drop_pct": 12,
+        "landed_cost_change_pct": 10,
+        "stock_return": true,
+        "new_product": true,
+        "benchmark_change_pct": 15
+      }
+    },
+    {
+      "id": "low-power-24-7",
+      "description": "Low-power candidates suitable for always-on or constrained-power use.",
+      "enabled": true,
+      "match": {
+        "max_power_w": 25
+      },
+      "alerts": {
+        "price_drop_pct": 10,
+        "landed_cost_change_pct": 8,
+        "stock_return": true,
+        "new_product": true,
+        "benchmark_change_pct": 10
+      }
+    }
+  ]
+}
