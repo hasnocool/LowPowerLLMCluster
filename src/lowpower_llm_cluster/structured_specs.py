@@ -9,6 +9,8 @@ from urllib.parse import urljoin, urlparse
 
 import httpx
 
+from .firmware_readiness import detect_bios_flashback, discover_support_endpoints
+
 
 def _norm(value: Any) -> str:
     return " ".join(str(value or "").casefold().replace("-", " ").split())
@@ -29,7 +31,6 @@ def _first_int(patterns: list[str], text: str, *, minimum: int | None = None, ma
 
 
 def _merge(target: dict[str, Any], evidence: dict[str, Any], source: dict[str, Any], provenance: dict[str, Any]) -> None:
-    # Structured sources are processed in priority order; first verified value wins.
     for field, value in source.items():
         if value is None or field in target:
             continue
@@ -262,7 +263,6 @@ def _support_status(value: str, bios: str) -> str:
 
 
 def extract_cpu_support_rows(tables: list[list[list[str]]]) -> list[dict[str, Any]]:
-    """Preserve motherboard CPU/BIOS support rows for later CPU+board pair evaluation."""
     rows: list[dict[str, Any]] = []
     for table_index, table in enumerate(tables):
         if not table:
@@ -353,6 +353,8 @@ async def ingest_structured_manufacturer_document(
         "pdf_urls": [],
         "cpu_support_matrix": [],
         "cpu_support_matrix_complete": False,
+        "support_endpoints": [],
+        "bios_flashback": {"status": "unknown", "feature_name": None, "cpu_less_update_explicit": None, "confidence": "unknown"},
     }
     confidence = "exact" if identity_score and identity_score >= 0.9 else "high"
 
@@ -381,6 +383,11 @@ async def ingest_structured_manufacturer_document(
     stats["table_fields"] = len(table_facts)
 
     if component == "motherboard":
+        source_host = (urlparse(source_url).hostname or "").casefold()
+        if source_host:
+            stats["support_endpoints"] = discover_support_endpoints(html, source_url, {source_host})
+        stats["bios_flashback"] = detect_bios_flashback(html)
+
         support_rows = extract_cpu_support_rows(parser.tables)
         for row in support_rows:
             row.update({
@@ -393,8 +400,6 @@ async def ingest_structured_manufacturer_document(
                 "confidence": confidence,
             })
         stats["cpu_support_matrix"] = support_rows
-        # Static HTML alone cannot prove that a manufacturer support matrix is exhaustive;
-        # absence remains unresolved unless a future source explicitly marks completeness.
         stats["cpu_support_matrix_complete"] = False
         support = extract_cpu_support_matrix(parser.tables, target_cpu=target_cpu)
         _merge(facts, evidence, support, {
