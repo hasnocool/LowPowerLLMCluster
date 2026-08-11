@@ -11,7 +11,9 @@ from urllib.parse import urljoin
 import httpx
 
 from .apple_resolution import resolve_apple_configuration
+from .identity_extraction import enrich_hardware_identity, extract_seller_firmware_evidence
 from .market import DiscoveryAdapter, Listing, _now
+from .structured_identity import extract_structured_identity, structured_property_pairs
 
 DEFAULT_TIMEOUT = httpx.Timeout(20.0, connect=10.0)
 USER_AGENT = "LowPowerLLMCluster/0.5 (+https://github.com/hasnocool/LowPowerLLMCluster)"
@@ -121,6 +123,7 @@ class ManufacturerJsonLdAdapter(DiscoveryAdapter):
                             sku = node.get("sku") or node.get("mpn")
                             brand = _manufacturer_name(node.get("brand") or node.get("manufacturer"))
                             configuration = {"manufacturer": brand, "mpn": str(node.get("mpn") or sku or "") or None}
+                            configuration = extract_structured_identity(structured_property_pairs(node), existing=configuration)
                             configuration = resolve_apple_configuration(title, existing=configuration)
                             listings.append(
                                 Listing(
@@ -176,6 +179,10 @@ class MouserAdapter(DiscoveryAdapter):
                     part_number = str(part.get("ManufacturerPartNumber") or part.get("MouserPartNumber") or "")
                     manufacturer = _manufacturer_name(part.get("Manufacturer"))
                     configuration = {"manufacturer": manufacturer, "mpn": part_number or None, "distributor_part_number": part.get("MouserPartNumber")}
+                    configuration = extract_structured_identity(
+                        structured_property_pairs(part.get("ProductAttributes"), part.get("Specifications"), part),
+                        existing=configuration,
+                    )
                     output.append(
                         Listing(
                             source=self.name,
@@ -245,6 +252,10 @@ class DigiKeyAdapter(DiscoveryAdapter):
                         description = description.get("ProductDescription") or description.get("productDescription")
                     url = str(product.get("ProductUrl") or product.get("productUrl") or "https://www.digikey.ca/")
                     configuration = {"manufacturer": manufacturer, "mpn": product_number or None, "distributor_part_number": product.get("DigiKeyProductNumber") or product.get("digiKeyProductNumber")}
+                    configuration = extract_structured_identity(
+                        structured_property_pairs(product.get("Parameters"), product.get("parameters"), product),
+                        existing=configuration,
+                    )
                     output.append(
                         Listing(
                             source=self.name,
@@ -326,6 +337,19 @@ class EbayBrowseAdapter(DiscoveryAdapter):
                     title = str(item.get("title") or "")
                     description = str(item.get("shortDescription") or "")
                     configuration = resolve_apple_configuration(title, description=description, existing={})
+                    configuration = extract_structured_identity(
+                        structured_property_pairs(item.get("localizedAspects"), item.get("aspects")),
+                        existing=configuration,
+                    )
+                    combined_text = f"{title} {description}".strip()
+                    configuration = enrich_hardware_identity(combined_text, existing=configuration)
+                    seller_fw = extract_seller_firmware_evidence(combined_text)
+                    if seller_fw.get("board_revision") or seller_fw.get("installed_bios_version"):
+                        configuration.setdefault("seller_firmware_evidence", seller_fw)
+                        if seller_fw.get("board_revision"):
+                            configuration.setdefault("board_revision", seller_fw["board_revision"])
+                        if seller_fw.get("installed_bios_version"):
+                            configuration.setdefault("installed_bios_version", seller_fw["installed_bios_version"])
                     output.append(
                         Listing(
                             source=self.name,
@@ -336,7 +360,7 @@ class EbayBrowseAdapter(DiscoveryAdapter):
                             currency=str(price_data.get("currency") or "CAD").upper(),
                             observed_at=_now(),
                             seller=str(seller.get("username") or seller.get("userId") or "") or None,
-                            sku=configuration.get("apple_part_number") or configuration.get("model_identifier") or configuration.get("apple_a_number"),
+                            sku=configuration.get("apple_part_number") or configuration.get("model_identifier") or configuration.get("apple_a_number") or configuration.get("device_sku"),
                             configuration=configuration,
                             shipping=shipping,
                             shipping_currency=str(shipping_currency or price_data.get("currency") or "CAD").upper(),
