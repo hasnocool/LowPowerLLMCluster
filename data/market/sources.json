@@ -10,19 +10,23 @@
   "structured_sources": {
     "mouser": {
       "credential_env": ["MOUSER_API_KEY"],
+      "endpoint": "https://api.mouser.com/api/v1/search/keyword",
       "docs": "https://api.mouser.com/api/docs/ui/index"
     },
     "digikey": {
       "credential_env": ["DIGIKEY_CLIENT_ID", "DIGIKEY_ACCESS_TOKEN"],
+      "endpoint": "https://api.digikey.com/products/v4/search/keyword",
       "docs": "https://developer.digikey.com/products/product-information-v4"
     },
     "ebay-ca": {
       "credential_env": ["EBAY_CLIENT_ID", "EBAY_CLIENT_SECRET"],
+      "endpoint": "https://api.ebay.com/buy/browse/v1/item_summary/search",
       "docs": "https://developer.ebay.com/api-docs/buy/api-browse.html"
     }
   },
   "fx": {
     "provider": "Bank of Canada Valet API",
+    "endpoint_template": "https://www.bankofcanada.ca/valet/observations/{series}/json",
     "currencies": ["USD", "EUR", "GBP", "JPY", "CNY", "AUD"],
     "docs": "https://www.bankofcanada.ca/valet/docs"
   }
