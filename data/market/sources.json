@@ -5,7 +5,11 @@
     "https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/",
     "https://frame.work/products/mainboard-amd-ai300",
     "https://www.minisforum.com/products/minisforum-bd795m",
-    "https://tenstorrent.com/en/hardware/cards"
+    "https://tenstorrent.com/en/hardware/cards",
+    "https://turingpi.com/product/turing-rk1/",
+    "https://turingpi.com/product/turing-pi-2-5/",
+    "https://shop.allnetchina.cn/products/rock-5-itx-1",
+    "https://www.orangepi.org/html/hardWare/computerAndMicrocontrollers/details/Orange-Pi-5-plus-32GB.html"
   ],
   "structured_sources": {
     "mouser": {
@@ -29,5 +33,13 @@
     "endpoint_template": "https://www.bankofcanada.ca/valet/observations/{series}/json",
     "currencies": ["USD", "EUR", "GBP", "JPY", "CNY", "AUD"],
     "docs": "https://www.bankofcanada.ca/valet/docs"
-  }
+  },
+  "benchmark_seed_sources": [
+    {
+      "name": "Turing Pi RK3588 llama.cpp benchmark suite",
+      "url": "https://turingpi.com/llm-inference-benchmarks-rk3588-gguf-quantization/",
+      "hardware_scope": "module-turing-rk1-32g",
+      "source_type": "vendor_measured"
+    }
+  ]
 }
