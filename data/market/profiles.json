@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "profiles": {
+    "daily-market": {
+      "description": "Daily public/current-market refresh with optional credentialed structured sources.",
+      "sources": ["manufacturer", "mouser", "digikey", "ebay"],
+      "queries": [
+        "Ryzen 8845HS mini PC",
+        "Ryzen 7735U mini PC",
+        "BC-250 16GB",
+        "RK3588 32GB",
+        "Jetson Orin Nano Super",
+        "Hailo-10H",
+        "BM1688",
+        "Alveo U50"
+      ],
+      "refresh_fx": true,
+      "currencies": ["USD", "EUR", "GBP", "JPY", "CNY", "AUD"],
+      "generate_reports": true,
+      "tax_rate": 0.12,
+      "stale_after_hours": 72,
+      "retry": {
+        "attempts": 4,
+        "base_delay_s": 1.0,
+        "max_delay_s": 30.0
+      }
+    },
+    "weekly-deep-scan": {
+      "description": "Broader weekly refresh for unusual, EOL and high-memory hardware.",
+      "sources": ["manufacturer", "mouser", "digikey", "ebay"],
+      "queries": [
+        "Alveo U50",
+        "Alveo V70",
+        "Tenstorrent Wormhole",
+        "Kria KV260",
+        "Versal AI Edge",
+        "Coral Edge TPU",
+        "MemryX MX3",
+        "SOPHGO BM1684X",
+        "SOPHGO BM1688",
+        "Orange Pi 5 Plus 32GB",
+        "Radxa ROCK 5 ITX 32GB",
+        "Turing RK1 32GB"
+      ],
+      "refresh_fx": true,
+      "generate_reports": true,
+      "tax_rate": 0.12,
+      "stale_after_hours": 168,
+      "retry": {
+        "attempts": 5,
+        "base_delay_s": 2.0,
+        "max_delay_s": 60.0
+      }
+    }
+  }
+}
