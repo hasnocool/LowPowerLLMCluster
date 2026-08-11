@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "currency": "CAD",
+  "destination_country": "CA",
+  "tax_rate": 0.12,
+  "sources": ["mouser", "digikey", "ebay"],
+  "selection": {
+    "minimum_seller_confidence": 0.45,
+    "maximum_results_per_component": 12,
+    "prefer_authorized_sources_within_pct": 12.0
+  },
+  "components": {
+    "cpu_host": {
+      "description": "CPU for a low-cost PCIe GPU host build",
+      "queries": ["AMD Ryzen 5 5600 processor", "Intel Core i5 12400 processor"],
+      "required_terms_any": ["ryzen 5 5600", "i5-12400", "i5 12400"],
+      "exclude_terms": ["laptop", "not working", "for parts"]
+    },
+    "motherboard": {
+      "description": "ATX/mATX motherboard with a full-length PCIe GPU slot",
+      "queries": ["B550 motherboard AM4 PCIe x16", "B660 motherboard LGA1700 PCIe x16"],
+      "required_terms_any": ["b550", "b660"],
+      "exclude_terms": ["mini itx only", "not working", "for parts"]
+    },
+    "host_ram_32gb": {
+      "description": "32GB desktop memory kit",
+      "queries": ["32GB DDR4 2x16GB desktop memory kit"],
+      "required_terms_any": ["32gb", "2x16", "2 x 16"],
+      "exclude_terms": ["sodimm", "so-dimm", "laptop", "for parts"]
+    },
+    "storage_1tb": {
+      "description": "1TB NVMe SSD",
+      "queries": ["1TB NVMe M.2 SSD"],
+      "required_terms_any": ["1tb", "1 tb"],
+      "exclude_terms": ["enclosure", "case only", "for parts"]
+    },
+    "psu_750w": {
+      "description": "750W ATX PSU suitable for a discrete GPU",
+      "queries": ["750W ATX power supply 80 Plus Gold PCIe"],
+      "required_terms_any": ["750w", "750 w"],
+      "exclude_terms": ["server", "breakout", "for parts"]
+    },
+    "pcie_adapter": {
+      "description": "PCIe riser/extension/OCuLink integration allowance when required",
+      "queries": ["PCIe 4.0 x16 riser cable", "OCuLink PCIe adapter"],
+      "required_terms_any": ["pcie", "pci-e", "oculink"],
+      "exclude_terms": ["usb mining riser", "for parts"]
+    },
+    "cooling": {
+      "description": "120mm/140mm case cooling kit or equivalent airflow hardware",
+      "queries": ["120mm PWM case fan 2 pack", "140mm PWM case fan 2 pack"],
+      "required_terms_any": ["120mm", "140mm"],
+      "exclude_terms": ["replacement gpu fan", "for parts"]
+    },
+    "chassis": {
+      "description": "ATX/mATX chassis with room for a full-size GPU",
+      "queries": ["ATX mid tower case GPU clearance"],
+      "required_terms_any": ["atx", "mid tower", "mid-tower"],
+      "exclude_terms": ["mini itx", "empty box", "for parts"]
+    }
+  }
+}
