@@ -40,7 +40,10 @@
 - [x] Add ownership-aware TCO profiles for new build, reuse host core, reuse complete host and reuse everything.
 - [x] Allow custom already-owned component overrides and keep owned hardware in operating-power calculations.
 - [x] Make break-even comparisons accept different ownership profiles for each option.
-- [ ] Replace generic TCO component assumptions with sourced component/BOM observations per exact deployment when evidence is available.
+- [x] Fetch live BOM product/cost data for CPU, motherboard, RAM, storage, PSU, PCIe/OCuLink, cooling and chassis using structured online sources.
+- [x] Persist current BOM selections and append-only landed-CAD BOM price history.
+- [x] Overlay selected sourced BOM costs into TCO one component at a time while preserving fallback assumption provenance.
+- [ ] Expand exact component compatibility validation beyond text filters: CPU socket/chipset, RAM generation, PSU connectors/headroom, GPU clearance, PCIe lanes/gen and cooler dimensions.
 - [ ] Add compatibility validation for owned hosts: PCIe generation/lanes, physical slots, PSU connectors/headroom, chassis clearance and cooling capacity.
 - [ ] Add province presets plus tariff/HS-code evidence without pretending customs treatment is universal.
 - [ ] Persist historical landed-CAD snapshots so pure FX movement can be compared without recomputing old observations at current FX.
@@ -57,6 +60,7 @@
 - [x] Count CPU/host, motherboard, RAM, storage, PSU, PCIe integration, cooling, chassis and board-power-derived operating scenarios in GPU TCO comparisons.
 - [x] Add GPU-vs-integrated-node break-even analysis using complete-node TCO rather than card sticker price.
 - [x] Add ownership-aware GPU acquisition so existing compatible host parts are not purchased twice.
+- [x] Feed current sourced host/BOM product costs into GPU complete-node TCO where online listings pass confidence/compatibility filters.
 - [ ] Expand NVIDIA coverage to other 12GB/16GB/24GB/32GB cards when live pricing justifies catalog inclusion.
 - [ ] Expand AMD coverage to additional maintained ROCm/Vulkan cards with useful VRAM-per-dollar.
 - [ ] Expand Intel Arc coverage as current/used pricing changes.
