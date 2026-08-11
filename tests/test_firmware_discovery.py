@@ -72,3 +72,16 @@ def test_sitemap_discovery_and_probe_can_prove_complete_matrix():
     assert any("support/B550-A-PRO/cpu" in row["url"] for row in discovery["candidates"])
     assert result["support_complete"] is True
     assert result["support_matrix"][0]["cpu_model"] == "Ryzen 5 5600"
+
+
+def test_bios_api_preserves_revision_scoped_history():
+    discovery = {"official_host": "vendor.example", "candidates": [{"url": "https://vendor.example/api/bios", "score": 90, "basis": "test", "kinds": ["bios"], "linked": False}]}
+    payload = {"downloads": [{"version": "F14", "release_date": "2026-01-01", "url": "/f14.zip", "pcb_revision": "1.2"}]}
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, content=json.dumps(payload).encode(), headers={"content-type":"application/json"}, request=request)
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await probe_unlinked_support_candidates(discovery, client=client)
+    result = asyncio.run(run())
+    assert result["revision_bios_history"][0]["version"] == "F14"
+    assert result["revision_bios_history"][0]["board_revisions"] == ["1.2"]
