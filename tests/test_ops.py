@@ -7,7 +7,7 @@ from pathlib import Path
 
 import httpx
 
-from lowpower_llm_cluster.ops import stale_listings, with_retry
+from lowpower_llm_cluster.ops import reserve_source_budget, stale_listings, with_retry
 
 
 def test_retry_recovers_from_transient_http_error():
@@ -60,3 +60,17 @@ def test_stale_warning_only_flags_active_old_listings(tmp_path: Path):
     path.write_text(json.dumps(payload), encoding="utf-8")
     rows = stale_listings(stale_after_hours=72, path=path)
     assert [row["title"] for row in rows] == ["old active"]
+
+
+def test_source_budget_caps_run_and_daily_usage(tmp_path: Path):
+    path = tmp_path / "budgets.json"
+    budget = {"max_queries_per_run": 3, "daily_request_budget": 5}
+    allowed1, state1 = reserve_source_budget("fixture", 8, budget, path=path)
+    allowed2, state2 = reserve_source_budget("fixture", 8, budget, path=path)
+    allowed3, state3 = reserve_source_budget("fixture", 8, budget, path=path)
+    assert allowed1 == 3
+    assert allowed2 == 2
+    assert allowed3 == 0
+    assert state1["remaining_after"] == 2
+    assert state2["remaining_after"] == 0
+    assert state3["remaining_after"] == 0
