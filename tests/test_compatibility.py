@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from lowpower_llm_cluster.compatibility import construct_compatible_builds, evaluate_build_compatibility, gpu_requirements, infer_listing_facts
+from lowpower_llm_cluster.compatibility import construct_compatible_builds, evaluate_build_compatibility, evaluate_cpu_bios_pair, gpu_requirements, infer_listing_facts
 
 
-def row(component: str, facts: dict, cost: float = 100.0):
-    return {"component": component, "compatibility_facts": facts, "landed": {"landed_cad": cost}, "listing": {"title": component}}
+def row(component: str, facts: dict, cost: float = 100.0, title: str | None = None):
+    return {"component": component, "compatibility_facts": facts, "landed": {"landed_cad": cost}, "listing": {"title": title or component}}
 
 
 def gpu():
@@ -19,9 +19,24 @@ def gpu():
 
 
 def compatible_build():
+    cpu = row("cpu_host", {"socket": "AM4", "memory_types": ["DDR4"], "cpu_model": "Ryzen 5 5600"}, title="AMD Ryzen 5 5600")
+    board = row("motherboard", {"socket": "AM4", "memory_type": "DDR4", "gpu_slot": "PCIe x16", "gpu_slot_lanes": 16, "form_factors": ["ATX"], "supports_nvme_m2": True})
+    board["spec_enrichment"] = {
+        "structured_document": {
+            "cpu_support_matrix": [{
+                "cpu_model": "Ryzen 5 5600",
+                "minimum_bios_version": "7C56vA9",
+                "support_status": "supported",
+                "source_url": "https://vendor.example/support",
+                "source_type": "manufacturer_support_table",
+                "confidence": "exact",
+            }],
+            "cpu_support_matrix_complete": False,
+        }
+    }
     return {
-        "cpu_host": row("cpu_host", {"socket": "AM4", "memory_types": ["DDR4"]}),
-        "motherboard": row("motherboard", {"socket": "AM4", "memory_type": "DDR4", "gpu_slot": "PCIe x16", "gpu_slot_lanes": 16, "form_factors": ["ATX"], "supports_nvme_m2": True}),
+        "cpu_host": cpu,
+        "motherboard": board,
         "host_ram_32gb": row("host_ram_32gb", {"memory_type": "DDR4", "capacity_gb": 32}),
         "storage_1tb": row("storage_1tb", {"interface": "NVMe", "form_factor": "M.2", "capacity_gb": 1000}),
         "psu_750w": row("psu_750w", {"wattage_w": 750}),
@@ -36,10 +51,13 @@ def test_gpu_requirement_uses_system_psu_not_board_power():
     assert req["minimum_pcie_lanes"] == 16
 
 
-def test_compatible_build_checks_all_major_dimensions():
+def test_compatible_build_checks_all_major_dimensions_and_bios_pair():
     result = evaluate_build_compatibility(compatible_build(), gpu())
     assert result["status"] == "compatible"
     assert result["failures"] == []
+    assert result["cpu_bios"]["status"] == "supported"
+    assert result["cpu_bios"]["minimum_bios_version"] == "7C56vA9"
+    assert any("7C56vA9" in warning for warning in result["warnings"])
 
 
 def test_socket_mismatch_rejected():
@@ -91,10 +109,42 @@ def test_listing_variant_facts_are_normalized():
     assert facts["socket"] == "AM4"
 
 
+def test_explicit_unsupported_cpu_bios_pair_is_rejected():
+    build = compatible_build()
+    matrix = build["motherboard"]["spec_enrichment"]["structured_document"]["cpu_support_matrix"]
+    matrix[0]["support_status"] = "unsupported"
+    pair = evaluate_cpu_bios_pair(build["cpu_host"], build["motherboard"])
+    assert pair["status"] == "unsupported"
+    result = evaluate_build_compatibility(build, gpu())
+    assert result["status"] == "incompatible"
+    assert any("cpu_bios_support" in item for item in result["failures"])
+
+
+def test_partial_matrix_absence_is_unresolved_not_false_unsupported():
+    build = compatible_build()
+    build["cpu_host"]["compatibility_facts"]["cpu_model"] = "Ryzen 7 5700X"
+    build["cpu_host"]["listing"]["title"] = "AMD Ryzen 7 5700X"
+    pair = evaluate_cpu_bios_pair(build["cpu_host"], build["motherboard"])
+    assert pair["status"] == "unresolved"
+    result = evaluate_build_compatibility(build, gpu())
+    assert result["status"] == "provisionally_compatible"
+    assert "cpu_bios_support" in result["unknowns"]
+
+
+def test_complete_matrix_absence_is_unsupported():
+    build = compatible_build()
+    build["cpu_host"]["compatibility_facts"]["cpu_model"] = "Ryzen 7 5700X"
+    build["cpu_host"]["listing"]["title"] = "AMD Ryzen 7 5700X"
+    build["motherboard"]["spec_enrichment"]["structured_document"]["cpu_support_matrix_complete"] = True
+    pair = evaluate_cpu_bios_pair(build["cpu_host"], build["motherboard"])
+    assert pair["status"] == "unsupported"
+
+
 def test_solver_rejects_cheaper_incompatible_path():
     good = compatible_build()
     components = {name: {"candidates": [value]} for name, value in good.items()}
     bad_board = row("motherboard", {"socket": "LGA1700", "memory_type": "DDR4", "gpu_slot": "PCIe x16", "gpu_slot_lanes": 16, "form_factors": ["ATX"], "supports_nvme_m2": True}, 10)
+    bad_board["spec_enrichment"] = {"structured_document": {"cpu_support_matrix": [], "cpu_support_matrix_complete": False}}
     components["motherboard"]["candidates"].insert(0, bad_board)
     builds = construct_compatible_builds(components, gpu_part=gpu(), maximum_builds=5)
     assert builds
