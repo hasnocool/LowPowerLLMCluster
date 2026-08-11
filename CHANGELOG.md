@@ -48,7 +48,11 @@ All notable changes to this project will be documented here.
 - Complete-node TCO engine covering product price, required host/RAM/storage/PSU/PCIe/cooling/chassis infrastructure, and multi-year electricity scenarios.
 - Editable light/mixed/always-on/high-electricity TCO assumptions in `data/market/tco-scenarios.json`.
 - TCO-aware recommendation re-ranking plus `reports/current/daily-tco.md` / `daily-tco.json`.
-- `llm-cluster-refresh tco`, `recommendations --scenario`, and `tco-scenarios` commands.
+- Break-even analysis for product price, electricity rate and daily load hours between complete-node options.
+- Ownership-aware TCO profiles: `new-build`, `reuse-host-core`, `reuse-complete-host`, and `reuse-everything`.
+- Custom already-owned component overrides for TCO and break-even comparisons.
+- Separate incremental infrastructure cost and avoided-acquisition value for compatible already-owned hardware.
+- `llm-cluster-refresh tco`, `recommendations --scenario`, ownership flags, `break-even`, and `tco-scenarios` commands.
 - `reports/current/daily-recommendations.md` and machine-readable `daily-recommendations.json` outputs.
 - `docs/GPUS.md`, `docs/DECISION_QUALITY.md`, and `docs/TOTAL_COST_OF_OWNERSHIP.md` guides.
 - `llm-cluster-refresh` CLI for profile execution, health inspection, stale warnings, source budgets, watchlists, alerts, recommendations, TCO and report regeneration.
@@ -56,7 +60,7 @@ All notable changes to this project will be documented here.
 - `docs/AUTONOMOUS_REFRESH.md` and `docs/CHANGE_INTELLIGENCE.md` operational guides.
 - `llm-cluster-market` CLI with `discover`, `history`, `landed`, `refresh-fx`, `ingest-performance`, `aggregate-performance`, and `report` workflows.
 - `specs/MARKET_INTELLIGENCE.md` and tests for matching, history deduplication, seller confidence, lifecycle tracking, landed-cost math, evidence ingestion, compatible aggregation, JSON-LD normalization, CAD report behavior, retry policy, stale detection, source budgets and change-alert deduplication.
-- Decision-quality and TCO tests covering GPU VRAM model-fit screening, all-time-low detection, trend/volatility, opportunity expiry, alert prioritization, host infrastructure, board-power scope and complete-system comparisons.
+- Decision-quality and TCO tests covering GPU VRAM model-fit screening, all-time-low detection, trend/volatility, opportunity expiry, alert prioritization, host infrastructure, ownership reuse, board-power scope and complete-system comparisons.
 
 ### Changed
 
@@ -68,7 +72,8 @@ All notable changes to this project will be documented here.
 - Community energy-efficiency evidence preserves its published measurement boundary; internal Jetson rail telemetry is not relabeled as complete-node wall-input power.
 - Discrete GPU TGP/TBP is treated as host/PSU/cooling friction, never as complete-node tokens/joule.
 - Daily recommendations are explainable buying decisions rather than synthetic hardware-performance rankings.
-- Final recommendation ordering now incorporates complete-node acquisition and scenario operating cost so component-only sticker prices cannot hide required infrastructure.
+- Final recommendation ordering incorporates complete-node acquisition and scenario operating cost so component-only sticker prices cannot hide required infrastructure.
+- Already-owned compatible infrastructure now has zero incremental acquisition cost while remaining part of complete-node operating-power calculations.
 
 ## [0.4.1] - 2026-08-10
 
