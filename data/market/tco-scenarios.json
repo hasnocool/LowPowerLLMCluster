@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "currency": "CAD",
   "basis": "Planning defaults only. Replace these assumptions with sourced local component prices and electricity rates for purchase decisions.",
   "component_costs_cad": {
@@ -15,6 +15,24 @@
     "cooling": 60.0,
     "chassis": 100.0,
     "chassis_misc": 30.0
+  },
+  "ownership_profiles": {
+    "new-build": {
+      "description": "Buy every infrastructure component required by the deployment profile.",
+      "owned_components": []
+    },
+    "reuse-host-core": {
+      "description": "Reuse CPU/host, motherboard, RAM, storage and chassis; buy only missing accelerator support such as PSU, PCIe integration or cooling.",
+      "owned_components": ["cpu_host", "motherboard", "host_ram_32gb", "system_ram_32gb", "storage_1tb", "chassis", "chassis_misc"]
+    },
+    "reuse-complete-host": {
+      "description": "Reuse a compatible complete host including PSU and cooling; normally only accelerator-specific integration remains.",
+      "owned_components": ["cpu_host", "motherboard", "host_ram_32gb", "system_ram_32gb", "storage_1tb", "psu_750w", "power_supply", "cooling", "chassis", "chassis_misc"]
+    },
+    "reuse-everything": {
+      "description": "All required infrastructure is already owned and compatible; only the listed product purchase is incremental acquisition cost.",
+      "owned_components": ["cpu_host", "motherboard", "host_ram_32gb", "system_ram_32gb", "storage_1tb", "psu_750w", "power_supply", "pcie_adapter", "carrier_board", "cooling", "chassis", "chassis_misc"]
+    }
   },
   "power_assumptions": {
     "host_idle_w": 35.0,
