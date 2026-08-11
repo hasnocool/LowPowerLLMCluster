@@ -7,30 +7,29 @@
 - [x] Add CAD conversion input and Canada landed-cost estimator.
 - [x] Add exact-SKU/configuration confidence.
 - [x] Add sourced vendor/community performance ingestion with model/runtime/workload provenance.
-- [x] Add live source adapters: public manufacturer JSON-LD, Mouser, DigiKey and eBay Browse.
-- [x] Add listing disappearance/reappearance observations with query-scope protection.
-- [x] Add automatic sourced FX refresh and historical FX snapshots using Bank of Canada Valet.
+- [x] Add live manufacturer/distributor/structured-marketplace adapters where terms/API access permit.
+- [x] Add listing disappearance/reappearance and stock-state observations.
+- [x] Add automatic sourced FX refresh and historical FX snapshots.
 - [x] Add seller/source reputation confidence separately from SKU confidence.
-- [x] Add compatible benchmark aggregation without mixing different model/runtime/workload signatures.
-- [ ] Add live stock/availability normalization across source-specific vocabularies.
+- [x] Add compatibility-preserving benchmark aggregation.
+- [x] Add CAD buying reports: under CA$100/250/500, 32GB+, low-power, weird-hardware, EOL, measured-evidence.
+- [x] Add an exact-hardware benchmark reference product and seed sourced RK1/RK3588 llama.cpp evidence.
 - [ ] Add province presets plus tariff/HS-code evidence without pretending customs treatment is universal.
-- [ ] Add automatic credential/token refresh for DigiKey instead of requiring an externally obtained access token.
-- [ ] Add more manufacturer/distributor source seeds and source-specific parsing fixtures.
-- [ ] Add seller/source reputation history rather than only observation-time confidence.
+- [ ] Add source health history, rate-limit/backoff telemetry, and stale-source warnings.
+- [ ] Add more structured used-market sources where official/legal API access exists.
 - [ ] Normalize form factor, dimensions, DC input, PSU/cooling and host requirements.
 - [ ] Verify board-level RAM maximums instead of relying on CPU theoretical limits.
 - [ ] Add more direct-China and used-market mini PCs, mobile boards, SBCs and unusual accelerators.
-- [ ] Add filters/reports: best under $100/$200/$500, high-memory bargains, low-power nodes, weird hardware, EOL bargains.
 
 ## Evidence & estimates
 
 - [x] Ingest sourced vendor/community performance records with model/runtime/workload provenance.
-- [x] Aggregate compatible measured records into count/median/range/mean/confidence groups.
-- [ ] Add confidence-aware performance ranges to product views only when multiple compatible real sources justify them.
+- [x] Keep compatible measurements grouped by exact benchmark signature instead of averaging unlike runs.
+- [ ] Add confidence-aware performance ranges only when multiple independent compatible real sources justify them.
 - [ ] Add model-family presets to the safe model-fit screen.
 - [ ] Track published/estimated power boundaries without calling TDP complete-node watts.
 - [ ] Benchmark the ThinkPad L14 as an optional local reference/calibration node.
-- [ ] Import useful community BC-250/RK3588/Jetson/Hailo/SOPHGO results where reproducible.
+- [ ] Import additional useful BC-250/RK3588/Jetson/Hailo/SOPHGO results only when exact hardware/runtime provenance is available.
 
 ## Hardware discovery
 
