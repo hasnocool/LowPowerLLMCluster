@@ -11,10 +11,13 @@ def main() -> int:
     errors: list[str] = []
     required = [
         "data/catalog/apple-low-power.json", "data/catalog/mobile-devices.json", "data/power/evidence.json",
+        "data/evidence/power-measurements.json", "data/identity/vendor-parameter-mappings.json",
+        "data/firmware/factory-firmware-rules.json",
         "src/lowpower_llm_cluster/mobile_platform.py", "src/lowpower_llm_cluster/apple_resolution.py",
         "src/lowpower_llm_cluster/firmware_readiness.py", "src/lowpower_llm_cluster/manufacturer_support.py",
         "src/lowpower_llm_cluster/firmware_discovery.py", "src/lowpower_llm_cluster/firmware_history.py",
-        "src/lowpower_llm_cluster/bios_versioning.py", "src/lowpower_llm_cluster/power_evidence.py",
+        "src/lowpower_llm_cluster/factory_firmware.py", "src/lowpower_llm_cluster/bios_versioning.py",
+        "src/lowpower_llm_cluster/power_evidence.py", "src/lowpower_llm_cluster/power_measurements.py",
         "src/lowpower_llm_cluster/power_identity.py", "src/lowpower_llm_cluster/power_ingestion.py",
         "src/lowpower_llm_cluster/identity_extraction.py", "src/lowpower_llm_cluster/structured_identity.py",
         "src/lowpower_llm_cluster/seller_firmware.py",
@@ -24,6 +27,7 @@ def main() -> int:
         "tests/test_manufacturer_support.py", "tests/test_firmware_discovery.py", "tests/test_firmware_history.py",
         "tests/test_bios_versioning.py", "tests/test_power_evidence.py", "tests/test_power_ingestion.py",
         "tests/test_identity_extraction.py", "tests/test_structured_identity_and_seller_firmware.py",
+        "tests/test_power_measurements_and_factory_firmware.py", "tests/test_vendor_parameter_mappings.py",
     ]
     for rel in required:
         if not (ROOT / rel).exists(): errors.append(f"required mobile/firmware/power artifact missing: {rel}")
@@ -48,7 +52,7 @@ def main() -> int:
     if '"performance_claim": False' not in mobile_source: errors.append("mobile memory budget must remain capacity-only, not a performance claim")
 
     firmware_source=(ROOT/"src/lowpower_llm_cluster/firmware_readiness.py").read_text(encoding="utf-8")
-    for term in ("def discover_support_endpoints","def detect_bios_flashback","def boot_readiness_score","shipped_bios_meets_requirement","correlate_seller_firmware","ready_by_correlated_seller_installed_firmware"):
+    for term in ("def discover_support_endpoints","def detect_bios_flashback","def boot_readiness_score","shipped_bios_meets_requirement","correlate_seller_firmware","ready_by_correlated_seller_installed_firmware","ready_with_verified_factory_firmware"):
         if term not in firmware_source: errors.append(f"firmware readiness lost invariant: {term}")
     if '"performance_claim": False' not in firmware_source and '"performance_claim":False' not in firmware_source: errors.append("boot-readiness score must not become a performance claim")
 
@@ -59,8 +63,15 @@ def main() -> int:
     for term in ("def normalize_revision_scoped_bios_history","def bios_history_for_revision","unscoped_rows_ignored"):
         if term not in history_source: errors.append(f"revision-scoped BIOS history lost invariant: {term}")
     seller_source=(ROOT/"src/lowpower_llm_cluster/seller_firmware.py").read_text(encoding="utf-8")
-    for term in ("def correlate_seller_firmware","installed_bios_in_revision_history","manufacturer_authority"):
+    for term in ("def correlate_seller_firmware","installed_bios_in_revision_history","factory_firmware","manufacturer_authority"):
         if term not in seller_source: errors.append(f"seller firmware correlation lost authority/revision invariant: {term}")
+    factory_source=(ROOT/"src/lowpower_llm_cluster/factory_firmware.py").read_text(encoding="utf-8")
+    for term in ("def resolve_factory_firmware","generic serial decoding","serial_regex","manufacture_batch","factory_bios_label","manufacturer_authority"):
+        if term.casefold() not in factory_source.casefold(): errors.append(f"factory firmware resolver lost conservative provenance rule: {term}")
+    factory_rules=json.loads((ROOT/"data/firmware/factory-firmware-rules.json").read_text(encoding="utf-8"))
+    if factory_rules.get("policy",{}).get("generic_serial_decoding_allowed") is not False: errors.append("factory firmware policy must forbid generic serial decoding")
+    for rule in factory_rules.get("rules") or []:
+        if rule.get("enabled",True) and not str(rule.get("source_url") or "").startswith("https://"): errors.append(f"factory firmware rule lacks HTTPS manufacturer source: {rule.get('id')}")
 
     support_source=(ROOT/"src/lowpower_llm_cluster/manufacturer_support.py").read_text(encoding="utf-8")
     for term in ("def ingest_support_endpoint","def ingest_ranked_support_endpoints","def pagination_metadata","MAX_SUPPORT_PAGES = 64","explicit_total_pages","explicit_total_count","explicit_has_more_false","endpoint_not_on_expected_official_host"):
@@ -78,12 +89,17 @@ def main() -> int:
     for term in ("storage_controller","nand_type","gpu_board_revision","host_motherboard","apple_model_identifier","ram_topology","mobile_soc_variant","def identity_specificity","compatibility_facts"):
         if term not in identity_source: errors.append(f"hardware-specific power identity lost field: {term}")
     ingestion_source=(ROOT/"src/lowpower_llm_cluster/power_ingestion.py").read_text(encoding="utf-8")
-    for term in ("def catalog_power_observations","def benchmark_power_observations","def refresh_power_evidence","throughput_divided_by_tokens_per_joule","eligible_for_device_power","USABLE_DEVICE_SCOPES"):
+    for term in ("def catalog_power_observations","def benchmark_power_observations","def manufacturer_spec_power_observations","def refresh_power_evidence","sourced_power_observations","throughput_divided_by_tokens_per_joule","eligible_for_device_power","USABLE_DEVICE_SCOPES"):
         if term not in ingestion_source: errors.append(f"automatic power ingestion lost evidence/scope guardrail: {term}")
+    measured_source=(ROOT/"src/lowpower_llm_cluster/power_measurements.py").read_text(encoding="utf-8")
+    for term in ("def normalize_sourced_power_record","require HTTPS source_url","power_scope","explicit hardware identity","internal_rail"):
+        if term.casefold() not in measured_source.casefold(): errors.append(f"sourced power measurement feed lost provenance/scope guardrail: {term}")
 
     structured_source=(ROOT/"src/lowpower_llm_cluster/structured_identity.py").read_text(encoding="utf-8")
-    for term in ("def structured_property_pairs","def extract_structured_identity","ssd_controller","nand_type","gpu_board_revision","vbios_version","ram_topology","soc_variant","host_motherboard"):
+    for term in ("def structured_property_pairs","def extract_structured_identity","def load_vendor_parameter_mappings","ssd_controller","nand_type","gpu_board_revision","vbios_version","ram_topology","soc_variant","host_motherboard"):
         if term not in structured_source: errors.append(f"structured identity enrichment lost field/guardrail: {term}")
+    mapping_payload=json.loads((ROOT/"data/identity/vendor-parameter-mappings.json").read_text(encoding="utf-8"))
+    if mapping_payload.get("policy",{}).get("values_must_come_from_source") is not True: errors.append("vendor parameter aliases must never supply hardware values")
     sources_source=(ROOT/"src/lowpower_llm_cluster/sources.py").read_text(encoding="utf-8")
     for term in ("structured_property_pairs","extract_structured_identity","shortDescription","localizedAspects"):
         if term not in sources_source: errors.append(f"source normalization lost structured/description identity feed: {term}")
