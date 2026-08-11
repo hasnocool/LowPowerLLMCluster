@@ -40,15 +40,17 @@ def main() -> int:
 
     required = [
         "README.md", "PARTS.md", "TODO.md", "CHANGELOG.md", "AGENTS.md",
-        "docs/PROJECT_CHARTER.md", "docs/GUARDRAILS.md", "docs/ACCELERATORS.md",
+        "docs/PROJECT_CHARTER.md", "docs/GUARDRAILS.md", "docs/ACCELERATORS.md", "docs/AUTONOMOUS_REFRESH.md",
         "specs/HARDWARE_CATALOG.md", "specs/EVIDENCE.md", "specs/MARKET_INTELLIGENCE.md", "specs/BENCHMARKING.md", "specs/SCORING.md",
         "specs/hardware-catalog.schema.json", "specs/hardware-part.schema.json",
         "specs/benchmark.schema.json", "specs/benchmark-profile.schema.json",
         "specs/adapter-output.schema.json", "docs/BENCHMARK_HARNESS.md",
         "benchmarks/README.md", "results/README.md",
         "src/lowpower_llm_cluster/market.py", "src/lowpower_llm_cluster/sources.py", "src/lowpower_llm_cluster/market_cli.py",
-        "data/market/sources.json", "data/market/price-history.json", "data/market/listing-state.json",
+        "src/lowpower_llm_cluster/ops.py", "src/lowpower_llm_cluster/refresh_cli.py",
+        "data/market/sources.json", "data/market/profiles.json", "data/market/price-history.json", "data/market/listing-state.json",
         "data/market/fx-cad.json", "data/market/fx-history.json", "data/evidence/performance.json",
+        ".github/workflows/autonomous-refresh.yml",
         ".agents/skills/hardware-research/SKILL.md",
         ".agents/skills/catalog-curation/SKILL.md",
         ".agents/skills/benchmark-hardware/SKILL.md",
@@ -67,6 +69,10 @@ def main() -> int:
     source_config = json.loads((ROOT / "data/market/sources.json").read_text(encoding="utf-8"))
     if source_config.get("schema_version") != 1:
         errors.append("data/market/sources.json schema_version must be 1")
+    profiles = json.loads((ROOT / "data/market/profiles.json").read_text(encoding="utf-8"))
+    if profiles.get("schema_version") != 1 or not profiles.get("profiles"):
+        errors.append("data/market/profiles.json must define schema_version 1 and at least one profile")
+
     source_text = (ROOT / "data/market/sources.json").read_text(encoding="utf-8")
     for forbidden in ("api_key", "client_secret", "access_token"):
         if re.search(rf'"{forbidden}"\s*:\s*"[^\"]+"', source_text, re.IGNORECASE):
