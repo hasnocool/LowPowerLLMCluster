@@ -1,5 +1,7 @@
 # Benchmarking Specification
 
+> **Optional evidence subsystem:** the catalog does not require physical ownership or a local benchmark. Use this only when reproducible measurements are available.
+
 This specification governs measured performance records. Screening heuristics remain useful for discovery but cannot graduate hardware into a recommendation.
 
 ## Result contracts

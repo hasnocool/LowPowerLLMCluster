@@ -1,4 +1,3 @@
-# scripts/check_governance.py
 from __future__ import annotations
 
 import json
@@ -42,7 +41,7 @@ def main() -> int:
     required = [
         "README.md", "PARTS.md", "TODO.md", "CHANGELOG.md", "AGENTS.md",
         "docs/PROJECT_CHARTER.md", "docs/GUARDRAILS.md", "docs/ACCELERATORS.md",
-        "specs/HARDWARE_CATALOG.md", "specs/BENCHMARKING.md", "specs/SCORING.md",
+        "specs/HARDWARE_CATALOG.md", "specs/EVIDENCE.md", "specs/BENCHMARKING.md", "specs/SCORING.md",
         "specs/hardware-catalog.schema.json", "specs/hardware-part.schema.json",
         "specs/benchmark.schema.json", "specs/benchmark-profile.schema.json",
         "specs/adapter-output.schema.json", "docs/BENCHMARK_HARNESS.md",

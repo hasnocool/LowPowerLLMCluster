@@ -2,7 +2,7 @@
 
 LowPowerLLMCluster treats accelerators as **specialists**, not magical replacements for CPUs and GPUs. The useful question is not "how many TOPS?" It is:
 
-> **Can this exact hardware run this exact model/runtime efficiently, with enough memory, at a useful complete-node cost and power draw?**
+> **Is this exact product worth tracking or buying for a real workload, given its memory, runtime, price, host requirements, power scope and evidence quality?**
 
 ## The expanded accelerator map
 
@@ -84,13 +84,13 @@ These are research platforms. Their advantage is **programmability**: we can pot
 
 Examples: AMD Alveo V70 and Intel Neural Compute Stick 2.
 
-Discontinued hardware can become attractive when enterprise inventory is liquidated. The catalog therefore supports unresolved prices and lifecycle state explicitly. A discontinued accelerator only graduates into a recommendation after all of these are true:
+Discontinued hardware can become attractive when enterprise inventory is liquidated. The catalog therefore supports unresolved prices and lifecycle state explicitly. A discontinued accelerator can remain a catalog/watch item with unknown performance. For a strong purchase recommendation, prefer evidence that:
 
 1. a real current acquisition price exists;
 2. the software stack is still installable and reproducible;
 3. a relevant transformer or specialist workload runs;
-4. complete-system power is measured;
-5. the value beats simpler hardware after integration cost is included.
+4. power scope is understood (measured complete-system power is ideal when available);
+5. the value plausibly beats simpler hardware after integration cost is included.
 
 ## The TOPS trap
 
@@ -110,15 +110,19 @@ Discontinued hardware can become attractive when enterprise inventory is liquida
  model fits memory? ─ no ─> unusable for that workload
       │ yes
       ▼
- measure tokens/sec + watts
-      │
-      ▼
- actual evidence
+ performance evidence available?
+   │ yes          │ no
+   ▼              ▼
+ cite it        show unknown
+   │              │
+   └──────┬───────┘
+          ▼
+  catalog/buying evidence
 ```
 
 INT4 TOPS, INT8 TOPS, FP16 TFLOPS and custom dataflow throughput cannot be directly compared without the same model, quantization, context and runtime.
 
-## Accelerator benchmark rules
+## Optional accelerator benchmark rules
 
 For every accelerator benchmark, record at least:
 
@@ -136,4 +140,4 @@ For every accelerator benchmark, record at least:
 - thermals and throttling;
 - setup/reproducibility problems.
 
-The final ranking should favor measured **tokens/joule**, **tokens/$**, model capacity and operational reliability—not the largest marketing number.
+When comparable measured results exist, use them as an additional evidence dimension. The catalog itself remains valid without them; never replace missing measurements with marketing arithmetic.

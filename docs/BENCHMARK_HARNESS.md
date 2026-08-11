@@ -1,5 +1,7 @@
 # v0.4 Measured Performance Harness
 
+> **Optional evidence tool:** LowPowerLLMCluster is catalog-first. You do not need this harness to add or evaluate products when only sourced specifications/community evidence are available.
+
 The benchmark harness exists to answer a practical question:
 
 > **Which machine does the useful work we need for the fewest watts and dollars?**

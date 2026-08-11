@@ -14,10 +14,7 @@
   "$defs": {
     "part": {
       "type": "object",
-      "required": [
-        "id", "category", "name", "vendor", "price_min_usd", "price_max_usd",
-        "price_status", "moq", "url", "verified_on", "listing_status", "plain_language"
-      ],
+      "required": ["id", "category", "name", "vendor", "price_min_usd", "price_max_usd", "price_status", "moq", "url", "verified_on", "listing_status", "plain_language"],
       "properties": {
         "id": {"type": "string", "minLength": 3},
         "category": {"type": "string", "minLength": 1},
@@ -39,13 +36,9 @@
         "llm_support": {"type": "string"},
         "workload_role": {"type": "string"},
         "software_stack": {"type": "string"},
-        "precision_formats": {
-          "type": "array",
-          "items": {"type": "string"},
-          "uniqueItems": true
-        },
+        "precision_formats": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
         "llm_candidate": {"type": "boolean"},
-        "memory_capacity_gb": {"type": "number", "exclusiveMinimum": 0},
+        "memory_capacity_gb": {"type": ["number", "null"], "exclusiveMinimum": 0},
         "memory_bandwidth_gbps": {"type": "number", "exclusiveMinimum": 0},
         "peak_int4_tops": {"type": "number", "minimum": 0},
         "peak_int8_tops": {"type": "number", "minimum": 0},
@@ -57,7 +50,19 @@
         "risk_level": {"enum": ["low", "medium", "high"]},
         "lifecycle_status": {"type": "string"},
         "plain_language": {"type": "string", "minLength": 10},
-        "source_notes": {"type": "string"}
+        "source_notes": {"type": "string"},
+        "max_memory_gb": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "memory_config_status": {"enum": ["included", "fixed", "configurable", "unknown"]},
+        "performance_evidence": {
+          "type": "object",
+          "properties": {
+            "source_type": {"enum": ["measured_local", "community_measured", "vendor_measured", "derived_estimate", "spec_based_estimate", "unknown"]},
+            "confidence": {"enum": ["high", "medium", "low", "unknown"]},
+            "source_url": {"type": "string", "format": "uri"},
+            "notes": {"type": "string"}
+          },
+          "additionalProperties": false
+        }
       }
     }
   }
