@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lowpower-llm-cluster"
+version = "0.2.0"
+description = "Hardware catalog, BOM calculator, and design notes for low-power distributed local LLM inference clusters."
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [{name = "LowPowerLLMCluster contributors"}]
+dependencies = []
+
+[project.scripts]
+llm-cluster = "lowpower_llm_cluster.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

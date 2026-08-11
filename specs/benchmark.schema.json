@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/lowpowerllmcluster/benchmark.schema.json",
+  "title": "LowPowerLLMCluster benchmark record",
+  "type": "object",
+  "required": ["schema_version", "hardware_id", "runtime", "model", "workload", "results"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "hardware_id": {"type": "string"},
+    "configuration_id": {"type": "string", "description": "Distinguishes stock, power-capped, firmware-modified, CU-unlocked, etc."},
+    "runtime": {
+      "type": "object",
+      "required": ["name", "version", "backend", "os"],
+      "properties": {
+        "name": {"type": "string"},
+        "version": {"type": "string"},
+        "backend": {"type": "string"},
+        "os": {"type": "string"},
+        "kernel": {"type": "string"}
+      }
+    },
+    "model": {
+      "type": "object",
+      "required": ["name", "quantization", "sha256"],
+      "properties": {
+        "name": {"type": "string"},
+        "quantization": {"type": "string"},
+        "sha256": {"type": "string"}
+      }
+    },
+    "workload": {
+      "type": "object",
+      "required": ["context_tokens", "prompt_tokens", "generated_tokens", "runs"],
+      "properties": {
+        "context_tokens": {"type": "integer", "minimum": 1},
+        "prompt_tokens": {"type": "integer", "minimum": 1},
+        "generated_tokens": {"type": "integer", "minimum": 1},
+        "runs": {"type": "integer", "minimum": 3}
+      }
+    },
+    "results": {
+      "type": "object",
+      "required": ["prompt_tps_median", "generation_tps_median"],
+      "properties": {
+        "prompt_tps_median": {"type": "number", "minimum": 0},
+        "generation_tps_median": {"type": "number", "minimum": 0},
+        "idle_w": {"type": "number", "minimum": 0},
+        "loaded_idle_w": {"type": "number", "minimum": 0},
+        "prefill_w": {"type": "number", "minimum": 0},
+        "decode_w": {"type": "number", "minimum": 0},
+        "generation_tokens_per_joule": {"type": "number", "minimum": 0}
+      }
+    }
+  }
+}

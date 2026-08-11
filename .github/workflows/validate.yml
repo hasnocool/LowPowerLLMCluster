@@ -1,0 +1,22 @@
+name: Validate project
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/check_governance.py
+      - run: python scripts/validate_catalog.py
+      - run: python scripts/render_parts_table.py
+      - name: Ensure generated parts table is committed
+        run: git diff --exit-code -- PARTS.md
+      - run: python -m pip install pytest
+      - run: python -m pip install -e .
+      - run: pytest -q
