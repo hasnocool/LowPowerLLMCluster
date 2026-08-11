@@ -46,7 +46,9 @@ def main() -> int:
         "specs/benchmark.schema.json", "specs/benchmark-profile.schema.json",
         "specs/adapter-output.schema.json", "docs/BENCHMARK_HARNESS.md",
         "benchmarks/README.md", "results/README.md",
-        "data/market/price-history.json", "data/market/fx-cad.json", "data/evidence/performance.json",
+        "src/lowpower_llm_cluster/market.py", "src/lowpower_llm_cluster/sources.py", "src/lowpower_llm_cluster/market_cli.py",
+        "data/market/sources.json", "data/market/price-history.json", "data/market/listing-state.json",
+        "data/market/fx-cad.json", "data/market/fx-history.json", "data/evidence/performance.json",
         ".agents/skills/hardware-research/SKILL.md",
         ".agents/skills/catalog-curation/SKILL.md",
         ".agents/skills/benchmark-hardware/SKILL.md",
@@ -61,6 +63,14 @@ def main() -> int:
     catalog = json.loads((ROOT / "data/parts.json").read_text(encoding="utf-8"))
     if catalog.get("schema_version") != 3:
         errors.append("data/parts.json schema_version must be 3")
+
+    source_config = json.loads((ROOT / "data/market/sources.json").read_text(encoding="utf-8"))
+    if source_config.get("schema_version") != 1:
+        errors.append("data/market/sources.json schema_version must be 1")
+    source_text = (ROOT / "data/market/sources.json").read_text(encoding="utf-8")
+    for forbidden in ("api_key", "client_secret", "access_token"):
+        if re.search(rf'"{forbidden}"\s*:\s*"[^\"]+"', source_text, re.IGNORECASE):
+            errors.append(f"data/market/sources.json must not contain credential value {forbidden}")
 
     return fail(errors)
 
