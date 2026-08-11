@@ -52,6 +52,15 @@ All notable changes to this project will be documented here.
 - Ownership-aware TCO profiles: `new-build`, `reuse-host-core`, `reuse-complete-host`, and `reuse-everything`.
 - Custom already-owned component overrides for TCO and break-even comparisons.
 - Separate incremental infrastructure cost and avoided-acquisition value for compatible already-owned hardware.
+- Live BOM product/cost sourcing for CPU/host, motherboard, RAM, storage, PSU, PCIe/OCuLink, cooling and chassis components.
+- Cross-component complete-build solver for socket, memory, PCIe, PSU, form-factor, storage, GPU-clearance and cooler constraints.
+- Exact-SKU manufacturer specification enrichment with identity verification before compatibility facts are admitted.
+- Field-level manufacturer-spec provenance with source URL, observation time, extraction method, association ID and confidence.
+- Exact/reference GPU board enrichment that can supply dimensions, slot width, PSU, connector, PCIe and Resizable BAR requirements without copying them to arbitrary partner cards.
+- Initial exact/reference spec associations for MSI B550-A PRO, MSI PRO B660M-A DDR4, Corsair RM750e, Corsair 4000D Airflow, Intel Core i5-12400, RTX 3090 Founders Edition and Intel Arc B580 Limited Edition.
+- Persisted `data/market/spec-evidence.json` and `data/market/compatible-builds.json` evidence/build state.
+- `llm-cluster-refresh spec-config`, `spec-evidence`, `refresh-bom`, and `compatible-builds` operator workflows.
+- `docs/EXACT_SKU_ENRICHMENT.md` methodology and extension guide.
 - `llm-cluster-refresh tco`, `recommendations --scenario`, ownership flags, `break-even`, and `tco-scenarios` commands.
 - `reports/current/daily-recommendations.md` and machine-readable `daily-recommendations.json` outputs.
 - `docs/GPUS.md`, `docs/DECISION_QUALITY.md`, and `docs/TOTAL_COST_OF_OWNERSHIP.md` guides.
@@ -61,6 +70,7 @@ All notable changes to this project will be documented here.
 - `llm-cluster-market` CLI with `discover`, `history`, `landed`, `refresh-fx`, `ingest-performance`, `aggregate-performance`, and `report` workflows.
 - `specs/MARKET_INTELLIGENCE.md` and tests for matching, history deduplication, seller confidence, lifecycle tracking, landed-cost math, evidence ingestion, compatible aggregation, JSON-LD normalization, CAD report behavior, retry policy, stale detection, source budgets and change-alert deduplication.
 - Decision-quality and TCO tests covering GPU VRAM model-fit screening, all-time-low detection, trend/volatility, opportunity expiry, alert prioritization, host infrastructure, ownership reuse, board-power scope and complete-system comparisons.
+- Exact-SKU enrichment tests covering association priority, field provenance, provisional-to-compatible promotion and manufacturer-evidence-driven rejection.
 
 ### Changed
 
@@ -74,6 +84,9 @@ All notable changes to this project will be documented here.
 - Daily recommendations are explainable buying decisions rather than synthetic hardware-performance rankings.
 - Final recommendation ordering incorporates complete-node acquisition and scenario operating cost so component-only sticker prices cannot hide required infrastructure.
 - Already-owned compatible infrastructure now has zero incremental acquisition cost while remaining part of complete-node operating-power calculations.
+- Exact manufacturer specification facts override weaker title-derived compatibility facts only at the individual field level.
+- Generic GPU family listings remain provisional for board-specific dimensions/connectors unless an exact/reference-board association is verified.
+- Complete-build ranking prefers fully compatible builds, then better manufacturer-spec coverage, before relying on provisional unknowns.
 
 ## [0.4.1] - 2026-08-10
 
