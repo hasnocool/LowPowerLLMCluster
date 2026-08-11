@@ -13,17 +13,13 @@ def fail(errors: list[str]) -> int:
         print("Governance checks passed.")
         return 0
     print("Governance checks failed:", file=sys.stderr)
-    for error in errors:
-        print(f"- {error}", file=sys.stderr)
+    for error in errors: print(f"- {error}", file=sys.stderr)
     return 1
 
 
 def main() -> int:
     errors: list[str] = []
-    version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
-    pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    init = (ROOT / "src/lowpower_llm_cluster/__init__.py").read_text(encoding="utf-8")
-    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    version = (ROOT / "VERSION").read_text(encoding="utf-8").strip(); pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8"); init = (ROOT / "src/lowpower_llm_cluster/__init__.py").read_text(encoding="utf-8"); changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     py_match = re.search(r'^version = "([^"]+)"', pyproject, re.MULTILINE); init_match = re.search(r'__version__ = "([^"]+)"', init); change_match = re.search(r'^## \[([^]]+)\]', changelog, re.MULTILINE)
     found = {"VERSION": version, "pyproject.toml": py_match.group(1) if py_match else None, "package __version__": init_match.group(1) if init_match else None, "CHANGELOG latest": change_match.group(1) if change_match else None}
     for source, value in found.items():
@@ -31,10 +27,10 @@ def main() -> int:
 
     required = [
         "README.md", "PARTS.md", "TODO.md", "CHANGELOG.md", "AGENTS.md",
-        "docs/PROJECT_CHARTER.md", "docs/GUARDRAILS.md", "docs/ACCELERATORS.md", "docs/AUTONOMOUS_REFRESH.md", "docs/CHANGE_INTELLIGENCE.md", "docs/DECISION_QUALITY.md", "docs/GPUS.md", "docs/TOTAL_COST_OF_OWNERSHIP.md", "docs/LIVE_BOM_SOURCING.md", "docs/COMPATIBLE_BUILDS.md",
+        "docs/PROJECT_CHARTER.md", "docs/GUARDRAILS.md", "docs/ACCELERATORS.md", "docs/AUTONOMOUS_REFRESH.md", "docs/CHANGE_INTELLIGENCE.md", "docs/DECISION_QUALITY.md", "docs/GPUS.md", "docs/TOTAL_COST_OF_OWNERSHIP.md", "docs/LIVE_BOM_SOURCING.md", "docs/COMPATIBLE_BUILDS.md", "docs/EXACT_SKU_ENRICHMENT.md",
         "specs/HARDWARE_CATALOG.md", "specs/EVIDENCE.md", "specs/MARKET_INTELLIGENCE.md", "specs/BENCHMARKING.md", "specs/SCORING.md", "specs/hardware-catalog.schema.json", "specs/hardware-part.schema.json", "specs/benchmark.schema.json", "specs/benchmark-profile.schema.json", "specs/adapter-output.schema.json", "docs/BENCHMARK_HARNESS.md", "benchmarks/README.md", "results/README.md",
-        "src/lowpower_llm_cluster/market.py", "src/lowpower_llm_cluster/sources.py", "src/lowpower_llm_cluster/market_cli.py", "src/lowpower_llm_cluster/ops.py", "src/lowpower_llm_cluster/refresh_cli.py", "src/lowpower_llm_cluster/intelligence.py", "src/lowpower_llm_cluster/decision.py", "src/lowpower_llm_cluster/tco.py", "src/lowpower_llm_cluster/bom_sourcing.py", "src/lowpower_llm_cluster/compatibility.py",
-        "data/catalog/gpus.json", "data/market/sources.json", "data/market/profiles.json", "data/market/watchlists.json", "data/market/tco-scenarios.json", "data/market/bom-sourcing.json", "data/market/bom-current.json", "data/market/bom-price-history.json", "data/market/compatible-builds.json", "data/market/price-history.json", "data/market/listing-state.json", "data/market/fx-cad.json", "data/market/fx-history.json", "data/evidence/performance.json", ".github/workflows/autonomous-refresh.yml",
+        "src/lowpower_llm_cluster/market.py", "src/lowpower_llm_cluster/sources.py", "src/lowpower_llm_cluster/market_cli.py", "src/lowpower_llm_cluster/ops.py", "src/lowpower_llm_cluster/refresh_cli.py", "src/lowpower_llm_cluster/intelligence.py", "src/lowpower_llm_cluster/decision.py", "src/lowpower_llm_cluster/tco.py", "src/lowpower_llm_cluster/bom_sourcing.py", "src/lowpower_llm_cluster/compatibility.py", "src/lowpower_llm_cluster/spec_enrichment.py",
+        "data/catalog/gpus.json", "data/market/sources.json", "data/market/profiles.json", "data/market/watchlists.json", "data/market/tco-scenarios.json", "data/market/bom-sourcing.json", "data/market/spec-enrichment.json", "data/market/spec-evidence.json", "data/market/bom-current.json", "data/market/bom-price-history.json", "data/market/compatible-builds.json", "data/market/price-history.json", "data/market/listing-state.json", "data/market/fx-cad.json", "data/market/fx-history.json", "data/evidence/performance.json", ".github/workflows/autonomous-refresh.yml",
         ".agents/skills/hardware-research/SKILL.md", ".agents/skills/catalog-curation/SKILL.md", ".agents/skills/benchmark-hardware/SKILL.md", ".agents/skills/architecture-review/SKILL.md", ".agents/skills/release-governance/SKILL.md", ".agents/skills/accelerator-research/SKILL.md",
     ]
     for rel in required:
@@ -59,8 +55,7 @@ def main() -> int:
 
     tco = json.loads((ROOT / "data/market/tco-scenarios.json").read_text(encoding="utf-8"))
     if tco.get("schema_version") != 3 or not tco.get("energy_scenarios"): errors.append("data/market/tco-scenarios.json must define schema_version 3 and energy scenarios")
-    component_costs = tco.get("component_costs_cad") or {}
-    required_components = ("cpu_host", "motherboard", "host_ram_32gb", "storage_1tb", "psu_750w", "pcie_adapter", "cooling", "chassis")
+    component_costs = tco.get("component_costs_cad") or {}; required_components = ("cpu_host", "motherboard", "host_ram_32gb", "storage_1tb", "psu_750w", "pcie_adapter", "cooling", "chassis")
     for required_component in required_components:
         if required_component not in component_costs: errors.append(f"TCO scenario lost required discrete-GPU BOM component: {required_component}")
     ownership_profiles = tco.get("ownership_profiles") or {}
@@ -76,14 +71,37 @@ def main() -> int:
     for component in ("cpu_host", "motherboard", "host_ram_32gb", "psu_750w", "cooling", "chassis"):
         if not (bom.get("components", {}).get(component, {}).get("variants")): errors.append(f"compatibility resolver lost normalized variants for {component}")
 
-    tco_source = (ROOT / "src/lowpower_llm_cluster/tco.py").read_text(encoding="utf-8"); cli_source = (ROOT / "src/lowpower_llm_cluster/refresh_cli.py").read_text(encoding="utf-8"); bom_source = (ROOT / "src/lowpower_llm_cluster/bom_sourcing.py").read_text(encoding="utf-8"); compatibility_source = (ROOT / "src/lowpower_llm_cluster/compatibility.py").read_text(encoding="utf-8")
+    enrichment = json.loads((ROOT / "data/market/spec-enrichment.json").read_text(encoding="utf-8"))
+    if enrichment.get("schema_version") != 1 or not enrichment.get("associations"): errors.append("spec-enrichment config must define schema_version 1 and associations")
+    policy = enrichment.get("policy") or {}
+    if policy.get("unknown_fields_remain_unknown") is not True: errors.append("spec enrichment must preserve unknown compatibility fields as unknown")
+    if policy.get("field_level_provenance_required") is not True: errors.append("spec enrichment must require field-level provenance")
+    if policy.get("gpu_family_names_do_not_imply_board_partner_dimensions") is not True: errors.append("spec enrichment must not transfer family GPU dimensions to arbitrary board-partner listings")
+    associations = enrichment.get("associations") or []
+    if not any(row.get("component") == "gpu" for row in associations): errors.append("spec enrichment must retain at least one GPU exact/reference-board association")
+    if not any(row.get("component") == "motherboard" for row in associations): errors.append("spec enrichment must retain motherboard exact-SKU associations")
+    for row in associations:
+        source_url = str(row.get("source_url") or "")
+        if not source_url.startswith("https://"): errors.append(f"spec association {row.get('id')} must use HTTPS manufacturer source")
+        if not row.get("verify_terms_any"): errors.append(f"spec association {row.get('id')} must define identity verification terms")
+        if not row.get("fields"): errors.append(f"spec association {row.get('id')} must define extractable/curated fields")
+
+    evidence_state = json.loads((ROOT / "data/market/spec-evidence.json").read_text(encoding="utf-8"))
+    if evidence_state.get("schema_version") != 1 or not isinstance(evidence_state.get("records"), list): errors.append("spec-evidence state must define schema_version 1 and records array")
+
+    tco_source = (ROOT / "src/lowpower_llm_cluster/tco.py").read_text(encoding="utf-8"); cli_source = (ROOT / "src/lowpower_llm_cluster/refresh_cli.py").read_text(encoding="utf-8"); bom_source = (ROOT / "src/lowpower_llm_cluster/bom_sourcing.py").read_text(encoding="utf-8"); compatibility_source = (ROOT / "src/lowpower_llm_cluster/compatibility.py").read_text(encoding="utf-8"); enrichment_source = (ROOT / "src/lowpower_llm_cluster/spec_enrichment.py").read_text(encoding="utf-8")
     for required_function in ("def break_even_analysis", "def ownership_components"):
         if required_function not in tco_source: errors.append(f"TCO engine must retain {required_function.split()[-1]}")
     if "sourced_component_costs" not in tco_source: errors.append("TCO engine must consume sourced BOM costs when available")
-    if '"break-even"' not in cli_source or '"--ownership"' not in cli_source or '"refresh-bom"' not in cli_source or '"compatible-builds"' not in cli_source: errors.append("refresh CLI must retain break-even, ownership, refresh-bom and compatible-builds workflows")
-    if "async def refresh_bom_market" not in bom_source or "construct_compatible_builds" not in bom_source: errors.append("live BOM source engine must generate compatible builds")
+    for command in ('"break-even"', '"refresh-bom"', '"compatible-builds"', '"spec-config"', '"spec-evidence"'):
+        if command not in cli_source: errors.append(f"refresh CLI lost required workflow {command}")
+    if '"--ownership"' not in cli_source: errors.append("refresh CLI must retain ownership-aware TCO options")
+    if "async def refresh_bom_market" not in bom_source or "construct_compatible_builds" not in bom_source or "enrich_bom_candidates" not in bom_source: errors.append("live BOM engine must enrich and generate compatible builds")
     for required_function in ("def infer_listing_facts", "def evaluate_build_compatibility", "def construct_compatible_builds"):
         if required_function not in compatibility_source: errors.append(f"compatibility engine must retain {required_function.split()[-1]}")
+    for required_function in ("def associate_spec_source", "def extract_spec_fields", "async def enrich_candidate", "async def enrich_bom_candidates", "async def enrich_market_candidate"):
+        if required_function not in enrichment_source: errors.append(f"spec enrichment engine must retain {required_function.split()[-1]}")
+    if "gpu_facts" not in compatibility_source: errors.append("compatibility solver must accept exact GPU specification facts")
 
     watchlists = json.loads((ROOT / "data/market/watchlists.json").read_text(encoding="utf-8"))
     if watchlists.get("schema_version") != 1 or not isinstance(watchlists.get("watchlists"), list): errors.append("data/market/watchlists.json must define schema_version 1 and a watchlists array")
@@ -95,5 +113,4 @@ def main() -> int:
     return fail(errors)
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+if __name__ == "__main__": raise SystemExit(main())
