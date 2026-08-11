@@ -77,6 +77,15 @@ def boot_readiness_score(cpu_bios: dict[str,Any], flashback: dict[str,Any] | Non
     seller_firmware=correlate_seller_firmware(cpu_bios,flashback.get("seller_firmware_evidence"),flashback.get("revision_bios_history") or [])
     seller_meets=seller_firmware.get("meets_minimum")
     seller_history_match=seller_firmware.get("installed_bios_in_revision_history") is True
+    factory_firmware=dict(seller_firmware.get("factory_firmware") or {})
+    factory_meets=factory_firmware.get("meets_minimum")
+    if factory_firmware.get("status")=="verified_factory_firmware":
+        if factory_meets is True:
+            warnings.append(f"Manufacturer-published factory firmware evidence resolves this board to BIOS {factory_firmware.get('factory_bios_version')}, satisfying required {minimum}.")
+        elif factory_meets is False:
+            warnings.append(f"Manufacturer-published factory firmware evidence resolves this board to BIOS {factory_firmware.get('factory_bios_version')}, below required {minimum}; an update is required before first boot with the selected CPU.")
+        else:
+            warnings.append("Manufacturer-published factory firmware evidence matched, but safe ordering against the required BIOS is unresolved.")
     if seller_firmware.get("installed_bios_version"):
         if seller_meets is True and seller_history_match:
             warnings.append("Seller-stated installed BIOS meets the CPU minimum and exists in official BIOS history for the seller-stated board revision; seller evidence remains lower authority than manufacturer factory evidence.")
@@ -91,6 +100,7 @@ def boot_readiness_score(cpu_bios: dict[str,Any], flashback: dict[str,Any] | Non
     elif pair_status=="supported" and not minimum: score=96; readiness="ready_by_support_evidence"
     elif pair_status=="supported" and minimum:
         if shipped_bios_meets_minimum is True: score=98; readiness="ready_with_verified_firmware"
+        elif factory_meets is True: score=98; readiness="ready_with_verified_factory_firmware"
         elif seller_meets is True and seller_history_match: score=94; readiness="ready_by_correlated_seller_installed_firmware"
         elif seller_meets is True: score=90; readiness="ready_by_seller_installed_firmware_claim"
         elif cpu_less: score=88; readiness="supported_update_may_be_required_cpu_less_recovery_available"; warnings.append(f"CPU requires BIOS >= {minimum}; CPU-less update capability is explicitly documented.")
@@ -100,4 +110,4 @@ def boot_readiness_score(cpu_bios: dict[str,Any], flashback: dict[str,Any] | Non
     else:
         score=54 if cpu_less else 34; readiness="support_unresolved_but_cpu_less_recovery_available" if cpu_less else "support_and_boot_path_unresolved"; warnings.append(str(cpu_bios.get("reason") or "CPU/BIOS support is unresolved."))
     if cpu_bios.get("matrix_complete") is False and pair_status=="unresolved": warnings.append("Manufacturer CPU-support matrix is not proven complete; absence is not treated as unsupported.")
-    return {"score":int(score),"readiness":readiness,"cpu_bios_status":pair_status,"minimum_bios_version":minimum,"flashback_status":fb_status,"cpu_less_update_explicit":flashback.get("cpu_less_update_explicit"),"shipped_bios_version":shipped_version,"shipped_bios_meets_minimum":shipped_bios_meets_minimum,"version_comparison":version_comparison,"seller_firmware":seller_firmware,"warnings":warnings,"basis":"manufacturer_cpu_support_plus_firmware_recovery_and_bounded_seller_evidence","performance_claim":False}
+    return {"score":int(score),"readiness":readiness,"cpu_bios_status":pair_status,"minimum_bios_version":minimum,"flashback_status":fb_status,"cpu_less_update_explicit":flashback.get("cpu_less_update_explicit"),"shipped_bios_version":shipped_version,"shipped_bios_meets_minimum":shipped_bios_meets_minimum,"version_comparison":version_comparison,"factory_firmware":factory_firmware,"seller_firmware":seller_firmware,"warnings":warnings,"basis":"manufacturer_cpu_support_plus_factory_firmware_recovery_and_bounded_seller_evidence","performance_claim":False}
