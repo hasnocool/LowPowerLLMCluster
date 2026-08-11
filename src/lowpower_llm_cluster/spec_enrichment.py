@@ -10,7 +10,7 @@ from typing import Any
 import httpx
 
 from .catalog import project_root
-from .manufacturer_discovery import discover_manufacturer_association, load_discovery_config
+from .manufacturer_discovery import discover_manufacturer_association
 
 USER_AGENT = "LowPowerLLMCluster/0.5 (+https://github.com/hasnocool/LowPowerLLMCluster)"
 
@@ -169,7 +169,7 @@ def extract_automatic_spec_fields(component: str, text: str, source_url: str, ob
         height = _first_int([r"(?:Height|Product Height)[^0-9]{0,25}(\d{2,3})\s*mm"], raw, minimum=20, maximum=250)
         if height: facts["height_mm"] = height
 
-    elif component == "gpu_accelerator":
+    elif component in {"gpu", "gpu_accelerator"}:
         gpu_length = _first_int([r"(?:Length|Card Length|Graphics Card Dimensions)[^0-9]{0,30}(\d{3})\s*mm", r"(\d{3})\s*mm\s*[x×]\s*\d{2,3}\s*mm"], raw, minimum=100, maximum=600)
         if gpu_length: facts["gpu_length_mm"] = gpu_length
         slots = _first_int([r"(?:Slot|Slots|Slot Width)[^0-9]{0,15}(\d(?:\.\d)?)\s*(?:slot|slots)?"], raw, minimum=1, maximum=5)
