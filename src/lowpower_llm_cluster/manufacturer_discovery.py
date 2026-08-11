@@ -94,7 +94,8 @@ def _official_host(url: str, entry: dict[str, Any]) -> bool:
 
 
 def association_cache_key(component: str, manufacturer: str | None, mpn: str | None, title: str | None) -> str:
-    identity = "|".join([component, _compact(manufacturer), _compact(mpn), _compact(title)])
+    stable_product_identity = _compact(mpn) if mpn else _compact(title)
+    identity = "|".join([component, _compact(manufacturer), stable_product_identity])
     return hashlib.sha256(identity.encode()).hexdigest()[:24]
 
 
@@ -109,11 +110,11 @@ def cached_association(component: str, listing: dict[str, Any], config: dict[str
     manufacturer, mpn, _ = _manufacturer_identity(listing, config)
     key = association_cache_key(component, manufacturer, mpn, listing.get("title"))
     row = (cache.get("associations") or {}).get(key)
-    if not row or row.get("status") != "verified":
+    if not row:
         return None
-    verified_at = _parse_when(row.get("verified_at"))
+    checked = _parse_when(row.get("verified_at") or row.get("checked_at"))
     ttl_days = float((config.get("policy") or {}).get("cache_ttl_days", 30))
-    if verified_at is None or verified_at < datetime.now(UTC) - timedelta(days=ttl_days):
+    if checked is None or checked < datetime.now(UTC) - timedelta(days=ttl_days):
         return None
     return dict(row)
 
@@ -145,19 +146,17 @@ def _identity_score(text: str, url: str, manufacturer: str | None, mpn: str | No
 
 async def _robots_sitemaps(client: httpx.AsyncClient, domain: str) -> list[str]:
     urls: list[str] = []
-    for scheme in ("https",):
-        robots_url = f"{scheme}://{domain}/robots.txt"
-        try:
-            response = await client.get(robots_url)
-            if response.status_code >= 400:
-                continue
+    robots_url = f"https://{domain}/robots.txt"
+    try:
+        response = await client.get(robots_url)
+        if response.status_code < 400:
             for line in response.text.splitlines():
                 if line.casefold().startswith("sitemap:"):
                     value = line.split(":", 1)[1].strip()
                     if value.startswith("http"):
                         urls.append(value)
-        except httpx.HTTPError:
-            continue
+    except httpx.HTTPError:
+        pass
     if not urls:
         urls.append(f"https://{domain}/sitemap.xml")
     return list(dict.fromkeys(urls))
@@ -244,8 +243,11 @@ async def discover_manufacturer_association(
     cache = _load(cache_target, {"schema_version": 1, "associations": {}})
     hit = cached_association(component, listing, config, cache)
     if hit:
-        hit["cache_hit"] = True
-        return hit
+        if hit.get("status") == "verified":
+            hit["cache_hit"] = True
+            return hit
+        if hit.get("status") == "not_verified":
+            return None
     manufacturer, mpn, entry = _manufacturer_identity(listing, config)
     if entry is None or not manufacturer:
         return None
@@ -279,7 +281,7 @@ async def discover_manufacturer_association(
         minimum = float(policy.get("minimum_identity_score", 0.72))
         key = association_cache_key(component, manufacturer, mpn, listing.get("title"))
         if best is None or best[0] < minimum:
-            cache.setdefault("associations", {})[key] = {"status": "not_verified", "manufacturer": manufacturer, "mpn": mpn, "title": listing.get("title"), "checked_at": _now(), "candidate_count": len(candidates), "best_score": round(best[0], 3) if best else None}
+            cache.setdefault("associations", {})[key] = {"status": "not_verified", "component": component, "manufacturer": manufacturer, "mpn": mpn, "title": listing.get("title"), "checked_at": _now(), "candidate_count": len(candidates), "best_score": round(best[0], 3) if best else None}
             _write(cache_target, cache)
             return None
         row = {
