@@ -8,6 +8,7 @@ from urllib.parse import urljoin, urlparse
 
 import httpx
 
+from .firmware_history import normalize_revision_scoped_bios_history
 from .manufacturer_support import ingest_support_endpoint, manufacturer_family
 
 MAX_DISCOVERY_URLS = 24
@@ -152,7 +153,7 @@ def shipped_bios_evidence(text,*,minimum_bios=None,source_url=""):
 
 
 async def probe_unlinked_support_candidates(discovery,*,client,max_fetches=MAX_DISCOVERY_FETCHES):
-    host=str(discovery.get("official_host") or ""); support_best=None; bios_rows=[]; attempts=[]
+    host=str(discovery.get("official_host") or ""); support_best=None; bios_rows=[]; revision_bios_rows=[]; attempts=[]
     for row in list(discovery.get("candidates") or [])[:max_fetches]:
         url=str(row.get("url") or "")
         if not _same_host(url,host): continue
@@ -165,8 +166,13 @@ async def probe_unlinked_support_candidates(discovery,*,client,max_fetches=MAX_D
         if "bios" in kinds:
             try:
                 response=await client.get(url); response.raise_for_status(); payload=response.json() if "json" in str(response.headers.get("content-type") or "").casefold() or response.text.lstrip().startswith(("{","[")) else None
-                if payload is not None: bios_rows.extend(normalize_bios_history_payload(payload,source_url=str(response.url)))
-                attempts.append({"url":url,"kind":"bios","status":"ok","rows":len(bios_rows)})
+                if payload is not None:
+                    bios_rows.extend(normalize_bios_history_payload(payload,source_url=str(response.url)))
+                    revision_bios_rows.extend(normalize_revision_scoped_bios_history(payload,source_url=str(response.url)))
+                attempts.append({"url":url,"kind":"bios","status":"ok","rows":len(bios_rows),"revision_scoped_rows":len(revision_bios_rows)})
             except (httpx.HTTPError,ValueError,json.JSONDecodeError): attempts.append({"url":url,"kind":"bios","status":"unparsed","rows":0})
     bios_dedup=list({row["version"].casefold():row for row in bios_rows}.values())[:MAX_BIOS_ROWS]
-    return {"support_matrix":list((support_best or {}).get("rows") or []),"support_complete":bool((support_best or {}).get("complete")),"support_completeness_proof":(support_best or {}).get("completeness_proof"),"support_endpoint":(support_best or {}).get("endpoint"),"bios_history":bios_dedup,"attempts":attempts}
+    revision_dedup={}
+    for row in revision_bios_rows:
+        key=(str(row.get("version") or "").casefold(),tuple(row.get("board_revisions") or [])); revision_dedup[key]=row
+    return {"support_matrix":list((support_best or {}).get("rows") or []),"support_complete":bool((support_best or {}).get("complete")),"support_completeness_proof":(support_best or {}).get("completeness_proof"),"support_endpoint":(support_best or {}).get("endpoint"),"bios_history":bios_dedup,"revision_bios_history":list(revision_dedup.values())[:MAX_BIOS_ROWS],"attempts":attempts}
