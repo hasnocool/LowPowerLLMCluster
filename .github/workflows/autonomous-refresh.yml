@@ -49,10 +49,12 @@ jobs:
           else
             echo "name=daily-market" >> "$GITHUB_OUTPUT"
           fi
-      - name: Refresh market evidence and change intelligence
+      - name: Refresh market evidence and decision intelligence
         run: llm-cluster-refresh run "${{ steps.profile.outputs.name }}"
       - name: Show significant changes
         run: cat reports/current/daily-changes.md || true
+      - name: Show Buy Watch Ignore Experimental recommendations
+        run: cat reports/current/daily-recommendations.md || true
       - name: Show stale listing warnings
         run: llm-cluster-refresh stale --hours 72
       - name: Show source budgets
