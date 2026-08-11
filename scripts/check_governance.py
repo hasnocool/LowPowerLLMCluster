@@ -29,8 +29,8 @@ def main() -> int:
         "README.md", "PARTS.md", "TODO.md", "CHANGELOG.md", "AGENTS.md",
         "docs/PROJECT_CHARTER.md", "docs/GUARDRAILS.md", "docs/ACCELERATORS.md", "docs/AUTONOMOUS_REFRESH.md", "docs/CHANGE_INTELLIGENCE.md", "docs/DECISION_QUALITY.md", "docs/GPUS.md", "docs/TOTAL_COST_OF_OWNERSHIP.md", "docs/LIVE_BOM_SOURCING.md", "docs/COMPATIBLE_BUILDS.md", "docs/EXACT_SKU_ENRICHMENT.md",
         "specs/HARDWARE_CATALOG.md", "specs/EVIDENCE.md", "specs/MARKET_INTELLIGENCE.md", "specs/BENCHMARKING.md", "specs/SCORING.md", "specs/hardware-catalog.schema.json", "specs/hardware-part.schema.json", "specs/benchmark.schema.json", "specs/benchmark-profile.schema.json", "specs/adapter-output.schema.json", "docs/BENCHMARK_HARNESS.md", "benchmarks/README.md", "results/README.md",
-        "src/lowpower_llm_cluster/market.py", "src/lowpower_llm_cluster/sources.py", "src/lowpower_llm_cluster/market_cli.py", "src/lowpower_llm_cluster/ops.py", "src/lowpower_llm_cluster/refresh_cli.py", "src/lowpower_llm_cluster/intelligence.py", "src/lowpower_llm_cluster/decision.py", "src/lowpower_llm_cluster/tco.py", "src/lowpower_llm_cluster/bom_sourcing.py", "src/lowpower_llm_cluster/compatibility.py", "src/lowpower_llm_cluster/spec_enrichment.py",
-        "data/catalog/gpus.json", "data/market/sources.json", "data/market/profiles.json", "data/market/watchlists.json", "data/market/tco-scenarios.json", "data/market/bom-sourcing.json", "data/market/spec-enrichment.json", "data/market/spec-evidence.json", "data/market/bom-current.json", "data/market/bom-price-history.json", "data/market/compatible-builds.json", "data/market/price-history.json", "data/market/listing-state.json", "data/market/fx-cad.json", "data/market/fx-history.json", "data/evidence/performance.json", ".github/workflows/autonomous-refresh.yml",
+        "src/lowpower_llm_cluster/market.py", "src/lowpower_llm_cluster/sources.py", "src/lowpower_llm_cluster/market_cli.py", "src/lowpower_llm_cluster/ops.py", "src/lowpower_llm_cluster/refresh_cli.py", "src/lowpower_llm_cluster/intelligence.py", "src/lowpower_llm_cluster/decision.py", "src/lowpower_llm_cluster/tco.py", "src/lowpower_llm_cluster/bom_sourcing.py", "src/lowpower_llm_cluster/compatibility.py", "src/lowpower_llm_cluster/spec_enrichment.py", "src/lowpower_llm_cluster/manufacturer_discovery.py",
+        "data/catalog/gpus.json", "data/market/sources.json", "data/market/profiles.json", "data/market/watchlists.json", "data/market/tco-scenarios.json", "data/market/bom-sourcing.json", "data/market/spec-enrichment.json", "data/market/spec-evidence.json", "data/market/manufacturer-discovery.json", "data/market/manufacturer-associations.json", "data/market/bom-current.json", "data/market/bom-price-history.json", "data/market/compatible-builds.json", "data/market/price-history.json", "data/market/listing-state.json", "data/market/fx-cad.json", "data/market/fx-history.json", "data/evidence/performance.json", ".github/workflows/autonomous-refresh.yml",
         ".agents/skills/hardware-research/SKILL.md", ".agents/skills/catalog-curation/SKILL.md", ".agents/skills/benchmark-hardware/SKILL.md", ".agents/skills/architecture-review/SKILL.md", ".agents/skills/release-governance/SKILL.md", ".agents/skills/accelerator-research/SKILL.md",
     ]
     for rel in required:
@@ -77,6 +77,7 @@ def main() -> int:
     if policy.get("unknown_fields_remain_unknown") is not True: errors.append("spec enrichment must preserve unknown compatibility fields as unknown")
     if policy.get("field_level_provenance_required") is not True: errors.append("spec enrichment must require field-level provenance")
     if policy.get("gpu_family_names_do_not_imply_board_partner_dimensions") is not True: errors.append("spec enrichment must not transfer family GPU dimensions to arbitrary board-partner listings")
+    if (enrichment.get("automatic_discovery") or {}).get("enabled") is not True: errors.append("spec enrichment must keep automatic manufacturer association discovery enabled")
     associations = enrichment.get("associations") or []
     if not any(row.get("component") == "gpu" for row in associations): errors.append("spec enrichment must retain at least one GPU exact/reference-board association")
     if not any(row.get("component") == "motherboard" for row in associations): errors.append("spec enrichment must retain motherboard exact-SKU associations")
@@ -86,22 +87,36 @@ def main() -> int:
         if not row.get("verify_terms_any"): errors.append(f"spec association {row.get('id')} must define identity verification terms")
         if not row.get("fields"): errors.append(f"spec association {row.get('id')} must define extractable/curated fields")
 
-    evidence_state = json.loads((ROOT / "data/market/spec-evidence.json").read_text(encoding="utf-8"))
-    if evidence_state.get("schema_version") != 1 or not isinstance(evidence_state.get("records"), list): errors.append("spec-evidence state must define schema_version 1 and records array")
+    discovery = json.loads((ROOT / "data/market/manufacturer-discovery.json").read_text(encoding="utf-8"))
+    if discovery.get("schema_version") != 1 or not discovery.get("manufacturers"): errors.append("manufacturer-discovery config must define schema_version 1 and manufacturer registry")
+    discovery_policy = discovery.get("policy") or {}
+    if discovery_policy.get("require_mpn") is not True: errors.append("automatic manufacturer discovery must require MPN/SKU identity by default")
+    if float(discovery_policy.get("minimum_identity_score") or 0.0) < 0.7: errors.append("automatic manufacturer discovery identity threshold must remain conservative")
+    for row in discovery.get("manufacturers", []):
+        if not row.get("name") or not row.get("domains"): errors.append("manufacturer discovery registry entries require name and official domains")
 
-    tco_source = (ROOT / "src/lowpower_llm_cluster/tco.py").read_text(encoding="utf-8"); cli_source = (ROOT / "src/lowpower_llm_cluster/refresh_cli.py").read_text(encoding="utf-8"); bom_source = (ROOT / "src/lowpower_llm_cluster/bom_sourcing.py").read_text(encoding="utf-8"); compatibility_source = (ROOT / "src/lowpower_llm_cluster/compatibility.py").read_text(encoding="utf-8"); enrichment_source = (ROOT / "src/lowpower_llm_cluster/spec_enrichment.py").read_text(encoding="utf-8")
+    association_state = json.loads((ROOT / "data/market/manufacturer-associations.json").read_text(encoding="utf-8"))
+    if association_state.get("schema_version") != 1 or not isinstance(association_state.get("associations"), dict): errors.append("manufacturer association cache must define schema_version 1 and associations object")
+
+    evidence_state = json.loads((ROOT / "data/market/spec-evidence.json").read_text(encoding="utf-8"))
+    if evidence_state.get("schema_version") not in {1, 2} or not isinstance(evidence_state.get("records"), list): errors.append("spec-evidence state must define supported schema version and records array")
+
+    tco_source = (ROOT / "src/lowpower_llm_cluster/tco.py").read_text(encoding="utf-8"); cli_source = (ROOT / "src/lowpower_llm_cluster/refresh_cli.py").read_text(encoding="utf-8"); bom_source = (ROOT / "src/lowpower_llm_cluster/bom_sourcing.py").read_text(encoding="utf-8"); compatibility_source = (ROOT / "src/lowpower_llm_cluster/compatibility.py").read_text(encoding="utf-8"); enrichment_source = (ROOT / "src/lowpower_llm_cluster/spec_enrichment.py").read_text(encoding="utf-8"); discovery_source = (ROOT / "src/lowpower_llm_cluster/manufacturer_discovery.py").read_text(encoding="utf-8"); sources_source = (ROOT / "src/lowpower_llm_cluster/sources.py").read_text(encoding="utf-8")
     for required_function in ("def break_even_analysis", "def ownership_components"):
         if required_function not in tco_source: errors.append(f"TCO engine must retain {required_function.split()[-1]}")
     if "sourced_component_costs" not in tco_source: errors.append("TCO engine must consume sourced BOM costs when available")
-    for command in ('"break-even"', '"refresh-bom"', '"compatible-builds"', '"spec-config"', '"spec-evidence"'):
+    for command in ('"break-even"', '"refresh-bom"', '"compatible-builds"', '"spec-config"', '"spec-evidence"', '"manufacturer-config"', '"manufacturer-associations"'):
         if command not in cli_source: errors.append(f"refresh CLI lost required workflow {command}")
     if '"--ownership"' not in cli_source: errors.append("refresh CLI must retain ownership-aware TCO options")
     if "async def refresh_bom_market" not in bom_source or "construct_compatible_builds" not in bom_source or "enrich_bom_candidates" not in bom_source: errors.append("live BOM engine must enrich and generate compatible builds")
     for required_function in ("def infer_listing_facts", "def evaluate_build_compatibility", "def construct_compatible_builds"):
         if required_function not in compatibility_source: errors.append(f"compatibility engine must retain {required_function.split()[-1]}")
-    for required_function in ("def associate_spec_source", "def extract_spec_fields", "async def enrich_candidate", "async def enrich_bom_candidates", "async def enrich_market_candidate"):
+    for required_function in ("def associate_spec_source", "def extract_spec_fields", "def extract_automatic_spec_fields", "async def enrich_candidate", "async def enrich_bom_candidates", "async def enrich_market_candidate"):
         if required_function not in enrichment_source: errors.append(f"spec enrichment engine must retain {required_function.split()[-1]}")
+    for required_function in ("def cached_association", "async def discover_manufacturer_association"):
+        if required_function not in discovery_source: errors.append(f"manufacturer discovery engine must retain {required_function.split()[-1]}")
     if "gpu_facts" not in compatibility_source: errors.append("compatibility solver must accept exact GPU specification facts")
+    if '"manufacturer"' not in sources_source or '"mpn"' not in sources_source: errors.append("structured source adapters must preserve manufacturer and MPN identity for automatic enrichment")
 
     watchlists = json.loads((ROOT / "data/market/watchlists.json").read_text(encoding="utf-8"))
     if watchlists.get("schema_version") != 1 or not isinstance(watchlists.get("watchlists"), list): errors.append("data/market/watchlists.json must define schema_version 1 and a watchlists array")
