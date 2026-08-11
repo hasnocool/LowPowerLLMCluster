@@ -9,7 +9,7 @@
 - [x] Add sourced vendor/community performance ingestion with model/runtime/workload provenance.
 - [x] Add live manufacturer/distributor/structured-marketplace adapters where terms/API access permit.
 - [x] Add listing disappearance/reappearance and stock-state observations.
-- [x] Add automatic sourced FX refresh and historical FX snapshots.
+- [x] Add automatic sourced CAD FX refresh and historical FX snapshots.
 - [x] Add seller/source reputation confidence separately from SKU confidence.
 - [x] Add compatibility-preserving benchmark aggregation.
 - [x] Add CAD buying reports: under CA$100/250/500, 32GB+, low-power, weird-hardware, EOL, measured-evidence.
@@ -63,9 +63,9 @@
 - [x] Keep absence from incomplete/paginated support matrices provisional rather than treating it as unsupported.
 - [x] Discover and rank linked official manufacturer CPU-support, BIOS and download endpoints from verified motherboard pages.
 - [x] Capture BIOS Flashback / CPU-less firmware-update evidence and expose an evidence-based boot-readiness score on complete builds.
+- [x] Ingest linked official paginated/API-backed CPU-support matrices and prove completeness only from explicit pagination metadata.
 - [ ] Expand the manufacturer registry and stable manufacturer search-page templates as live sourcing encounters new brands.
 - [ ] Discover separate manufacturer CPU-support/download endpoints when they are not linked from the verified product page.
-- [ ] Detect paginated/API-backed CPU support matrices and prove matrix completeness where possible.
 - [ ] Infer likely shipped BIOS/hardware revision only when manufacturer or seller evidence supports it.
 - [ ] Add compatibility validation for owned hosts: PCIe generation/lanes, physical slots, PSU connectors/headroom, chassis clearance and cooling capacity.
 - [ ] Add province presets plus tariff/HS-code evidence without pretending customs treatment is universal.
@@ -87,10 +87,12 @@
 - [x] Add conservative mobile/unified-memory capacity reserves without deriving throughput from SoC marketing specifications.
 - [x] Add Apple/mobile discovery queries to daily and weekly market refresh profiles.
 - [x] Keep battery capacity, charger wattage and charging rate separate from measured inference wall-input power.
-- [ ] Split broad Apple family listings into exact chip/GPU/core/unified-memory SKUs automatically from marketplace titles/model identifiers.
-- [ ] Add exact Apple model-number/part-number enrichment and memory/storage configuration resolution.
+- [x] Resolve Apple marketplace listings into explicit A-number/model/part identity, chip, RAM, SSD, screen and explicitly stated CPU/GPU core counts without inferring missing bins.
+- [x] Carry used-Mac battery health/cycles plus stated Activation Lock and MDM evidence separately from exact SKU identity.
+- [x] Feed resolved Apple configuration through existing live price/shipping, sourced CAD FX and landed-cost/TCO evidence paths.
+- [ ] Expand the Apple A-number/model/part-number knowledge base and add authoritative order-number mappings for more generations/regions.
 - [ ] Ingest measured complete-node Apple idle/load/inference power with exact model/runtime/workload provenance.
-- [ ] Add used-Mac condition signals such as battery health/cycle count, activation-lock status, warranty and seller return policy where sources expose them.
+- [ ] Add used-Mac warranty/AppleCare and seller return-policy evidence where sources expose them.
 - [ ] Expand Android phone/tablet coverage based on RAM, runtime support and used-market value.
 
 ## GPU coverage
