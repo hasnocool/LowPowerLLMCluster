@@ -90,8 +90,10 @@ def test_refresh_is_append_only_and_reports_eligible_vs_research(tmp_path):
     }
     perf_path = tmp_path / "performance.json"; perf_path.write_text(json.dumps(performance), encoding="utf-8")
     evidence_path = tmp_path / "evidence.json"
-    first = refresh_power_evidence(performance_path=perf_path, evidence_path=evidence_path, catalog=CATALOG)
-    second = refresh_power_evidence(performance_path=perf_path, evidence_path=evidence_path, catalog=CATALOG)
+    spec_path = tmp_path / "spec-evidence.json"; spec_path.write_text(json.dumps({"records": []}), encoding="utf-8")
+    sourced_path = tmp_path / "power-measurements.json"; sourced_path.write_text(json.dumps({"records": []}), encoding="utf-8")
+    first = refresh_power_evidence(performance_path=perf_path, evidence_path=evidence_path, spec_evidence_path=spec_path, sourced_measurements_path=sourced_path, catalog=CATALOG)
+    second = refresh_power_evidence(performance_path=perf_path, evidence_path=evidence_path, spec_evidence_path=spec_path, sourced_measurements_path=sourced_path, catalog=CATALOG)
     assert first["added"] == 2
     assert first["eligible_device_observations"] == 1
     assert first["research_only_observations"] == 1
