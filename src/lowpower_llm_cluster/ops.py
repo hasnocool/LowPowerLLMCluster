@@ -12,6 +12,7 @@ from typing import Any, Awaitable, Callable
 import httpx
 
 from .catalog import load_catalog, project_root
+from .decision import generate_daily_recommendations, render_daily_recommendations
 from .intelligence import generate_change_intelligence, render_daily_change_report
 from .market import append_price_observations, discover_with_status, refresh_bank_of_canada_fx, update_listing_presence
 from .reports import build_report_rows, named_reports, render_report
@@ -220,7 +221,26 @@ async def run_profile(name: str, *, profiles_path: Path | None = None, sources_p
     daily_md.parent.mkdir(parents=True, exist_ok=True)
     daily_md.write_text(render_daily_change_report(intelligence), encoding="utf-8")
 
+    decisions = await asyncio.to_thread(generate_daily_recommendations, tax_rate=float(profile.get("tax_rate", 0.12)))
+    recommendation_md = project_root() / "reports" / "current" / "daily-recommendations.md"
+    recommendation_md.parent.mkdir(parents=True, exist_ok=True)
+    recommendation_md.write_text(render_daily_recommendations(decisions), encoding="utf-8")
+
     stale = stale_listings(stale_after_hours=float(profile.get("stale_after_hours", 48)))
-    result = {"profile": name, "listings": len(listings), "statuses": statuses, "source_budgets": budgets, "price_observations": prices, "presence": presence, "stale_count": len(stale), "fx": fx_result, "reports": report_counts, "change_alerts": intelligence.get("alert_count", 0)}
+    result = {
+        "profile": name,
+        "listings": len(listings),
+        "statuses": statuses,
+        "source_budgets": budgets,
+        "price_observations": prices,
+        "presence": presence,
+        "stale_count": len(stale),
+        "fx": fx_result,
+        "reports": report_counts,
+        "change_alerts": intelligence.get("alert_count", 0),
+        "recommendations": decisions.get("counts", {}),
+        "priority_alerts": len(decisions.get("priority_alerts", [])),
+        "new_all_time_lows": decisions.get("all_time_low_count", 0),
+    }
     _write(project_root() / "data" / "market" / "last-refresh.json", {"completed_at": _now(), **result})
     return result
