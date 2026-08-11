@@ -23,23 +23,29 @@ All notable changes to this project will be documented here.
 - Strict compatible-performance aggregation that keeps different model variants, quantizations, runtime versions, workload phases, units, context dimensions and hardware configurations separate.
 - Turing RK1 32GB catalog reference with exact-product, vendor-published llama.cpp Q4_K_M benchmark evidence for 1.5B, 3B and 7B models.
 - Exact-hardware Jetson Orin Nano Super community llama.cpp/CUDA evidence plus NVIDIA MLC INT4 reference measurements kept in separate compatibility groups.
+- Exact-hardware stock 24-CU AMD BC-250 community llama.cpp/Vulkan prefill and decode evidence, explicitly separated from 40-CU unlock results.
 - CAD buying reports for under CA$100, CA$250 and CA$500, 32GB+, low-power, weird-hardware, EOL and measured-evidence candidates.
 - Broader official manufacturer/source seed registry, including Turing Pi, Radxa/ALLNET and Orange Pi references.
 - Source-health history with last-success/failure state, result counts and consecutive-failure tracking.
 - Exponential retry/backoff with jitter and numeric `Retry-After` handling for transient network, 429 and common 5xx failures.
 - Stale-listing warnings based on last successful observation without deleting historical data or claiming the listing is gone.
 - Named `daily-market` and `weekly-deep-scan` autonomous refresh profiles.
-- `llm-cluster-refresh` CLI for profile execution, health inspection, stale warnings and report regeneration.
-- Scheduled GitHub Actions refresh that can use optional marketplace secrets, refresh Bank of Canada FX, regenerate current reports and commit changed evidence.
-- `docs/AUTONOMOUS_REFRESH.md` operational guide.
+- Per-source `max_queries_per_run` and daily request-budget caps with persisted UTC-day usage state.
+- Configurable watchlists for exact parts, categories, keywords, sources, memory and target-power constraints.
+- Significant price-drop, stock-return, new-product, landed-cost-change and compatible benchmark regression/improvement alerts.
+- Fingerprint-based alert deduplication so historical changes are not re-emitted every refresh.
+- Compact `reports/current/daily-changes.md` and machine-readable `daily-changes.json` change-intelligence outputs.
+- `llm-cluster-refresh` CLI for profile execution, health inspection, stale warnings, source budgets, watchlists, alerts and report regeneration.
+- Scheduled GitHub Actions refresh that can use optional marketplace secrets, refresh Bank of Canada FX, regenerate current reports/change intelligence and commit changed evidence.
+- `docs/AUTONOMOUS_REFRESH.md` and `docs/CHANGE_INTELLIGENCE.md` operational guides.
 - `llm-cluster-market` CLI with `discover`, `history`, `landed`, `refresh-fx`, `ingest-performance`, `aggregate-performance`, and `report` workflows.
-- `specs/MARKET_INTELLIGENCE.md` and tests for matching, history deduplication, seller confidence, lifecycle tracking, landed-cost math, evidence ingestion, compatible aggregation, JSON-LD normalization, CAD report behavior, retry policy and stale detection.
+- `specs/MARKET_INTELLIGENCE.md` and tests for matching, history deduplication, seller confidence, lifecycle tracking, landed-cost math, evidence ingestion, compatible aggregation, JSON-LD normalization, CAD report behavior, retry policy, stale detection, source budgets and change-alert deduplication.
 
 ### Changed
 
 - Live market I/O uses `httpx.AsyncClient`; blocking filesystem work is isolated from the event loop.
-- Failed or credential-disabled sources cannot generate false listing-disappearance events.
-- v0.5 keeps the catalog authoritative while listings, prices, FX rates, seller reputation and benchmark records remain time-stamped evidence layers.
+- Failed, credential-disabled or budget-exhausted sources cannot generate false listing-disappearance events.
+- v0.5 keeps the catalog authoritative while listings, prices, FX rates, seller reputation, source budgets and benchmark records remain time-stamped evidence layers.
 - Benchmark evidence stays attached to the exact tested product/configuration instead of being copied across boards that merely share a SoC.
 - CAD reports prefer active live listing observations and fall back to clearly labeled catalog midpoint pricing only when sourced FX is available.
 - Community energy-efficiency evidence preserves its published measurement boundary; internal Jetson rail telemetry is not relabeled as complete-node wall-input power.
