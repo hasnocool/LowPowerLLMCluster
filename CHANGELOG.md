@@ -63,6 +63,10 @@ All notable changes to this project will be documented here.
 - Structured-source manufacturer/MPN preservation in Mouser, DigiKey and manufacturer JSON-LD listings.
 - Conservative automatic manufacturer-page compatibility parsing for CPU, motherboard, PSU, chassis, cooler and exact GPU facts.
 - Automatic manufacturer evidence retains association origin, cache-hit state, identity score and field-level extraction provenance.
+- Structured manufacturer document ingestion for schema.org `Product.additionalProperty`, HTML specification tables, CPU/BIOS support matrices and same-manufacturer PDF manuals/datasheets before generic page-text parsing.
+- Bounded manufacturer-PDF text extraction through `pypdf` without OCR, with PDF URLs and source class retained in field-level provenance.
+- Structured evidence priority that lets exact curated fields win, then structured page/manual evidence fill unresolved fields, with flattened-page regexes used only as the final fallback.
+- `docs/STRUCTURED_MANUFACTURER_INGESTION.md` plus deterministic fixtures covering JSON-LD properties, spec tables, BIOS support matrices, PDF-link filtering and provenance.
 - `llm-cluster-refresh manufacturer-config` and `manufacturer-associations` inspection commands.
 - Persisted `data/market/spec-evidence.json`, `data/market/manufacturer-associations.json` and `data/market/compatible-builds.json` evidence/build state.
 - `llm-cluster-refresh spec-config`, `spec-evidence`, `refresh-bom`, and `compatible-builds` operator workflows.
@@ -94,6 +98,7 @@ All notable changes to this project will be documented here.
 - Exact manufacturer specification facts override weaker title-derived compatibility facts only at the individual field level.
 - Generic GPU family listings remain provisional for board-specific dimensions/connectors unless an exact/reference-board association or automatically verified board-partner MPN association exists.
 - Automatic manufacturer discovery never broadens authority beyond the configured official manufacturer domains.
+- Structured manufacturer evidence is consumed before generic flattened-page regexes; weaker sources can fill missing fields but do not overwrite stronger verified values.
 - Complete-build ranking prefers fully compatible builds, then better manufacturer-spec coverage, before relying on provisional unknowns.
 
 ## [0.4.1] - 2026-08-10
