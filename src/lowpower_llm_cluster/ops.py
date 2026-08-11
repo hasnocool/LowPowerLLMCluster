@@ -17,6 +17,7 @@ from .intelligence import generate_change_intelligence, render_daily_change_repo
 from .market import append_price_observations, discover_with_status, refresh_bank_of_canada_fx, update_listing_presence
 from .reports import build_report_rows, named_reports, render_report
 from .sources import DigiKeyAdapter, EbayBrowseAdapter, ManufacturerJsonLdAdapter, MouserAdapter
+from .tco import apply_tco_to_summary, render_tco_report
 
 
 def _now() -> str:
@@ -210,37 +211,24 @@ async def run_profile(name: str, *, profiles_path: Path | None = None, sources_p
     if profile.get("generate_reports", False):
         report_counts = await asyncio.to_thread(write_current_reports, tax_rate=float(profile.get("tax_rate", 0.12)))
 
-    intelligence = await asyncio.to_thread(
-        generate_change_intelligence,
-        default_price_drop_pct=float(profile.get("price_drop_pct", 10.0)),
-        default_landed_change_pct=float(profile.get("landed_cost_change_pct", 8.0)),
-        default_benchmark_change_pct=float(profile.get("benchmark_change_pct", 10.0)),
-        tax_rate=float(profile.get("tax_rate", 0.12)),
-    )
+    intelligence = await asyncio.to_thread(generate_change_intelligence, default_price_drop_pct=float(profile.get("price_drop_pct", 10.0)), default_landed_change_pct=float(profile.get("landed_cost_change_pct", 8.0)), default_benchmark_change_pct=float(profile.get("benchmark_change_pct", 10.0)), tax_rate=float(profile.get("tax_rate", 0.12)))
     daily_md = project_root() / "reports" / "current" / "daily-changes.md"
     daily_md.parent.mkdir(parents=True, exist_ok=True)
     daily_md.write_text(render_daily_change_report(intelligence), encoding="utf-8")
 
     decisions = await asyncio.to_thread(generate_daily_recommendations, tax_rate=float(profile.get("tax_rate", 0.12)))
+    tco_scenario = str(profile.get("tco_scenario", "mixed-3yr"))
+    decisions = await asyncio.to_thread(apply_tco_to_summary, decisions, scenario_name=tco_scenario)
+    recommendation_json = project_root() / "reports" / "current" / "daily-recommendations.json"
+    _write(recommendation_json, decisions)
     recommendation_md = project_root() / "reports" / "current" / "daily-recommendations.md"
     recommendation_md.parent.mkdir(parents=True, exist_ok=True)
     recommendation_md.write_text(render_daily_recommendations(decisions), encoding="utf-8")
+    tco_md = project_root() / "reports" / "current" / "daily-tco.md"
+    tco_md.write_text(render_tco_report(decisions), encoding="utf-8")
+    _write(project_root() / "reports" / "current" / "daily-tco.json", {"generated_at": decisions.get("generated_at"), "scenario": tco_scenario, "recommendations": decisions.get("recommendations", [])})
 
     stale = stale_listings(stale_after_hours=float(profile.get("stale_after_hours", 48)))
-    result = {
-        "profile": name,
-        "listings": len(listings),
-        "statuses": statuses,
-        "source_budgets": budgets,
-        "price_observations": prices,
-        "presence": presence,
-        "stale_count": len(stale),
-        "fx": fx_result,
-        "reports": report_counts,
-        "change_alerts": intelligence.get("alert_count", 0),
-        "recommendations": decisions.get("counts", {}),
-        "priority_alerts": len(decisions.get("priority_alerts", [])),
-        "new_all_time_lows": decisions.get("all_time_low_count", 0),
-    }
+    result = {"profile": name, "listings": len(listings), "statuses": statuses, "source_budgets": budgets, "price_observations": prices, "presence": presence, "stale_count": len(stale), "fx": fx_result, "reports": report_counts, "change_alerts": intelligence.get("alert_count", 0), "recommendations": decisions.get("counts", {}), "priority_alerts": len(decisions.get("priority_alerts", [])), "new_all_time_lows": decisions.get("all_time_low_count", 0), "tco_scenario": tco_scenario}
     _write(project_root() / "data" / "market" / "last-refresh.json", {"completed_at": _now(), **result})
     return result
