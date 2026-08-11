@@ -5,6 +5,7 @@ import asyncio
 from lowpower_llm_cluster.structured_specs import (
     StructuredHTMLParser,
     extract_cpu_support_matrix,
+    extract_cpu_support_rows,
     extract_jsonld_facts,
     extract_table_facts,
     find_document_links,
@@ -44,14 +45,30 @@ def test_html_spec_table_extracts_case_clearances() -> None:
     assert facts["max_psu_length_mm"] == 220
 
 
-def test_cpu_support_table_extracts_minimum_bios() -> None:
+def test_cpu_support_table_extracts_minimum_bios_and_rows() -> None:
     tables = [[
         ["CPU Model", "Core", "BIOS"],
         ["Ryzen 5 5600", "Vermeer", "7C56vA9"],
         ["Ryzen 7 5700X", "Vermeer", "7C56vAB"],
     ]]
     facts = extract_cpu_support_matrix(tables, target_cpu="Ryzen 5 5600")
-    assert facts == {"cpu_support_model": "Ryzen 5 5600", "minimum_bios_version": "7C56vA9"}
+    assert facts["cpu_support_model"] == "Ryzen 5 5600"
+    assert facts["minimum_bios_version"] == "7C56vA9"
+    assert facts["cpu_support_status"] == "supported"
+    rows = extract_cpu_support_rows(tables)
+    assert len(rows) == 2
+    assert rows[0]["support_status"] == "supported"
+
+
+def test_cpu_support_table_preserves_explicit_unsupported_status() -> None:
+    tables = [[
+        ["Processor", "BIOS", "Status"],
+        ["Ryzen 5 5600", "7C56vA9", "Supported"],
+        ["Ryzen 9 5950X", "N/A", "Unsupported"],
+    ]]
+    rows = extract_cpu_support_rows(tables)
+    assert rows[1]["cpu_model"] == "Ryzen 9 5950X"
+    assert rows[1]["support_status"] == "unsupported"
 
 
 def test_manual_pdf_links_are_bounded_to_document_like_links() -> None:
@@ -68,7 +85,7 @@ def test_manual_pdf_links_are_bounded_to_document_like_links() -> None:
     ]
 
 
-def test_structured_ingestion_precedence_and_provenance() -> None:
+def test_structured_ingestion_precedence_provenance_and_matrix_retention() -> None:
     html = """
     <script type="application/ld+json">
     {"@type":"Product","additionalProperty":[
@@ -80,6 +97,10 @@ def test_structured_ingestion_precedence_and_provenance() -> None:
       <tr><td>Form Factor</td><td>ATX</td></tr>
       <tr><td>M.2 Slots</td><td>2 x M.2 NVMe</td></tr>
       <tr><td>PCIe Slot</td><td>PCIe 4.0 x16 (x16 mode)</td></tr>
+    </table>
+    <table>
+      <tr><th>CPU Model</th><th>BIOS</th></tr>
+      <tr><td>Ryzen 5 5600</td><td>7C56vA9</td></tr>
     </table>
     """
     facts, evidence, stats = asyncio.run(ingest_structured_manufacturer_document(
@@ -94,3 +115,7 @@ def test_structured_ingestion_precedence_and_provenance() -> None:
     assert evidence["form_factors"]["extraction"] == "html_spec_table"
     assert stats["jsonld_fields"] >= 2
     assert stats["table_fields"] >= 2
+    assert stats["cpu_support_matrix"][0]["cpu_model"] == "Ryzen 5 5600"
+    assert stats["cpu_support_matrix"][0]["minimum_bios_version"] == "7C56vA9"
+    assert stats["cpu_support_matrix"][0]["source_type"] == "manufacturer_support_table"
+    assert stats["cpu_support_matrix_complete"] is False
