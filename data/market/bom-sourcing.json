@@ -20,7 +20,7 @@
   "components": {
     "cpu_host": {
       "description": "CPU for a low-cost PCIe GPU host build",
-      "queries": ["AMD Ryzen 5 5600 processor", "Intel Core i5 12400 processor"],
+      "queries": ["AMD Ryzen 5 5600 processor", "Intel Core i5-12400 processor"],
       "required_terms_any": ["ryzen 5 5600", "i5-12400", "i5 12400"],
       "exclude_terms": ["laptop", "not working", "for parts"],
       "variants": [
@@ -30,7 +30,7 @@
     },
     "motherboard": {
       "description": "ATX/mATX motherboard with a full-length PCIe GPU slot",
-      "queries": ["B550 DDR4 motherboard AM4 PCIe x16", "B660 DDR4 motherboard LGA1700 PCIe x16"],
+      "queries": ["MSI B550-A PRO motherboard", "MSI PRO B660M-A DDR4 motherboard", "B550 DDR4 motherboard AM4 PCIe x16", "B660 DDR4 motherboard LGA1700 PCIe x16"],
       "required_terms_any": ["b550", "b660"],
       "exclude_terms": ["mini itx only", "not working", "for parts"],
       "variants": [
@@ -58,11 +58,11 @@
     },
     "psu_750w": {
       "description": "750W ATX PSU suitable for a discrete GPU",
-      "queries": ["750W ATX power supply 80 Plus Gold PCIe 8 pin", "750W ATX 12V-2x6 power supply"],
-      "required_terms_any": ["750w", "750 w"],
+      "queries": ["Corsair RM750e CP-9020295-NA", "750W ATX power supply 80 Plus Gold PCIe 8 pin", "750W ATX 12V-2x6 power supply"],
+      "required_terms_any": ["750w", "750 w", "rm750e"],
       "exclude_terms": ["server", "breakout", "for parts"],
       "variants": [
-        {"id": "atx-750w", "match_terms": ["750w", "750 w"], "facts": {"wattage_w": 750, "form_factor": "ATX"}}
+        {"id": "atx-750w", "match_terms": ["750w", "750 w", "rm750e"], "facts": {"wattage_w": 750, "form_factor": "ATX"}}
       ]
     },
     "pcie_adapter": {
@@ -86,11 +86,11 @@
     },
     "chassis": {
       "description": "ATX/mATX chassis with room for a full-size GPU and tower cooler",
-      "queries": ["ATX mid tower case 360mm GPU clearance 160mm CPU cooler"],
-      "required_terms_any": ["atx", "mid tower", "mid-tower"],
+      "queries": ["Corsair 4000D Airflow CC-9011200-WW", "ATX mid tower case 360mm GPU clearance 160mm CPU cooler"],
+      "required_terms_any": ["4000d", "atx", "mid tower", "mid-tower"],
       "exclude_terms": ["mini itx", "empty box", "for parts"],
       "variants": [
-        {"id": "atx-mid-tower-large", "match_terms": ["mid tower", "mid-tower"], "facts": {"motherboard_form_factors": ["ATX", "mATX"], "max_gpu_length_mm": 360, "max_gpu_slots": 4, "max_cpu_cooler_height_mm": 160}}
+        {"id": "atx-mid-tower-large", "match_terms": ["mid tower", "mid-tower", "4000d"], "facts": {"motherboard_form_factors": ["ATX", "mATX"], "max_gpu_length_mm": 360, "max_gpu_slots": 4, "max_cpu_cooler_height_mm": 160}}
       ]
     }
   }
