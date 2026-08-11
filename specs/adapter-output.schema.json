@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/lowpowerllmcluster/adapter-output.schema.json",
+  "title": "Normalized output contract for vendor benchmark bridges",
+  "type": "object",
+  "required": ["metrics"],
+  "properties": {
+    "fit_status": {"enum": ["unknown", "runtime_verified", "runtime_failed", "compiled", "manual_verified"]},
+    "metadata": {"type": "object"},
+    "metrics": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "oneOf": [
+          {"type": "number"},
+          {"type": "array", "minItems": 1, "items": {"type": "number"}},
+          {
+            "type": "object",
+            "required": ["unit"],
+            "properties": {
+              "unit": {"type": "string"},
+              "value": {"type": "number"},
+              "samples": {"type": "array", "minItems": 1, "items": {"type": "number"}}
+            },
+            "oneOf": [{"required": ["value"]}, {"required": ["samples"]}]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -79,3 +79,15 @@ No normal AMD retail specification page was found for the BC-250. Treat its deta
 ### Accelerator evidence warning
 
 TOPS/TFLOPS values are recorded only as architecture/discovery metadata. They are not used as measured LLM performance. Accelerator chip/module power must not be compared directly with complete-node wall power unless the measurement boundary is explicitly aligned.
+
+## Benchmark runtime sources — verified 2026-08-10
+
+- llama.cpp `llama-bench` tool and machine-readable JSON/JSONL output: https://github.com/ggml-org/llama.cpp/tree/master/tools/llama-bench
+- SOPHGO LLM-TPU current BM1684X/BM1688 generative-model runtime: https://github.com/sophgo/LLM-TPU
+- Tenstorrent TT-Metal LLM bring-up/performance guidance: https://github.com/tenstorrent/tt-metal/blob/main/tech_reports/LLMs/llms.md
+- AMD Vitis AI 6.2 documentation for adaptive-SoC inference: https://vitisai.docs.amd.com/en/6.2/
+- AMD Vitis 2026.1 tool-flow documentation: https://docs.amd.com/r/en-US/Vitis-Tutorials-Getting-Started/Vitis-Introduction-and-Getting-Started
+
+### Benchmark-source interpretation
+
+These sources define runtime/tool capabilities and native measurement paths. They do not supply project benchmark results. LowPowerLLMCluster only treats numbers collected into its own measured-result schema as project measurements.

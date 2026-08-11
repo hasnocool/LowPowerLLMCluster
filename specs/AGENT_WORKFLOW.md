@@ -14,3 +14,7 @@ Before declaring a hardware candidate better than another, the agent must state 
 ## Accelerator changes
 
 When a task adds or changes NPU/TPU/AI-ASIC/FPGA/adaptive/EOL accelerator data, agents must also read `.agents/skills/accelerator-research/SKILL.md` and `docs/ACCELERATORS.md`. Accelerator entries require runtime evidence and explicit power scope; TOPS alone is insufficient.
+
+## Benchmark changes
+
+When a task changes benchmark orchestration, metrics, power collection or result interpretation, agents must also read `.agents/skills/benchmark-hardware/SKILL.md`, `docs/BENCHMARK_HARNESS.md`, and `specs/BENCHMARKING.md`. Run `python scripts/validate_benchmark_profiles.py` and the test suite. New runtime adapters must preserve non-blocking subprocess/telemetry behavior and the workload/power-boundary rules.

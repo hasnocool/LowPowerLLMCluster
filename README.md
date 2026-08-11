@@ -102,7 +102,6 @@ The rule is **measure first, specialize second**. Weird hardware is welcome, but
 
 See **[PARTS.md](PARTS.md)** for URLs, MOQ, seller information, verification status and the reasoning behind every listing.
 
-
 ## Why specialist accelerators belong in the cluster
 
 The project does **not** assume every accelerator should run an LLM. A small fixed-function device can still reduce total power if it handles vision, detection, audio or embeddings while the larger LLM node sleeps. Devices only receive `llm_candidate=true` when there is a real model/runtime path—not because their marketing page has a large TOPS number.
@@ -184,34 +183,39 @@ Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the detailed design.
 
 ```text
 LowPowerLLMCluster/
-├── README.md                 plain-language project overview
-├── PARTS.md                  generated current parts/pricing table
+├── README.md
+├── PARTS.md
 ├── data/
-│   ├── parts.json            small catalog manifest
-│   └── catalog/              category-sized part fragments
+│   ├── parts.json                 catalog manifest
+│   └── catalog/                   category-sized hardware fragments
+├── benchmarks/
+│   ├── README.md                  profile/bridge contract explanation
+│   └── profiles/                  example CPU/GPU/NPU/TPU/FPGA profiles
+├── results/                       normalized measured-result JSON
 ├── docs/
-│   ├── PROJECT_CHARTER.md    mission and hardware scope
-│   ├── GUARDRAILS.md         evidence and anti-drift rules
-│   ├── ARCHITECTURE.md       worker/router design
-│   ├── MODEL_PLACEMENT.md    RAM/model placement strategy
-│   ├── NETWORKING.md         2.5/10GbE reasoning
-│   ├── POWER.md              efficiency strategy
-│   ├── ACCELERATORS.md       NPU/TPU/ASIC/FPGA/EOL accelerator strategy
-│   ├── ROADMAP.md            software/hardware roadmap
-│   ├── SOURCING.md           seller questions/checklist
-│   └── SOURCES.md            manufacturer + marketplace sources
-├── specs/                    catalog, benchmark, scoring and agent workflow specs
-├── .agents/skills/           reusable agent procedures
+│   ├── ACCELERATORS.md
+│   ├── BENCHMARK_HARNESS.md       v0.4 measurement design
+│   ├── PROJECT_CHARTER.md
+│   ├── GUARDRAILS.md
+│   └── ...
+├── specs/
+│   ├── benchmark-profile.schema.json
+│   ├── adapter-output.schema.json
+│   ├── benchmark.schema.json
+│   └── ...
+├── .agents/skills/
 ├── src/lowpower_llm_cluster/
+│   ├── benchmarking/              async adapters, power probes, runner + CLI
 │   ├── catalog.py
 │   ├── scoring.py
 │   └── cli.py
 ├── scripts/
-│   ├── check_staleness.py
-│   ├── render_parts_table.py
-│   └── validate_catalog.py
+│   ├── validate_benchmark_profiles.py
+│   ├── validate_catalog.py
+│   └── ...
 └── tests/
 ```
+
 
 ## Use the planner
 
@@ -232,7 +236,53 @@ llm-cluster bom \
   net-edup-8x25gbe
 ```
 
-The score is deliberately a **planning heuristic**, not a fake benchmark. Once real machines are tested, the project should rank hardware using measured prompt tokens/s, generation tokens/s, watts, tokens/joule and total cost.
+The `llm-cluster rank` score is deliberately a **planning heuristic**, not a fake benchmark. v0.4 adds `llm-cluster-bench` so measured prompt/decode throughput, complete-node power and acquisition cost can gradually replace screening guesses.
+
+## Measured benchmark harness — v0.4
+
+v0.4 adds the first real measurement pipeline. The planner still helps decide **what looks worth testing**; the benchmark harness records **what the hardware actually does**.
+
+```text
+profile
+  │
+  ├── llama.cpp CPU / Vulkan / CUDA ──► llama-bench JSON
+  │
+  ├── Hailo / SOPHGO / Tenstorrent ───► normalized vendor JSON bridge
+  │
+  ├── FPGA / adaptive SoC ─────────────► normalized native-runtime bridge
+  │
+  └── vision / audio / embeddings ─────► workload-specific metric
+                                            │
+                                            ▼
+                                  measured result schema v2
+                                            │
+                       ┌────────────────────┼────────────────────┐
+                       ▼                    ▼                    ▼
+                    model fit           tokens/sec          input watts
+                       │                    │                    │
+                       └────────────────────┼────────────────────┘
+                                            ▼
+                                  tokens/joule + t/s/$
+```
+
+Install and inspect the adapters:
+
+```bash
+python -m pip install -e .
+llm-cluster-bench backends
+llm-cluster-bench validate benchmarks/profiles/llama-cpu.example.json
+```
+
+Run a profile after replacing its model path, hardware configuration, cost and power-meter settings:
+
+```bash
+llm-cluster-bench run my-profile.json
+llm-cluster-bench compare results/*.json
+```
+
+The harness only emits canonical energy-efficiency metrics when the power scope is **complete-node input**. CPU package power, accelerator-board telemetry and TDP remain useful metadata but cannot masquerade as wall/DC efficiency.
+
+See [docs/BENCHMARK_HARNESS.md](docs/BENCHMARK_HARNESS.md) and [specs/BENCHMARKING.md](specs/BENCHMARKING.md).
 
 ## Example first cluster
 
@@ -259,12 +309,12 @@ The 7735U nodes can handle low-cost background or smaller-model work. The 8845HS
 
 ## Next milestones
 
-1. Benchmark real candidate boards using the same GGUF models and llama.cpp build.
-2. Measure wall power at idle and generation load.
-3. Calculate **tokens/joule** and **tokens per dollar**.
-4. Build automatic node discovery and hardware inventory.
-5. Add an OpenAI-compatible router.
-6. Add automatic model placement and fallback.
+1. Run the v0.4 profiles on the first physical Ryzen, BC-250, RK3588/Jetson and accelerator nodes.
+2. Integrate a live external DC/wall meter and collect complete-node idle/prefill/decode power.
+3. Add persistent-runtime measurements for model-loaded idle and cleaner steady-state phase power.
+4. Publish comparable **tokens/joule** and **throughput per purchase dollar** result sets.
+5. Build automatic node discovery, hardware inventory and measured-capability registration.
+6. Add an OpenAI-compatible router that chooses workers using real benchmark records.
 7. Add a dashboard showing nodes, models, temperatures, power, throughput and current hardware pricing.
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) for the full plan.

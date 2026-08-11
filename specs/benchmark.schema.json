@@ -1,55 +1,50 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/lowpowerllmcluster/benchmark.schema.json",
-  "title": "LowPowerLLMCluster benchmark record",
+  "title": "LowPowerLLMCluster measured benchmark result",
   "type": "object",
-  "required": ["schema_version", "hardware_id", "runtime", "model", "workload", "results"],
+  "required": [
+    "schema_version", "result_id", "created_at", "hardware_id", "configuration_id",
+    "runtime", "model", "workload_class", "workload", "fit", "metrics", "power", "cost", "efficiency"
+  ],
   "properties": {
-    "schema_version": {"const": 1},
+    "schema_version": {"const": 2},
+    "result_id": {"type": "string"},
+    "created_at": {"type": "string"},
     "hardware_id": {"type": "string"},
-    "configuration_id": {"type": "string", "description": "Distinguishes stock, power-capped, firmware-modified, CU-unlocked, etc."},
-    "runtime": {
-      "type": "object",
-      "required": ["name", "version", "backend", "os"],
-      "properties": {
-        "name": {"type": "string"},
-        "version": {"type": "string"},
-        "backend": {"type": "string"},
-        "os": {"type": "string"},
-        "kernel": {"type": "string"}
-      }
-    },
+    "configuration_id": {"type": "string"},
+    "hardware_snapshot": {"type": "object"},
+    "system": {"type": "object"},
+    "runtime": {"type": "object"},
     "model": {
       "type": "object",
-      "required": ["name", "quantization", "sha256"],
+      "required": ["name", "quantization"],
       "properties": {
         "name": {"type": "string"},
         "quantization": {"type": "string"},
-        "sha256": {"type": "string"}
+        "sha256": {"type": "string"},
+        "size_bytes": {"type": "integer", "minimum": 0}
       }
     },
-    "workload": {
+    "workload_class": {"enum": ["llm", "vision", "audio", "embedding", "other"]},
+    "workload": {"type": "object"},
+    "fit": {"type": "object"},
+    "metrics": {
       "type": "object",
-      "required": ["context_tokens", "prompt_tokens", "generated_tokens", "runs"],
-      "properties": {
-        "context_tokens": {"type": "integer", "minimum": 1},
-        "prompt_tokens": {"type": "integer", "minimum": 1},
-        "generated_tokens": {"type": "integer", "minimum": 1},
-        "runs": {"type": "integer", "minimum": 3}
+      "additionalProperties": {
+        "type": "object",
+        "required": ["unit", "samples", "median", "mean", "stdev", "minimum", "maximum"]
       }
     },
-    "results": {
+    "power": {
       "type": "object",
-      "required": ["prompt_tps_median", "generation_tps_median"],
-      "properties": {
-        "prompt_tps_median": {"type": "number", "minimum": 0},
-        "generation_tps_median": {"type": "number", "minimum": 0},
-        "idle_w": {"type": "number", "minimum": 0},
-        "loaded_idle_w": {"type": "number", "minimum": 0},
-        "prefill_w": {"type": "number", "minimum": 0},
-        "decode_w": {"type": "number", "minimum": 0},
-        "generation_tokens_per_joule": {"type": "number", "minimum": 0}
+      "additionalProperties": {
+        "type": "object",
+        "required": ["phase", "scope", "source", "duration_s", "samples_w", "mean_w", "median_w", "energy_j"]
       }
-    }
+    },
+    "cost": {"type": "object"},
+    "efficiency": {"type": "object"},
+    "raw": {"type": "object"}
   }
 }

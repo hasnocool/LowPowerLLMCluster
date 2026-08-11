@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/lowpowerllmcluster/benchmark-profile.schema.json",
+  "title": "LowPowerLLMCluster benchmark profile",
+  "type": "object",
+  "required": ["schema_version", "hardware_id", "workload_class", "adapter", "model", "workload"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "hardware_id": {"type": "string", "minLength": 1},
+    "configuration_id": {"type": "string", "default": "default"},
+    "workload_class": {"enum": ["llm", "vision", "audio", "embedding", "other"]},
+    "system_cost_usd": {"type": "number", "exclusiveMinimum": 0},
+    "fit_headroom_fraction": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+    "primary_metric": {"type": "string"},
+    "adapter": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {"enum": ["llama_cpp", "hailo", "sophgo", "tenstorrent", "fpga", "json_command"]},
+        "binary": {"type": "string"},
+        "backend": {"type": "string"},
+        "runtime_name": {"type": "string"},
+        "runtime_version": {"type": "string"},
+        "timeout_s": {"type": "number", "exclusiveMinimum": 0},
+        "extra_args": {"type": "array", "items": {"type": ["string", "number", "integer"]}},
+        "command": {"type": "array", "items": {"type": ["string", "number", "integer"]}},
+        "commands": {
+          "type": "object",
+          "additionalProperties": {"type": "array", "items": {"type": ["string", "number", "integer"]}}
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "required": ["name", "quantization"],
+      "properties": {
+        "name": {"type": "string"},
+        "path": {"type": "string"},
+        "quantization": {"type": "string"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"}
+      }
+    },
+    "workload": {
+      "type": "object",
+      "required": ["runs"],
+      "properties": {
+        "runs": {"type": "integer", "minimum": 3},
+        "context_tokens": {"type": "integer", "minimum": 1},
+        "context_depth_tokens": {"type": "integer", "minimum": 0},
+        "prompt_tokens": {"type": "integer", "minimum": 1},
+        "generated_tokens": {"type": "integer", "minimum": 1}
+      }
+    },
+    "power": {
+      "type": "object",
+      "properties": {
+        "provider": {"enum": ["none", "command", "static_measured"]},
+        "scope": {"enum": ["complete_node_input", "accelerator_board", "soc", "cpu_package", "unknown"]},
+        "source": {"type": "string"},
+        "argv": {"type": "array", "items": {"type": "string"}},
+        "sample_interval_s": {"type": "number", "exclusiveMinimum": 0},
+        "idle_duration_s": {"type": "number", "minimum": 0},
+        "timeout_s": {"type": "number", "exclusiveMinimum": 0},
+        "watts_by_phase": {
+          "type": "object",
+          "additionalProperties": {"type": "number", "minimum": 0}
+        }
+      }
+    }
+  }
+}

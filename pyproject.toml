@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lowpower-llm-cluster"
-version = "0.3.0"
+version = "0.4.0"
 description = "Hardware catalog, BOM calculator, and design notes for low-power distributed local LLM inference clusters."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -14,6 +14,7 @@ dependencies = []
 
 [project.scripts]
 llm-cluster = "lowpower_llm_cluster.cli:main"
+llm-cluster-bench = "lowpower_llm_cluster.benchmarking.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

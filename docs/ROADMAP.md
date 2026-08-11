@@ -30,13 +30,20 @@
 
 ## v0.4 — measured performance
 
-- [ ] benchmark JSON schema implementation
-- [ ] reproducible llama.cpp/native-runtime runner for CPU/Vulkan/CUDA and accelerator backends
-- [ ] per-runtime model conversion/compile manifests
-- [ ] idle/load complete-node power collection
-- [ ] tokens/joule, tokens/$ and model-capacity reports
+- [x] benchmark profile, adapter-output and normalized result schemas
+- [x] reproducible asynchronous llama.cpp runner with separate prefill/decode phases
+- [x] normalized bridges for Hailo, SOPHGO, Tenstorrent and FPGA-native runtimes
+- [x] specialist vision/audio/embedding benchmark path with workload-specific metrics
+- [x] asynchronous external-meter power probe and manual-measured fallback
+- [x] canonical complete-node power boundary for tokens/joule and units/joule
+- [x] model hashing, fit screening, runtime-fit status and complete-system cost basis
+- [x] tokens/joule and throughput-per-purchase-dollar calculations
+- [x] comparison grouping that refuses to rank mismatched workloads/models together
+- [x] stock-vs-modified experimental hardware identities through `configuration_id`
+- [ ] persistent-runtime adapter for model-loaded idle and cleaner steady-state phase power
+- [ ] real result collection across Ryzen, BC-250, RK3588/Jetson, Hailo/SOPHGO and FPGA hardware
 - [ ] compare specialist-offload savings against always using general LLM nodes
-- [ ] stock-vs-modified experimental hardware identities
+- [ ] vendor model conversion/compile manifests and reproducibility capture
 
 ## v0.5 — sourcing automation
 

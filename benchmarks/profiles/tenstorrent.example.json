@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "hardware_id": "accel-tenstorrent-wormhole-n150s",
+  "configuration_id": "tt-metal-stock",
+  "workload_class": "llm",
+  "adapter": {
+    "type": "tenstorrent",
+    "runtime_name": "TT-Metal",
+    "runtime_version": "record-git-commit",
+    "commands": {
+      "prefill": ["./bench-tt-json", "--phase", "prefill", "--model", "{model_name}", "--tokens", "{prompt_tokens}", "--runs", "{runs}"],
+      "decode": ["./bench-tt-json", "--phase", "decode", "--model", "{model_name}", "--tokens", "{generated_tokens}", "--runs", "{runs}"]
+    },
+    "timeout_s": 1800
+  },
+  "model": {"name": "shared-test-model", "quantization": "runtime-native"},
+  "workload": {"context_tokens": 4096, "prompt_tokens": 512, "generated_tokens": 128, "runs": 5},
+  "power": {"provider": "none", "scope": "unknown"}
+}

@@ -59,3 +59,15 @@ Accelerator chip power, module power, board TDP and complete-node input power ar
 ## 13. EOL hardware needs an exit-risk penalty
 
 Discontinued hardware can be a bargain, but frozen drivers, unavailable toolchains, missing replacement parts and unsupported kernels are part of ownership cost. Keep lifecycle status visible and do not invent a price when the current used market has not been resolved.
+
+## 14. Benchmark compatibility is a contract
+
+Do not rank results together when model identity/hash, quantization, workload class, context or token counts materially differ. The benchmark CLI may group mismatched results separately, but an agent must not collapse those groups into one leaderboard.
+
+## 15. Energy efficiency uses measured input energy
+
+Canonical tokens/joule or specialist units/joule require `complete_node_input` power. Use the measured window's energy/duration average when available. Median watt samples are descriptive telemetry, not the preferred energy denominator.
+
+## 16. Example profiles are not benchmark evidence
+
+Files under `benchmarks/profiles/` are configuration templates. Placeholder paths, commands or settings must never be cited as hardware results. Only normalized records produced from actual runs belong in performance conclusions.

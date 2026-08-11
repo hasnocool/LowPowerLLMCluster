@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "hardware_id": "node-huake-7735u-barebone",
+  "configuration_id": "25w-cpu",
+  "workload_class": "llm",
+  "adapter": {
+    "type": "llama_cpp",
+    "binary": "llama-bench",
+    "backend": "CPU",
+    "extra_args": [
+      "-ngl",
+      "0"
+    ],
+    "timeout_s": 1800
+  },
+  "model": {
+    "name": "shared-test-model",
+    "path": "/models/shared-test-model.Q4_K_M.gguf",
+    "quantization": "Q4_K_M"
+  },
+  "workload": {
+    "context_tokens": 4096,
+    "context_depth_tokens": 512,
+    "prompt_tokens": 512,
+    "generated_tokens": 128,
+    "runs": 5
+  },
+  "power": {
+    "provider": "command",
+    "scope": "complete_node_input",
+    "source": "external DC/wall meter CLI",
+    "argv": [
+      "power-meter-cli",
+      "--watts"
+    ],
+    "sample_interval_s": 1.0,
+    "idle_duration_s": 10
+  }
+}

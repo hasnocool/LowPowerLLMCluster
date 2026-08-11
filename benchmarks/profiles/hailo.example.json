@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "hardware_id": "accel-rpi-ai-hat2-hailo10h",
+  "configuration_id": "vendor-genai-runtime",
+  "workload_class": "llm",
+  "adapter": {
+    "type": "hailo",
+    "runtime_name": "Hailo GenAI",
+    "runtime_version": "record-installed-version",
+    "command": [
+      "./bench-hailo-json",
+      "--model",
+      "{model_path}",
+      "--prompt-tokens",
+      "{prompt_tokens}",
+      "--output-tokens",
+      "{generated_tokens}",
+      "--runs",
+      "{runs}"
+    ],
+    "timeout_s": 1800
+  },
+  "model": {
+    "name": "shared-test-model",
+    "path": "/models/hailo/shared-model.hef",
+    "quantization": "INT4"
+  },
+  "workload": {
+    "context_tokens": 4096,
+    "prompt_tokens": 512,
+    "generated_tokens": 128,
+    "runs": 5
+  },
+  "power": {
+    "provider": "none",
+    "scope": "unknown"
+  }
+}

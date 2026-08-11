@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "hardware_id": "accel-google-coral-usb",
+  "configuration_id": "int8-vision",
+  "workload_class": "vision",
+  "primary_metric": "frames_per_second",
+  "adapter": {
+    "type": "json_command",
+    "runtime_name": "TFLite Edge TPU",
+    "runtime_version": "record-installed-version",
+    "command": [
+      "./bench-vision-json",
+      "--runs",
+      "{runs}"
+    ],
+    "timeout_s": 600
+  },
+  "model": {
+    "name": "shared-vision-model",
+    "quantization": "INT8"
+  },
+  "workload": {
+    "runs": 5
+  },
+  "power": {
+    "provider": "none",
+    "scope": "unknown"
+  }
+}

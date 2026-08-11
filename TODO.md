@@ -1,14 +1,19 @@
 # TODO
 
-## Highest priority
+## Highest priority — collect real v0.4 measurements
 
-- [ ] Implement the machine-readable benchmark result schema.
-- [ ] Build a common benchmark harness that can invoke llama.cpp plus accelerator-native runtimes without pretending they share one backend.
+- [x] Implement the machine-readable benchmark result schema.
+- [x] Build a common benchmark harness that invokes llama.cpp plus accelerator-native runtimes without pretending they share one backend.
+- [x] Separate LLM prefill/decode metrics from specialist vision/audio/embedding metrics.
+- [x] Enforce complete-node input power for canonical energy-efficiency metrics.
 - [ ] Benchmark x86 Ryzen, BC-250, Jetson Orin Nano, RK3588, Hailo-10H, SOPHGO BM1688/BM1684X and at least one FPGA/adaptive platform with controlled workloads.
-- [ ] Measure **complete-node** input power at idle, model-loaded idle, prefill and decode; preserve accelerator-only power as a separate scope.
-- [ ] Calculate measured tokens/joule and tokens/$ by model/quantization/runtime.
+- [ ] Integrate at least one live external DC/wall power meter CLI with the asynchronous `command` probe.
+- [ ] Add persistent-runtime adapters for model-loaded-idle and clean steady-state power windows.
+- [ ] Measure complete-node input power at idle, model-loaded idle, prefill and decode on the first physical node set.
+- [ ] Calculate and publish measured tokens/joule and throughput/$ by model/quantization/runtime.
 - [ ] Measure whether specialist offload (Coral/MemryX-class vision) lowers whole-cluster energy versus waking a general LLM node.
-- [ ] Track accelerator compiler/runtime reproducibility, model-conversion time and driver/kernel constraints.
+- [ ] Add runtime-specific bridge scripts on real Hailo, SOPHGO, Tenstorrent and FPGA hardware.
+- [ ] Add model conversion/compile time, artifact size and reproducibility metadata to vendor bridge results.
 
 ## Accelerator discovery
 
@@ -46,7 +51,7 @@
 - [ ] Discovery and health protocol.
 - [ ] OpenAI-compatible router.
 - [ ] Automatic model and specialist-accelerator placement.
-- [ ] Power-aware scheduling.
+- [ ] Power-aware scheduling using measured benchmark records.
 - [ ] llama.cpp RPC fallback.
-- [ ] Accelerator runtime adapters (Hailo, SOPHGO, Tenstorrent, Vitis experiments).
+- [ ] Runtime lifecycle management for Hailo, SOPHGO, Tenstorrent and FPGA workers.
 - [ ] Separate always-on control plane from inference workers.

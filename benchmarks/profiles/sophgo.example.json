@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "hardware_id": "accel-firefly-core1688jd4-8g",
+  "configuration_id": "llm-tpu",
+  "workload_class": "llm",
+  "adapter": {
+    "type": "sophgo",
+    "runtime_name": "SOPHGO LLM-TPU",
+    "runtime_version": "record-git-commit",
+    "command": ["./bench-sophgo-json", "--bmodel", "{model_path}", "--runs", "{runs}"],
+    "timeout_s": 1800
+  },
+  "model": {"name": "shared-test-model", "path": "/models/sophgo/shared-model.bmodel", "quantization": "INT4"},
+  "workload": {"context_tokens": 4096, "prompt_tokens": 512, "generated_tokens": 128, "runs": 5},
+  "power": {"provider": "none", "scope": "unknown"}
+}

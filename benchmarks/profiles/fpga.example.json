@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "hardware_id": "accel-amd-alveo-u50-fpga-watch",
+  "configuration_id": "custom-transformer-bitstream",
+  "workload_class": "llm",
+  "adapter": {
+    "type": "fpga",
+    "runtime_name": "Vitis/XRT custom datapath",
+    "runtime_version": "record-toolchain-and-bitstream",
+    "command": ["./bench-fpga-json", "--xclbin", "{model_path}", "--runs", "{runs}"],
+    "timeout_s": 1800
+  },
+  "model": {"name": "shared-test-model", "path": "/models/fpga/model.xclbin", "quantization": "INT4-custom"},
+  "workload": {"context_tokens": 4096, "prompt_tokens": 512, "generated_tokens": 128, "runs": 5},
+  "power": {"provider": "none", "scope": "unknown"}
+}

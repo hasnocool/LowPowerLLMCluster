@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented here.
 
+## [0.4.0] - 2026-08-10
+
+### Added
+
+- Measured-performance benchmark harness with a dedicated `llm-cluster-bench` CLI.
+- Native asynchronous `llama-bench` JSON adapter with separate prefill and decode benchmark phases.
+- Normalized vendor-runtime JSON bridges for Hailo, SOPHGO LLM-TPU, Tenstorrent TT-Metal and FPGA-native/Vitis-style experiments.
+- Workload-specific specialist benchmark path for vision, audio, embeddings and other non-LLM accelerators.
+- Benchmark profile, vendor adapter-output and measured-result JSON schemas.
+- Asynchronous power sampling through external meter commands plus explicitly manual measured-power input.
+- Power-boundary guardrail: canonical tokens/joule and specialist units/joule require `complete_node_input` scope.
+- Model artifact hashing, file-size fit screening and separate runtime-verified fit status.
+- Complete-system acquisition-cost handling and throughput-per-purchase-dollar metrics.
+- Result comparison that groups incompatible model/workload signatures instead of ranking them together.
+- Example benchmark profiles for llama.cpp CPU/Vulkan, Hailo-10H, SOPHGO, Tenstorrent, FPGA research and specialist vision.
+- Benchmark contract validation in CI and new benchmark harness documentation.
+
+### Changed
+
+- Benchmark schema upgraded to v2 and now preserves raw samples, statistics, power scope, cost basis and workload class.
+- Benchmark/release agent skills now enforce complete-node power and workload-comparability rules.
+- v0.4 roadmap milestone is now the implementation baseline; real hardware result collection remains the next measurement phase.
+
 ## [0.3.0] - 2026-08-10
 
 ### Added
