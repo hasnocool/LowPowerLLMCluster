@@ -13,6 +13,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: python scripts/check_governance.py
+      - run: python scripts/check_bios_pair_governance.py
       - run: python scripts/validate_catalog.py
       - run: python scripts/validate_benchmark_profiles.py
       - run: python scripts/render_parts_table.py
