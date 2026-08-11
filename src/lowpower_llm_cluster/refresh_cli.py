@@ -6,6 +6,7 @@ import asyncio
 import json
 
 from .catalog import project_root
+from .intelligence import generate_change_intelligence, render_daily_change_report
 from .ops import run_profile, stale_listings, write_current_reports
 
 
@@ -18,6 +19,9 @@ def main() -> int:
     stale.add_argument("--hours", type=float, default=48.0)
     sub.add_parser("reports", help="regenerate all current-market buying reports")
     sub.add_parser("health", help="show latest source health state")
+    sub.add_parser("budgets", help="show today's source request-budget usage")
+    sub.add_parser("alerts", help="regenerate and show significant change intelligence")
+    sub.add_parser("watchlists", help="show configured market watchlists")
     args = parser.parse_args()
 
     if args.command == "run":
@@ -39,6 +43,24 @@ def main() -> int:
         payload = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"sources": {}}
         for source, state in sorted(payload.get("sources", {}).items()):
             print(f"{source:<22} failures={state.get('consecutive_failures', 0):<3} last_success={state.get('last_success', '-')} last_error={state.get('last_error', '-')}")
+        return 0
+    if args.command == "budgets":
+        path = project_root() / "data" / "market" / "source-budgets.json"
+        payload = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"date": None, "sources": {}}
+        print(f"Budget date: {payload.get('date') or '-'}")
+        for source, state in sorted(payload.get("sources", {}).items()):
+            print(f"{source:<14} estimated_requests={state.get('estimated_requests', 0):<5} skipped={state.get('skipped', 0):<5}")
+        return 0
+    if args.command == "alerts":
+        summary = generate_change_intelligence()
+        print(render_daily_change_report(summary), end="")
+        return 0
+    if args.command == "watchlists":
+        path = project_root() / "data" / "market" / "watchlists.json"
+        payload = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"watchlists": []}
+        for watch in payload.get("watchlists", []):
+            state = "ON" if watch.get("enabled", True) else "OFF"
+            print(f"{state:3}  {watch.get('id', '-'):<22} {watch.get('description', '')}")
         return 0
     return 2
 
