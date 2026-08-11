@@ -47,7 +47,8 @@ def main() -> int:
     ]
     for part in data["parts"]:
         src = marketplace(str(part["url"]))
-        why = str(part["plain_language"]).replace("|", "\\|").replace("\n", " ")
+        why = (str(part["plain_language"]).replace("|", "\\|").replace("\n", " ")
+               .replace("“", "'").replace("”", "'"))
         mem, basis, _ = memory_basis(part)
         memory = "unknown" if mem is None else f"{mem:g} GB ({basis})"
         lines.append(
