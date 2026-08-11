@@ -6,6 +6,7 @@ import asyncio
 import json
 
 from .catalog import project_root
+from .decision import generate_daily_recommendations, render_daily_recommendations
 from .intelligence import generate_change_intelligence, render_daily_change_report
 from .ops import run_profile, stale_listings, write_current_reports
 
@@ -18,6 +19,7 @@ def main() -> int:
     stale = sub.add_parser("stale", help="show active listings not observed recently")
     stale.add_argument("--hours", type=float, default=48.0)
     sub.add_parser("reports", help="regenerate all current-market buying reports")
+    sub.add_parser("recommendations", help="regenerate the ranked Buy/Watch/Ignore/Experimental decision report")
     sub.add_parser("health", help="show latest source health state")
     sub.add_parser("budgets", help="show today's source request-budget usage")
     sub.add_parser("alerts", help="regenerate and show significant change intelligence")
@@ -37,6 +39,10 @@ def main() -> int:
         return 0
     if args.command == "reports":
         print(json.dumps(write_current_reports(), indent=2, sort_keys=True))
+        return 0
+    if args.command == "recommendations":
+        summary = generate_daily_recommendations()
+        print(render_daily_recommendations(summary), end="")
         return 0
     if args.command == "health":
         path = project_root() / "data" / "market" / "source-health.json"
