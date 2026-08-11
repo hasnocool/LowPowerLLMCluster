@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented here.
 
+## [0.4.1] - 2026-08-10
+
+### Changed
+
+- Re-centered the project on its original purpose: product catalog, sourcing, pricing, compatibility and buying decisions.
+- Demoted the v0.4 benchmark harness to optional evidence tooling; physical hardware ownership is not required for catalog inclusion.
+- Reframed `llm-cluster rank` as a catalog/buying shortlist rather than pseudo-performance ranking.
+- Corrected memory semantics so barebones no longer appear to include the CPU's theoretical maximum RAM.
+
+### Added
+
+- Explicit performance provenance vocabulary: local/community/vendor measured, derived/spec-based estimate, or unknown.
+- `specs/EVIDENCE.md` with confidence and estimation guardrails.
+- `llm-cluster list` filtering by category, budget and memory.
+- `llm-cluster show` for product/evidence inspection.
+- `llm-cluster fit` for conservative model-weight capacity screening without predicting tokens/sec.
+- Separate `max_memory_gb` / `memory_config_status` semantics and memory-evidence weighting.
+
 ## [0.4.0] - 2026-08-10
 
 ### Added
