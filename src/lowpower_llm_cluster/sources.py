@@ -1,3 +1,4 @@
+# src/lowpower_llm_cluster/sources.py
 from __future__ import annotations
 
 import base64
@@ -9,6 +10,7 @@ from urllib.parse import urljoin
 
 import httpx
 
+from .apple_resolution import resolve_apple_configuration
 from .market import DiscoveryAdapter, Listing, _now
 
 DEFAULT_TIMEOUT = httpx.Timeout(20.0, connect=10.0)
@@ -96,7 +98,8 @@ class ManufacturerJsonLdAdapter(DiscoveryAdapter):
             for url in self.urls:
                 response = await client.get(url)
                 response.raise_for_status()
-                collector = JsonLdCollector(); collector.feed(response.text)
+                collector = JsonLdCollector()
+                collector.feed(response.text)
                 for document in collector.documents:
                     for node in _jsonld_nodes(document):
                         types = node.get("@type")
@@ -118,7 +121,24 @@ class ManufacturerJsonLdAdapter(DiscoveryAdapter):
                             sku = node.get("sku") or node.get("mpn")
                             brand = _manufacturer_name(node.get("brand") or node.get("manufacturer"))
                             configuration = {"manufacturer": brand, "mpn": str(node.get("mpn") or sku or "") or None}
-                            listings.append(Listing(source=self.name, source_id=f"{url}#{sku or index}", url=urljoin(str(response.url), product_url), title=title, price=price, currency=currency, observed_at=_now(), seller=str(brand or response.url.host), sku=str(sku) if sku else None, configuration=configuration, availability=availability, source_kind="manufacturer", seller_metrics={"verified_source": True}))
+                            configuration = resolve_apple_configuration(title, existing=configuration)
+                            listings.append(
+                                Listing(
+                                    source=self.name,
+                                    source_id=f"{url}#{sku or index}",
+                                    url=urljoin(str(response.url), product_url),
+                                    title=title,
+                                    price=price,
+                                    currency=currency,
+                                    observed_at=_now(),
+                                    seller=str(brand or response.url.host),
+                                    sku=str(sku) if sku else None,
+                                    configuration=configuration,
+                                    availability=availability,
+                                    source_kind="manufacturer",
+                                    seller_metrics={"verified_source": True},
+                                )
+                            )
         return listings
 
 
@@ -140,8 +160,13 @@ class MouserAdapter(DiscoveryAdapter):
         endpoint = "https://api.mouser.com/api/v1/search/keyword"
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT, headers={"User-Agent": USER_AGENT}) as client:
             for query in queries:
-                response = await client.post(endpoint, params={"apiKey": self.api_key}, json={"SearchByKeywordRequest": {"keyword": query, "records": self.results, "startingRecord": 0, "searchOptions": "", "searchWithYourSignUpLanguage": ""}})
-                response.raise_for_status(); payload = response.json()
+                response = await client.post(
+                    endpoint,
+                    params={"apiKey": self.api_key},
+                    json={"SearchByKeywordRequest": {"keyword": query, "records": self.results, "startingRecord": 0, "searchOptions": "", "searchWithYourSignUpLanguage": ""}},
+                )
+                response.raise_for_status()
+                payload = response.json()
                 parts = ((payload.get("SearchResults") or {}).get("Parts") or [])
                 for part in parts:
                     price = _first_price_break(part.get("PriceBreaks"))
@@ -151,18 +176,37 @@ class MouserAdapter(DiscoveryAdapter):
                     part_number = str(part.get("ManufacturerPartNumber") or part.get("MouserPartNumber") or "")
                     manufacturer = _manufacturer_name(part.get("Manufacturer"))
                     configuration = {"manufacturer": manufacturer, "mpn": part_number or None, "distributor_part_number": part.get("MouserPartNumber")}
-                    output.append(Listing(source=self.name, source_id=str(part.get("MouserPartNumber") or part_number), url=str(part.get("ProductDetailUrl") or "https://www.mouser.ca/"), title=str(part.get("Description") or part_number), price=price, currency=currency, observed_at=_now(), seller="Mouser Electronics", sku=part_number or None, configuration=configuration, availability=str(part.get("Availability") or "") or None, source_kind="authorized_distributor", seller_metrics={"verified_source": True, "lifecycle": part.get("LifecycleStatus")}))
+                    output.append(
+                        Listing(
+                            source=self.name,
+                            source_id=str(part.get("MouserPartNumber") or part_number),
+                            url=str(part.get("ProductDetailUrl") or "https://www.mouser.ca/"),
+                            title=str(part.get("Description") or part_number),
+                            price=price,
+                            currency=currency,
+                            observed_at=_now(),
+                            seller="Mouser Electronics",
+                            sku=part_number or None,
+                            configuration=configuration,
+                            availability=str(part.get("Availability") or "") or None,
+                            source_kind="authorized_distributor",
+                            seller_metrics={"verified_source": True, "lifecycle": part.get("LifecycleStatus")},
+                        )
+                    )
         return output
 
 
 class DigiKeyAdapter(DiscoveryAdapter):
     """DigiKey Product Information V4 using an externally obtained OAuth token."""
+
     name = "digikey"
 
     def __init__(self, client_id: str | None = None, access_token: str | None = None, *, site: str = "CA", currency: str = "CAD", limit: int = 25) -> None:
         self.client_id = client_id or os.getenv("DIGIKEY_CLIENT_ID")
         self.access_token = access_token or os.getenv("DIGIKEY_ACCESS_TOKEN")
-        self.site = site; self.currency = currency; self.limit = limit
+        self.site = site
+        self.currency = currency
+        self.limit = limit
 
     @property
     def enabled(self) -> bool:
@@ -172,12 +216,20 @@ class DigiKeyAdapter(DiscoveryAdapter):
         if not self.enabled:
             return []
         endpoint = "https://api.digikey.com/products/v4/search/keyword"
-        headers = {"Authorization": f"Bearer {self.access_token}", "X-DIGIKEY-Client-Id": str(self.client_id), "X-DIGIKEY-Locale-Site": self.site, "X-DIGIKEY-Locale-Language": "en", "X-DIGIKEY-Locale-Currency": self.currency, "User-Agent": USER_AGENT}
+        headers = {
+            "Authorization": f"Bearer {self.access_token}",
+            "X-DIGIKEY-Client-Id": str(self.client_id),
+            "X-DIGIKEY-Locale-Site": self.site,
+            "X-DIGIKEY-Locale-Language": "en",
+            "X-DIGIKEY-Locale-Currency": self.currency,
+            "User-Agent": USER_AGENT,
+        }
         output: list[Listing] = []
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT, headers=headers) as client:
             for query in queries:
                 response = await client.post(endpoint, json={"Keywords": query, "Limit": self.limit, "Offset": 0})
-                response.raise_for_status(); payload = response.json()
+                response.raise_for_status()
+                payload = response.json()
                 products = payload.get("Products") or payload.get("products") or []
                 for product in products:
                     variations = product.get("ProductVariations") or product.get("productVariations") or []
@@ -189,10 +241,27 @@ class DigiKeyAdapter(DiscoveryAdapter):
                     product_number = str(product.get("ManufacturerProductNumber") or product.get("manufacturerProductNumber") or product.get("DigiKeyProductNumber") or "")
                     manufacturer = _manufacturer_name(product.get("Manufacturer") or product.get("manufacturer"))
                     description = product.get("Description") or product.get("description") or {}
-                    if isinstance(description, dict): description = description.get("ProductDescription") or description.get("productDescription")
+                    if isinstance(description, dict):
+                        description = description.get("ProductDescription") or description.get("productDescription")
                     url = str(product.get("ProductUrl") or product.get("productUrl") or "https://www.digikey.ca/")
                     configuration = {"manufacturer": manufacturer, "mpn": product_number or None, "distributor_part_number": product.get("DigiKeyProductNumber") or product.get("digiKeyProductNumber")}
-                    output.append(Listing(source=self.name, source_id=str(product.get("DigiKeyProductNumber") or product.get("digiKeyProductNumber") or product_number), url=url, title=str(description or product_number), price=price, currency=self.currency, observed_at=_now(), seller="DigiKey", sku=product_number or None, configuration=configuration, availability=str(product.get("QuantityAvailable") or product.get("quantityAvailable") or "") or None, source_kind="authorized_distributor", seller_metrics={"verified_source": True}))
+                    output.append(
+                        Listing(
+                            source=self.name,
+                            source_id=str(product.get("DigiKeyProductNumber") or product.get("digiKeyProductNumber") or product_number),
+                            url=url,
+                            title=str(description or product_number),
+                            price=price,
+                            currency=self.currency,
+                            observed_at=_now(),
+                            seller="DigiKey",
+                            sku=product_number or None,
+                            configuration=configuration,
+                            availability=str(product.get("QuantityAvailable") or product.get("quantityAvailable") or "") or None,
+                            source_kind="authorized_distributor",
+                            seller_metrics={"verified_source": True},
+                        )
+                    )
         return output
 
 
@@ -202,7 +271,8 @@ class EbayBrowseAdapter(DiscoveryAdapter):
     def __init__(self, client_id: str | None = None, client_secret: str | None = None, *, marketplace: str = "EBAY_CA", limit: int = 50) -> None:
         self.client_id = client_id or os.getenv("EBAY_CLIENT_ID")
         self.client_secret = client_secret or os.getenv("EBAY_CLIENT_SECRET")
-        self.marketplace = marketplace; self.limit = min(max(limit, 1), 200)
+        self.marketplace = marketplace
+        self.limit = min(max(limit, 1), 200)
 
     @property
     def enabled(self) -> bool:
@@ -210,8 +280,13 @@ class EbayBrowseAdapter(DiscoveryAdapter):
 
     async def _token(self, client: httpx.AsyncClient) -> str:
         credentials = base64.b64encode(f"{self.client_id}:{self.client_secret}".encode()).decode()
-        response = await client.post("https://api.ebay.com/identity/v1/oauth2/token", headers={"Authorization": f"Basic {credentials}", "Content-Type": "application/x-www-form-urlencoded"}, data={"grant_type": "client_credentials", "scope": "https://api.ebay.com/oauth/api_scope"})
-        response.raise_for_status(); return str(response.json()["access_token"])
+        response = await client.post(
+            "https://api.ebay.com/identity/v1/oauth2/token",
+            headers={"Authorization": f"Basic {credentials}", "Content-Type": "application/x-www-form-urlencoded"},
+            data={"grant_type": "client_credentials", "scope": "https://api.ebay.com/oauth/api_scope"},
+        )
+        response.raise_for_status()
+        return str(response.json()["access_token"])
 
     async def discover(self, queries: list[str]) -> list[Listing]:
         if not self.enabled:
@@ -219,20 +294,61 @@ class EbayBrowseAdapter(DiscoveryAdapter):
         output: list[Listing] = []
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT, headers={"User-Agent": USER_AGENT}) as client:
             token = await self._token(client)
-            headers = {"Authorization": f"Bearer {token}", "X-EBAY-C-MARKETPLACE-ID": self.marketplace, "X-EBAY-C-ENDUSERCTX": "contextualLocation=country%3DCA"}
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "X-EBAY-C-MARKETPLACE-ID": self.marketplace,
+                "X-EBAY-C-ENDUSERCTX": "contextualLocation=country%3DCA",
+            }
             for query in queries:
-                response = await client.get("https://api.ebay.com/buy/browse/v1/item_summary/search", params={"q": query, "limit": self.limit, "fieldgroups": "EXTENDED"}, headers=headers)
-                response.raise_for_status(); payload = response.json()
+                response = await client.get(
+                    "https://api.ebay.com/buy/browse/v1/item_summary/search",
+                    params={"q": query, "limit": self.limit, "fieldgroups": "EXTENDED"},
+                    headers=headers,
+                )
+                response.raise_for_status()
+                payload = response.json()
                 for item in payload.get("itemSummaries", []):
-                    price_data = item.get("price") or {}; price = _float(price_data.get("value"))
-                    if price is None: continue
+                    price_data = item.get("price") or {}
+                    price = _float(price_data.get("value"))
+                    if price is None:
+                        continue
                     seller = item.get("seller") or {}
                     shipping_options = item.get("shippingOptions") or []
-                    shipping = None; shipping_currency = None
+                    shipping = None
+                    shipping_currency = None
                     for option in shipping_options:
-                        cost = option.get("shippingCost") or {}; parsed = _float(cost.get("value"))
+                        cost = option.get("shippingCost") or {}
+                        parsed = _float(cost.get("value"))
                         if parsed is not None and (shipping is None or parsed < shipping):
-                            shipping = parsed; shipping_currency = cost.get("currency")
+                            shipping = parsed
+                            shipping_currency = cost.get("currency")
                     source_id = str(item.get("itemId") or item.get("legacyItemId") or item.get("itemWebUrl"))
-                    output.append(Listing(source=self.name, source_id=source_id, url=str(item.get("itemWebUrl") or item.get("itemHref") or ""), title=str(item.get("title") or ""), price=price, currency=str(price_data.get("currency") or "CAD").upper(), observed_at=_now(), seller=str(seller.get("username") or seller.get("userId") or "") or None, sku=None, configuration={}, shipping=shipping, shipping_currency=str(shipping_currency or price_data.get("currency") or "CAD").upper(), destination_country="CA", availability=str(item.get("itemEndDate") or "active"), source_kind="structured_marketplace", seller_metrics={"feedback_percentage": _float(seller.get("feedbackPercentage")), "feedback_score": _float(seller.get("feedbackScore")), "top_rated": bool(item.get("topRatedBuyingExperience")), "seller_account_type": seller.get("sellerAccountType")}))
+                    title = str(item.get("title") or "")
+                    description = str(item.get("shortDescription") or "")
+                    configuration = resolve_apple_configuration(title, description=description, existing={})
+                    output.append(
+                        Listing(
+                            source=self.name,
+                            source_id=source_id,
+                            url=str(item.get("itemWebUrl") or item.get("itemHref") or ""),
+                            title=title,
+                            price=price,
+                            currency=str(price_data.get("currency") or "CAD").upper(),
+                            observed_at=_now(),
+                            seller=str(seller.get("username") or seller.get("userId") or "") or None,
+                            sku=configuration.get("apple_part_number") or configuration.get("model_identifier") or configuration.get("apple_a_number"),
+                            configuration=configuration,
+                            shipping=shipping,
+                            shipping_currency=str(shipping_currency or price_data.get("currency") or "CAD").upper(),
+                            destination_country="CA",
+                            availability=str(item.get("itemEndDate") or "active"),
+                            source_kind="structured_marketplace",
+                            seller_metrics={
+                                "feedback_percentage": _float(seller.get("feedbackPercentage")),
+                                "feedback_score": _float(seller.get("feedbackScore")),
+                                "top_rated": bool(item.get("topRatedBuyingExperience")),
+                                "seller_account_type": seller.get("sellerAccountType"),
+                            },
+                        )
+                    )
         return output
