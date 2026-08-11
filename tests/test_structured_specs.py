@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import asyncio
 
+import httpx
+
 from lowpower_llm_cluster.structured_specs import (
     StructuredHTMLParser,
     extract_cpu_support_matrix,
@@ -119,3 +121,40 @@ def test_structured_ingestion_precedence_provenance_and_matrix_retention() -> No
     assert stats["cpu_support_matrix"][0]["minimum_bios_version"] == "7C56vA9"
     assert stats["cpu_support_matrix"][0]["source_type"] == "manufacturer_support_table"
     assert stats["cpu_support_matrix_complete"] is False
+
+
+def test_structured_ingestion_promotes_explicitly_complete_paginated_api_matrix() -> None:
+    html = """
+    <table>
+      <tr><th>CPU Model</th><th>BIOS</th></tr>
+      <tr><td>Ryzen 5 5600</td><td>A9</td></tr>
+    </table>
+    <a href="/support/cpu?page=1">CPU Support List</a>
+    """
+    pages = {
+        "1": {"items": [{"cpu": "Ryzen 5 5600", "bios": "A9"}, {"cpu": "Ryzen 7 5700X", "bios": "A9"}], "page": 1, "pageSize": 2, "totalCount": 3, "hasMore": True},
+        "2": {"items": [{"cpu": "Ryzen 7 5800X3D", "bios": "AB"}], "page": 2, "pageSize": 2, "totalCount": 3, "hasMore": False},
+    }
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        page = request.url.params.get("page", "1")
+        return httpx.Response(200, json=pages[page], request=request)
+
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await ingest_structured_manufacturer_document(
+                "motherboard",
+                html,
+                "https://www.msi.com/board",
+                "2026-08-11T00:00:00+00:00",
+                "auto:MSI:BOARD1",
+                0.98,
+                client=client,
+            )
+
+    _, _, stats = asyncio.run(run())
+    assert stats["cpu_support_matrix_complete"] is True
+    assert stats["cpu_support_matrix_completeness_proof"] in {"explicit_total_count", "explicit_has_more_false"}
+    assert len(stats["cpu_support_matrix"]) == 3
+    assert stats["support_api"]["selected_endpoint"].startswith("https://www.msi.com/support/cpu")
+    assert stats["support_api"]["complete"] is True
