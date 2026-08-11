@@ -89,7 +89,7 @@
       "threads": 4,
       "architecture": "Alder Lake-N",
       "memory_type": "DDR4/DDR5 depending on board",
-      "memory_capacity_gb": 32,
+      "memory_capacity_gb": null,
       "igpu": "Intel UHD",
       "network": "many current variants offer dual or multi 2.5GbE",
       "storage": "M.2 NVMe/SATA variant dependent",
@@ -101,7 +101,9 @@
       "plain_language": "Do not buy an N100 because it looks good at LLM generation. Buy it because an always-on router, scheduler, monitoring node and model registry should consume very little energy and should not steal RAM or CPU time from inference workers. Keeping the control plane separate also makes the cluster more resilient.",
       "source_notes": "Current Alibaba N100 listings span roughly US$75-133 for simple MOQ-1 systems, with many dual/multi-2.5GbE variants.",
       "price_status": "observed_market",
-      "lifecycle_status": "current"
+      "lifecycle_status": "current",
+      "memory_config_status": "configurable",
+      "max_memory_gb": null
     }
   ]
 }
