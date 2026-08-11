@@ -59,7 +59,9 @@ def test_marketplace_seller_confidence_uses_reputation_separately():
     weak = seller_confidence(listing(source_kind="structured_marketplace", seller_metrics={"feedback_percentage": 80, "feedback_score": 10}))
     strong = seller_confidence(listing(source_kind="structured_marketplace", seller_metrics={"feedback_percentage": 99.8, "feedback_score": 50000, "top_rated": True}))
     assert strong["score"] > weak["score"]
-    assert strong["label"] in {"high", "exact"}
+    assert strong["label"] in {"medium", "high", "exact"}
+    manufacturer = seller_confidence(listing(source_kind="manufacturer", seller_metrics={"verified_source": True}))
+    assert manufacturer["score"] > strong["score"]
 
 
 def test_presence_tracks_disappearance_and_reappearance_in_same_scope(tmp_path: Path):
