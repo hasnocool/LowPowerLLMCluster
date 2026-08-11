@@ -4,59 +4,77 @@ Every hardware category in LowPowerLLMCluster must produce a usable power/energy
 
 ## Evidence ladder
 
-The estimator uses the strongest available evidence in this order:
+The estimator now uses the strongest available evidence in this order:
 
-1. measured idle + measured load wall/device input power;
-2. measured load/typical power with inferred idle;
-3. published target/TDP/TBP/TGP/board power;
-4. published maximum power converted into a conservative typical-load estimate;
-5. category-specific fallback baseline;
-6. generic future-category fallback if a new category has not yet been assigned a specific baseline.
+1. direct per-part measured idle + load power;
+2. direct measured load/typical power with inferred idle;
+3. learned power distribution for the exact SKU/model/configuration;
+4. learned hardware-family distribution;
+5. published target/TDP/TBP/TGP/board power;
+6. published maximum power converted into a conservative typical-load estimate;
+7. learned category distribution;
+8. category-specific fallback baseline;
+9. generic future-category fallback.
 
-Every output keeps `basis`, `confidence`, `inferred`, `power_scope`, and warnings so inferred numbers cannot masquerade as measurements.
+Every output keeps `basis`, `confidence`, `inferred`, `power_scope`, warnings, and—when learned evidence is used—the matching distribution.
+
+## Self-improving evidence store
+
+`data/power/evidence.json` is an append-style evidence store consumed by `power_evidence.py`. Observations identify the hardware at the strongest level the source actually supports: exact SKU/model identifier, exact model, hardware family, or category.
+
+Exact configurations may include fixed memory/storage facts. A 64 GB / 2 TB A2485 observation cannot silently become an exact match for a conflicting 32 GB configuration. When several compatible observations exist, the project reports median idle/load power plus p25/p75 load bands and sample counts rather than pretending one benchmark is universal.
+
+Source weighting distinguishes `measured_local`, `vendor_measured`, `community_measured`, manufacturer specifications, and derived estimates. Multiple compatible measured observations can raise confidence; a single family estimate cannot.
+
+Examples of the intended progression are:
+
+```text
+Apple silicon category baseline
+  -> M1 Max family distribution
+  -> A2485 M1 Max distribution
+  -> A2485 + 64 GB + 2 TB observations
+  -> direct measurement for the exact machine
+```
+
+and:
+
+```text
+GPU category baseline
+  -> RTX 3090 family evidence
+  -> RTX 3090 Founders Edition board evidence
+  -> exact board + exact host complete-node measurements
+```
+
+and:
+
+```text
+storage category baseline
+  -> NVMe family evidence
+  -> exact controller/NAND/SKU observations
+```
 
 ## Watts versus Wh
 
 Watts describe instantaneous/average power. Wh describe energy over time.
 
-The estimator therefore keeps power and duty cycle separate:
-
 ```text
 Wh = load_w × load_hours + idle_w × idle_hours + off_w × off_hours
 ```
 
-TCO reports now expose `daily_wh` and `daily_kwh` from the selected scenario duty cycle in addition to annual kWh and electricity cost.
+TCO reports expose daily Wh/kWh from the selected duty cycle in addition to annual kWh and electricity cost.
 
 ## Complete-node modeling
 
 Integrated systems such as mini PCs, Macs, phones and tablets use their device estimate directly.
 
-PCIe/attached accelerators add explicit host idle/load assumptions and PSU/cooling overhead. The resulting complete-node value is always downgraded to low confidence unless a complete-node measurement is supplied; board power is never relabeled as wall power.
+PCIe/attached accelerators add explicit host idle/load assumptions and PSU/cooling overhead unless a complete-node measurement exists. Once host assumptions are introduced the result remains low confidence; board power is never relabeled as measured wall power.
 
-SBC/dev-board classes add small storage/peripheral and conversion-overhead assumptions when constructing complete-node power.
-
-Infrastructure categories such as memory, storage and network are modeled as incremental component loads rather than standalone compute nodes.
-
-## Category fallback coverage
-
-Fallbacks currently cover every catalog category:
-
-- compute nodes and mini PCs;
-- SBC/dev/embedded/specialty boards;
-- control-plane hardware;
-- Apple silicon systems;
-- phones, tablets and media devices;
-- GPU/NPU/TPU/ASIC/FPGA/adaptive-SoC/decommissioned accelerators;
-- network hardware;
-- memory;
-- storage.
-
-Unknown future categories still receive a generic low-confidence baseline instead of returning no energy estimate.
+SBC/dev-board classes add bounded storage/peripheral and conversion overhead. Memory, storage and network components are incremental node loads rather than standalone computers.
 
 ## Guardrails
 
-Battery capacity (`Wh`) is stored energy, not consumption. Charger wattage is a supply capability, not device power. Neither is used as consumption evidence by the fallback estimator.
+Battery capacity (`Wh`) is stored energy, not consumption. Charger wattage is supply capability, not device power. Neither becomes consumption evidence.
 
-Manufacturer TDP/TBP/TGP/board-power values are not treated as measured wall input. When they are used, the output remains explicitly inferred and carries the source scope.
+TDP/TBP/TGP/board power is not measured wall input. Learned observations must preserve exact hardware/source provenance, and conflicting exact configurations are rejected rather than averaged.
 
-The goal is complete comparison coverage without false precision: a low-confidence estimate is preferable to silently dropping a candidate from energy/TCO analysis, but measured evidence always wins when available.
+The goal is complete comparison coverage that improves automatically as real observations accumulate, without erasing the distinction between measurement, published specification, derived estimate, and category fallback.
