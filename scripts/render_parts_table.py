@@ -1,4 +1,3 @@
-# scripts/render_parts_table.py
 from __future__ import annotations
 
 import sys
@@ -9,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from lowpower_llm_cluster.catalog import load_catalog  # noqa: E402
+from lowpower_llm_cluster.evidence import memory_basis  # noqa: E402
 
 CATALOG = ROOT / "data" / "parts.json"
 OUTPUT = ROOT / "PARTS.md"
@@ -42,14 +42,16 @@ def main() -> int:
         "# Current Parts & Listings", "",
         f"Market snapshot: **{data['snapshot_date']}**. Currency: **USD**. Catalog schema: **v{data['schema_version']}**.", "",
         "> Prices are sourcing snapshots, not quotes. `unresolved` is intentional for watch-list hardware whose current price cannot be verified honestly.", "",
-        "| Category | Part | Price | Source | Why it is here |",
-        "|---|---|---:|---|---|",
+        "| Category | Part | Price | Memory | Source | Why it is here |",
+        "|---|---|---:|---:|---|---|",
     ]
     for part in data["parts"]:
         src = marketplace(str(part["url"]))
         why = str(part["plain_language"]).replace("|", "\\|").replace("\n", " ")
+        mem, basis, _ = memory_basis(part)
+        memory = "unknown" if mem is None else f"{mem:g} GB ({basis})"
         lines.append(
-            f"| {part['category']} | {part['name']} | {price(part)} | [{src}]({part['url']}) | {why} |"
+            f"| {part['category']} | {part['name']} | {price(part)} | {memory} | [{src}]({part['url']}) | {why} |"
         )
 
     accelerators = [p for p in data["parts"] if p.get("accelerator_family")]
@@ -69,7 +71,7 @@ def main() -> int:
     lines.extend([
         "", "## Reading the catalog", "",
         "The machine-readable catalog keeps source type, software maturity, risk, lifecycle, power scope and host requirements. "
-        "Use `data/parts.json` as the manifest and the files in `data/catalog/` as the editable source records.", "",
+        "Use `data/parts.json` as the manifest and the files in `data/catalog/` as the editable source records. Included/fixed RAM is kept separate from board/CPU maximums.", "",
         "A specialist accelerator is not a failed LLM node: Coral/MemryX-class hardware can still save whole-cluster energy by keeping larger workers asleep. "
         "Conversely, an EOL FPGA/ASIC with impressive TOPS stays a research/watch item until a real runtime, price and complete-node benchmark exist.", "",
     ])
