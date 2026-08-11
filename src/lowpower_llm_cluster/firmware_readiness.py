@@ -5,6 +5,8 @@ from html.parser import HTMLParser
 from typing import Any
 from urllib.parse import urljoin, urlparse
 
+from .bios_versioning import shipped_bios_meets_requirement
+
 
 class _LinkParser(HTMLParser):
     def __init__(self) -> None:
@@ -52,7 +54,6 @@ def _explicit_shipped_bios(text: str) -> str | None:
 
 
 def detect_bios_flashback(text: str) -> dict[str,Any]:
-    """Detect CPU-less update capability and explicit factory BIOS without inferring from dates."""
     normalized=" ".join(str(text or "").split()); shipped=_explicit_shipped_bios(normalized)
     for pattern,name in FLASHBACK_PATTERNS:
         if re.search(pattern,normalized,re.IGNORECASE):
@@ -64,23 +65,22 @@ def detect_bios_flashback(text: str) -> dict[str,Any]:
 
 
 def boot_readiness_score(cpu_bios: dict[str,Any], flashback: dict[str,Any] | None=None, *, shipped_bios_meets_minimum: bool | None=None) -> dict[str,Any]:
-    """Score first-boot readiness from explicit support/recovery/shipped-BIOS evidence."""
     pair_status=str(cpu_bios.get("status") or "unresolved"); minimum=cpu_bios.get("minimum_bios_version"); flashback=flashback or {"status":"unknown","cpu_less_update_explicit":None}; fb_status=str(flashback.get("status") or "unknown"); cpu_less=flashback.get("cpu_less_update_explicit") is True; warnings=[]
-    shipped_version=flashback.get("shipped_bios_version")
+    shipped_version=flashback.get("shipped_bios_version"); version_comparison=None
     if shipped_bios_meets_minimum is None and minimum and shipped_version:
-        shipped_bios_meets_minimum = str(shipped_version).casefold() == str(minimum).casefold()
-        if shipped_bios_meets_minimum is False:
-            shipped_bios_meets_minimum = None
-            warnings.append(f"Board explicitly ships with BIOS {shipped_version}, but vendor-specific version ordering against required {minimum} is not proven.")
+        version_comparison=shipped_bios_meets_requirement(str(shipped_version),str(minimum),source_url=cpu_bios.get("source_url") or flashback.get("source_url"),provider=cpu_bios.get("provider"))
+        shipped_bios_meets_minimum=version_comparison.get("meets_minimum")
+        if shipped_bios_meets_minimum is None: warnings.append(f"Board explicitly ships with BIOS {shipped_version}, but safe vendor-specific ordering against required {minimum} is unresolved.")
+        elif shipped_bios_meets_minimum is False: warnings.append(f"Board explicitly ships with BIOS {shipped_version}, which is older than required {minimum} by {version_comparison.get('reason')}.")
     if pair_status=="unsupported": score=0; readiness="not_bootable_with_selected_cpu"
     elif pair_status=="supported" and not minimum: score=96; readiness="ready_by_support_evidence"
     elif pair_status=="supported" and minimum:
         if shipped_bios_meets_minimum is True: score=98; readiness="ready_with_verified_firmware"
-        elif cpu_less: score=88; readiness="supported_update_may_be_required_cpu_less_recovery_available"; warnings.append(f"CPU requires BIOS >= {minimum}; shipped BIOS is unverified, but CPU-less update capability is explicitly documented.")
+        elif cpu_less: score=88; readiness="supported_update_may_be_required_cpu_less_recovery_available"; warnings.append(f"CPU requires BIOS >= {minimum}; CPU-less update capability is explicitly documented.")
         elif fb_status=="supported": score=78; readiness="supported_update_may_be_required_flashback_detected"; warnings.append(f"CPU requires BIOS >= {minimum}; firmware update capability is documented but CPU-less operation was not explicitly verified.")
         elif fb_status=="unsupported": score=48; readiness="supported_but_update_path_has_high_friction"; warnings.append(f"CPU requires BIOS >= {minimum}; no CPU-less firmware-update path is documented by current evidence.")
-        else: score=62; readiness="supported_but_shipped_bios_and_recovery_unknown"; warnings.append(f"CPU requires BIOS >= {minimum}; shipped BIOS and CPU-less recovery capability are unknown.")
+        else: score=62; readiness="supported_but_shipped_bios_and_recovery_unknown"; warnings.append(f"CPU requires BIOS >= {minimum}; shipped BIOS and CPU-less recovery capability are unknown or insufficient.")
     else:
         score=54 if cpu_less else 34; readiness="support_unresolved_but_cpu_less_recovery_available" if cpu_less else "support_and_boot_path_unresolved"; warnings.append(str(cpu_bios.get("reason") or "CPU/BIOS support is unresolved."))
     if cpu_bios.get("matrix_complete") is False and pair_status=="unresolved": warnings.append("Manufacturer CPU-support matrix is not proven complete; absence is not treated as unsupported.")
-    return {"score":int(score),"readiness":readiness,"cpu_bios_status":pair_status,"minimum_bios_version":minimum,"flashback_status":fb_status,"cpu_less_update_explicit":flashback.get("cpu_less_update_explicit"),"shipped_bios_version":shipped_version,"shipped_bios_meets_minimum":shipped_bios_meets_minimum,"warnings":warnings,"basis":"manufacturer_cpu_support_plus_firmware_recovery_evidence","performance_claim":False}
+    return {"score":int(score),"readiness":readiness,"cpu_bios_status":pair_status,"minimum_bios_version":minimum,"flashback_status":fb_status,"cpu_less_update_explicit":flashback.get("cpu_less_update_explicit"),"shipped_bios_version":shipped_version,"shipped_bios_meets_minimum":shipped_bios_meets_minimum,"version_comparison":version_comparison,"warnings":warnings,"basis":"manufacturer_cpu_support_plus_firmware_recovery_evidence","performance_claim":False}
