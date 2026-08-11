@@ -5,11 +5,18 @@ import argparse
 import asyncio
 import json
 
-from .catalog import project_root
+from .catalog import load_catalog, project_root
 from .decision import generate_daily_recommendations, render_daily_recommendations
 from .intelligence import generate_change_intelligence, render_daily_change_report
 from .ops import run_profile, stale_listings, write_current_reports
-from .tco import apply_tco_to_summary, load_tco_scenarios, render_tco_report
+from .tco import apply_tco_to_summary, break_even_analysis, load_tco_scenarios, render_tco_report
+
+
+def _part(part_id: str) -> dict:
+    parts = {str(part["id"]): part for part in load_catalog()["parts"]}
+    if part_id not in parts:
+        raise KeyError(f"unknown catalog part: {part_id}")
+    return parts[part_id]
 
 
 def main() -> int:
@@ -24,6 +31,12 @@ def main() -> int:
     recommendations.add_argument("--scenario", default="mixed-3yr")
     tco = sub.add_parser("tco", help="show complete-node acquisition and operating-cost ranking")
     tco.add_argument("--scenario", default="mixed-3yr")
+    breakeven = sub.add_parser("break-even", help="compare two complete-node options and solve break-even thresholds")
+    breakeven.add_argument("part_a")
+    breakeven.add_argument("part_b")
+    breakeven.add_argument("--price-a", type=float, required=True, help="current/assumed CAD product price for part A")
+    breakeven.add_argument("--price-b", type=float, required=True, help="current/assumed CAD product price for part B")
+    breakeven.add_argument("--scenario", default="mixed-3yr")
     sub.add_parser("health", help="show latest source health state")
     sub.add_parser("budgets", help="show today's source request-budget usage")
     sub.add_parser("alerts", help="regenerate and show significant change intelligence")
@@ -44,6 +57,9 @@ def main() -> int:
         summary = apply_tco_to_summary(generate_daily_recommendations(), scenario_name=args.scenario)
         print(render_daily_recommendations(summary) if args.command == "recommendations" else render_tco_report(summary), end="")
         return 0
+    if args.command == "break-even":
+        result = break_even_analysis(_part(args.part_a), args.price_a, _part(args.part_b), args.price_b, scenario_name=args.scenario)
+        print(json.dumps(result, indent=2, sort_keys=True)); return 0
     if args.command == "tco-scenarios":
         print(json.dumps(load_tco_scenarios(), indent=2, sort_keys=True)); return 0
     if args.command == "health":
