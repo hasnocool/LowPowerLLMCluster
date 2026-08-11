@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "policy": {
+    "require_https_source": true,
+    "require_explicit_power_scope": true,
+    "require_explicit_hardware_identity": true,
+    "notes": "Add only measured vendor/community/local power observations with enough identity to avoid combining incompatible configurations. Internal-rail observations may be retained but are research-only for complete-device power estimation."
+  },
+  "records": []
+}
