@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "base": "CAD",
+  "rates_to_cad": {
+    "CAD": 1.0
+  },
+  "as_of": null,
+  "source_url": null,
+  "notes": "Populate with a sourced exchange-rate snapshot before converting non-CAD listings. Rates are CAD per unit of source currency."
+}
