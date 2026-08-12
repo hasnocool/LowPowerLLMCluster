@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented here.
 
+## [0.5.0] - 2026-08-11
+
+### Added
+
+- Percentile-normalized heterogeneous AI hardware scoring with independent LLM-speed, model-capacity, AI-compute, power-efficiency, cost-efficiency and off-grid dimensions.
+- Workload profiles for interactive chat, coding agents, long context, always-on agents, off-grid AI and vision workloads.
+- Hard compatibility gates for model capacity, context, measured throughput floors, runtime/precision support, power, task-energy and acquisition-budget constraints.
+- Arithmetic energy derivatives including tokens/joule, joules/token, tokens/kWh, task time, Wh/task, battery runtime/tokens and solar-recovery hours.
+- Pareto filtering for candidates dominated on both task time and energy.
+- Cluster aggregation and measured scaling-efficiency helpers.
+- Operational scoring for software support, deployability, soak-test reliability, sustained throughput, thermal headroom and energy proportionality.
+- Benchmark-schema-v2 bridge that imports real measured LLM/vision results while preserving the complete-node power boundary.
+- Explainable theoretical-vs-practical optimizer results with ranking reasons and evidence coverage.
+- `llm-cluster-optimize` CLI plus a normalized-device JSON schema and runnable example input.
+
+### Changed
+
+- Project version advanced to 0.5.0.
+- Scoring specification now explicitly distinguishes the catalog shopping heuristic from evidence-backed workload optimization.
+- The optimizer keeps TOPS/TFLOPS as theoretical compute evidence only and never manufactures tokens/sec from them.
+
 ## [0.4.1] - 2026-08-10
 
 ### Changed
