@@ -1,12 +1,16 @@
 # LowPowerLLMCluster
 
-**A catalog-first research and buying planner for cheap, efficient and unusual local-LLM hardware.**
+**A catalog-first research, buying and evidence-backed workload placement planner for cheap, efficient and unusual local-AI hardware.**
 
-The project tracks mini PCs, laptop/mobile-CPU boards, SBCs, dev boards, embedded systems, NPUs, TPUs, AI ASICs, FPGAs, specialty boards such as AMD BC-250, and interesting decommissioned accelerators.
+The project tracks mini PCs, laptop/mobile-CPU boards, SBCs, dev boards, embedded systems, NPUs, TPUs, AI ASICs, FPGAs, specialty boards such as AMD BC-250, GPUs and interesting decommissioned accelerators.
 
-You do **not** need to own every product. The job of the catalog is to answer:
+You do **not** need to own every product. The project can answer two different questions without mixing them:
 
-> **What can I buy, what does it cost, what can it probably fit/run, what software does it need, how efficient might it be, how strong is the evidence, and is it a good deal?**
+> **What hardware is worth investigating or buying?**
+
+and, when real performance evidence exists:
+
+> **Which available device is the best place to run this workload under my model, power, energy, budget and off-grid constraints?**
 
 Current market snapshot: **August 10, 2026**. Prices and variants change; verify exact SKUs before purchasing.
 
@@ -18,7 +22,7 @@ Current market snapshot: **August 10, 2026**. Prices and variants change; verify
        ┌───────────────────┼───────────────────┐
        ▼                   ▼                   ▼
     mini PCs            dev/SBCs          accelerators
- Ryzen / Intel        RK3588 / Jetson   NPU/TPU/ASIC/FPGA
+ Ryzen / Intel        RK3588 / Jetson   GPU/NPU/TPU/FPGA
        │                   │                   │
        └───────────────────┼───────────────────┘
                            ▼
@@ -29,12 +33,19 @@ Current market snapshot: **August 10, 2026**. Prices and variants change; verify
        price/URL       model-fit screen   evidence
        lifecycle       RAM/software       provenance
           │                │                │
-          └────────────────┼────────────────┘
-                           ▼
-                    BUYING SHORTLIST
-                           │
-             optional real benchmarks
-             when hardware/data exists
+          └────────────┬───┴────────────────┘
+                       ▼
+                BUYING SHORTLIST
+                       │
+          sourced / measured benchmarks
+                       │
+                       ▼
+             NORMALIZED OPTIMIZER
+                       │
+       ┌───────────────┼─────────────────┐
+       ▼               ▼                 ▼
+   workload fit     energy/cost       off-grid fit
+   model/context    task Wh/time      battery/solar
 ```
 
 ## Evidence, not pretend precision
@@ -78,7 +89,7 @@ llm-cluster fit special-amd-bc250-16g --params-b 14 --bits 4
 
 ## Memory semantics matter
 
-A barebone with a CPU that theoretically supports 256GB does **not** contain 256GB. v0.4.1 separates:
+A barebone with a CPU that theoretically supports 256GB does **not** contain 256GB. The catalog separates:
 
 - `memory_capacity_gb` — RAM actually included/fixed in that referenced configuration;
 - `max_memory_gb` — verified maximum for the board/product, when known;
@@ -108,6 +119,97 @@ llm-cluster show special-amd-bc250-16g
 llm-cluster fit special-amd-bc250-16g --params-b 14 --bits 4
 ```
 
+## v0.5 heterogeneous AI optimizer
+
+`llm-cluster-optimize` compares unlike hardware on a common evidence-aware scale while keeping each tradeoff visible. It supports Ryzen APUs, RTX-style GPUs, Apple Silicon, Intel/AMD NPUs, Coral-style specialist TPUs, BC-250, Raspberry Pi accelerators and old datacenter hardware as long as the input record describes what is actually known.
+
+The core normalized dimensions are:
+
+```text
+LLM speed
+model capacity
+AI compute (theoretical, kept separate)
+power efficiency
+cost efficiency
+off-grid suitability
+```
+
+Operational dimensions are also reported:
+
+```text
+software support
+deployability
+reliability from soak evidence
+sustained-performance ratio
+thermal headroom
+energy proportionality
+```
+
+Workload profiles currently include `interactive_chat`, `coding_agent`, `long_context`, `always_on_agent`, `off_grid_ai` and `vision`.
+
+Try the included example:
+
+```bash
+llm-cluster-optimize data/scoring.example.json \
+  --workload off_grid_ai \
+  --model-params-b 14 \
+  --bits 4 \
+  --prompt-tokens 2000 \
+  --output-tokens 1000 \
+  --battery-wh 500 \
+  --solar-w 250
+```
+
+Apply hard constraints:
+
+```bash
+llm-cluster-optimize data/scoring.example.json \
+  --workload coding_agent \
+  --model-params-b 14 \
+  --min-decode 15 \
+  --max-power 80 \
+  --budget 300
+```
+
+Show only candidates on the measured time/energy Pareto frontier:
+
+```bash
+llm-cluster-optimize data/scoring.example.json \
+  --workload off_grid_ai \
+  --output-tokens 2000 \
+  --pareto
+```
+
+Machine-readable output is available with `--json`.
+
+### Why this is different from TOPS/TFLOPS ranking
+
+TOPS/TFLOPS are retained as **theoretical compute evidence**. They can contribute to the AI-compute dimension but are never converted into fake LLM throughput. Practical LLM speed requires measured/sourced decode/prefill evidence.
+
+When measured complete-node power and throughput exist, the optimizer may calculate arithmetic derivatives:
+
+```text
+tokens/joule
+joules/token
+tokens/kWh
+task seconds
+Wh/task
+battery runtime / tokens per battery
+solar recovery hours
+```
+
+Board-only accelerator power is not accepted as canonical whole-system power for tokens/joule.
+
+### Hard compatibility gates
+
+Known failures are rejected before ranking, including insufficient verified memory/context, runtime or precision incompatibility, throughput below a requested floor, excessive complete-system watts, excessive task Wh and purchase cost above budget. Unknown evidence remains unknown instead of being silently invented.
+
+### Cluster and scheduling primitives
+
+The scoring library also includes helpers for aggregate usable memory, combined power, ideal independent throughput and **measured** distributed scaling efficiency. This is the base layer for future dynamic workload placement across multiple local nodes and specialist accelerators.
+
+See **[specs/SCORING.md](specs/SCORING.md)** for the scoring contract and **[specs/normalized-device.schema.json](specs/normalized-device.schema.json)** for optimizer input fields.
+
 ## Hardware families
 
 The catalog intentionally spans different kinds of useful hardware:
@@ -126,27 +228,27 @@ The catalog intentionally spans different kinds of useful hardware:
 
 See **[PARTS.md](PARTS.md)** for the generated current catalog and direct URLs.
 
-## Catalog score vs performance
+## Catalog score vs measured optimization
 
-`llm-cluster rank` is deliberately shopping-oriented. It considers things like price, memory evidence, power hints, software maturity, lifecycle and risk.
+`llm-cluster rank` is deliberately shopping-oriented. It considers price, memory evidence, power hints, software maturity, lifecycle and risk.
 
 ```text
-CATALOG SCORE                   PERFORMANCE EVIDENCE
-─────────────                   ────────────────────
-price                           measured tokens/sec
-RAM included/potential          vendor/community result
-power hint                      complete-node watts
-software maturity               tokens/joule
-risk / availability             model-specific throughput
+CATALOG SCORE                   OPTIMIZER / PERFORMANCE EVIDENCE
+─────────────                   ────────────────────────────────
+price                           measured decode/prefill
+RAM included/potential          measured complete-node watts
+power hint                      tokens/joule and task Wh
+software maturity               model/context fit
+risk / availability             workload profile + hard gates
 
-            kept as separate dimensions
+            kept as separate systems
 ```
 
 A high catalog score means **"worth investigating"**, not "fastest LLM hardware."
 
 ## Optional benchmark subsystem
 
-The v0.4 `llm-cluster-bench` harness remains in the repository. It is useful for your own ThinkPad L14 or contributed third-party hardware, but it is no longer the center of the project.
+The `llm-cluster-bench` harness remains the source of reproducible local measurements. Benchmark-schema-v2 output can be passed directly to `llm-cluster-optimize`; the bridge imports measured LLM or vision throughput and only accepts `complete_node_input` power for canonical system-efficiency calculations.
 
 ```text
 YOUR / CONTRIBUTED HARDWARE
@@ -157,8 +259,9 @@ YOUR / CONTRIBUTED HARDWARE
            ▼
  reproducible evidence record
            │
-           ▼
-       product catalog
+      ┌────┴────┐
+      ▼         ▼
+   catalog    optimizer
 ```
 
 See [docs/BENCHMARK_HARNESS.md](docs/BENCHMARK_HARNESS.md).
@@ -167,29 +270,30 @@ See [docs/BENCHMARK_HARNESS.md](docs/BENCHMARK_HARNESS.md).
 
 ```text
 LowPowerLLMCluster/
-├── data/parts.json             catalog manifest
-├── data/catalog/               product records by family
-├── PARTS.md                    generated human-readable catalog
-├── specs/HARDWARE_CATALOG.md   product data contract
-├── specs/EVIDENCE.md           provenance + safe estimation rules
-├── docs/PROJECT_CHARTER.md     catalog-first mission
-├── docs/GUARDRAILS.md          anti-drift / anti-fake-performance rules
-├── src/lowpower_llm_cluster/   browser, scoring, fit planner
-├── benchmarks/                 optional benchmark profiles
-└── results/                    optional reproducible measurements
+├── data/parts.json                       catalog manifest
+├── data/catalog/                         product records by family
+├── data/scoring.example.json             optimizer example input
+├── PARTS.md                              generated human-readable catalog
+├── specs/HARDWARE_CATALOG.md             product data contract
+├── specs/EVIDENCE.md                     provenance + safe estimation rules
+├── specs/SCORING.md                      catalog + normalized optimizer scoring
+├── specs/normalized-device.schema.json   optimizer device contract
+├── docs/PROJECT_CHARTER.md               catalog-first mission
+├── docs/GUARDRAILS.md                    anti-drift / anti-fake-performance rules
+├── src/lowpower_llm_cluster/             catalog, benchmark and optimizer code
+├── benchmarks/                           optional benchmark profiles
+└── results/                              optional reproducible measurements
 ```
 
 ## Next priorities
 
-The next releases should concentrate on the catalog itself:
-
-1. automated product discovery and price refresh;
-2. historical pricing and listing-disappearance tracking;
-3. CAD/landed-cost estimates;
-4. more exact memory/configuration metadata;
-5. sourced vendor/community benchmark ingestion with confidence labels;
-6. filters such as best under $100/$200/$500, high-memory bargains, low-power nodes and weird-hardware deals;
-7. use the ThinkPad L14 as an optional local reference/calibration node—not as a requirement to own everything else.
+1. ingest real vendor/community/local benchmark evidence into normalized device records;
+2. populate comparable Ryzen APU, RTX GPU, Apple Silicon, NPU, Coral/vision, BC-250 and SBC cohorts;
+3. add live battery/solar telemetry and dynamic local-node placement;
+4. add interconnect-aware multi-node placement and measured cluster scaling;
+5. automate product discovery, price refresh and historical pricing;
+6. add CAD/landed-cost estimates and exact-SKU configuration confidence;
+7. add dashboard views for score dimensions, Pareto fronts, battery runtime and solar recovery.
 
 ## Data quality rule
 
