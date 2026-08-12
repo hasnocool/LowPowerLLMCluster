@@ -6,7 +6,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .normalized_scoring import TaskRequirements, WORKLOAD_PROFILES, pareto_frontier, rank_devices
+from .normalized_scoring import TaskRequirements, WORKLOAD_PROFILES, pareto_frontier
+from .optimizer import rank_devices_full
 from .scoring_inputs import benchmark_result_to_device, merge_device_records
 
 
@@ -75,6 +76,9 @@ def _print_table(rows: list[dict[str, Any]], *, limit: int) -> None:
                 details.append(f"{label}={value:.2f}{suffix}")
         if details:
             print("      " + ", ".join(details))
+        reasons = row.get("reasons", [])
+        if reasons:
+            print("      why: " + "; ".join(reasons[:3]))
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -108,7 +112,7 @@ def main() -> int:
     devices = load_devices(args.inputs)
     if not devices:
         raise SystemExit("No device records found")
-    rows = rank_devices(devices, requirements_from_args(args))
+    rows = rank_devices_full(devices, requirements_from_args(args))
     if args.pareto:
         rows = list(pareto_frontier(rows))
     if args.json:
