@@ -1,0 +1,80 @@
+{
+  "devices": [
+    {
+      "id": "example-fast-gpu",
+      "name": "Example fast GPU system",
+      "workloads": ["interactive_chat", "coding_agent", "long_context", "always_on_agent", "off_grid_ai"],
+      "runtimes": ["llama.cpp"],
+      "precisions": ["Q4_K_M", "FP16", "INT8"],
+      "price_usd": 350,
+      "usable_ai_memory_gb": 16,
+      "memory_bandwidth_gbs": 400,
+      "model_capacity_b_q4": 24,
+      "context_capacity_tokens": 32768,
+      "decode_tokens_s": 40,
+      "prefill_tokens_s": 400,
+      "system_power_w": 100,
+      "idle_w": 10,
+      "fp16_tflops": 20,
+      "int8_tops": 40,
+      "dc_powerability": 50,
+      "sleep_wake": 85,
+      "software": {
+        "llama_cpp": true,
+        "pytorch": true,
+        "gguf": true,
+        "linux": true,
+        "driver_maturity": 90,
+        "docker": true
+      },
+      "deployability": {
+        "installation": 85,
+        "driver_setup": 85,
+        "firmware_setup": 90,
+        "power_integration": 60,
+        "cooling_integration": 65,
+        "host_compatibility": 90,
+        "runtime_setup": 90,
+        "model_conversion": 90
+      }
+    },
+    {
+      "id": "example-efficient-apu",
+      "name": "Example efficient APU system",
+      "workloads": ["interactive_chat", "coding_agent", "long_context", "always_on_agent", "off_grid_ai"],
+      "runtimes": ["llama.cpp"],
+      "precisions": ["Q4_K_M", "FP16", "INT8"],
+      "price_usd": 220,
+      "usable_ai_memory_gb": 32,
+      "memory_bandwidth_gbs": 100,
+      "model_capacity_b_q4": 50,
+      "context_capacity_tokens": 65536,
+      "decode_tokens_s": 20,
+      "prefill_tokens_s": 200,
+      "system_power_w": 35,
+      "idle_w": 5,
+      "fp16_tflops": 8,
+      "int8_tops": 16,
+      "dc_powerability": 95,
+      "sleep_wake": 95,
+      "software": {
+        "llama_cpp": true,
+        "pytorch": true,
+        "gguf": true,
+        "linux": true,
+        "driver_maturity": 85,
+        "docker": true
+      },
+      "deployability": {
+        "installation": 95,
+        "driver_setup": 90,
+        "firmware_setup": 95,
+        "power_integration": 95,
+        "cooling_integration": 95,
+        "host_compatibility": 95,
+        "runtime_setup": 90,
+        "model_conversion": 90
+      }
+    }
+  ]
+}
