@@ -1,26 +1,45 @@
 # Agent Workflow Specification
 
-Before changing the project, an agent must:
+## Before changing the project
 
-1. read `AGENTS.md`, `docs/PROJECT_CHARTER.md`, and `docs/GUARDRAILS.md`;
-2. identify whether the task changes catalog data, sourcing, evidence/estimation semantics, optional benchmarks, runtime code or release state;
-3. use the matching skill under `.agents/skills/`;
-4. preserve source attribution, memory semantics and confidence labels;
-5. run the validation suite;
-6. update docs and CHANGELOG for user-visible behavior/schema changes.
+1. Read `docs/PROJECT_CHARTER.md` and `docs/GUARDRAILS.md`.
+2. Read the relevant specification and agent skill.
+3. For discovery/history/service work, also read `docs/CONCURRENCY.md`.
+4. Identify whether the change affects canonical catalog data, staging discovery data, evidence records, or optional benchmark tooling.
 
-## Default task priority
+## Runtime workflow rules
 
-When work could reasonably be either product/catalog work or benchmark-lab work, prefer the catalog task. Product discovery, exact configuration, current pricing, compatibility and evidence quality are the project's primary deliverables.
+- Keep network I/O native-async and pooled; do not introduce blocking HTTP into async paths.
+- Keep meaningful filesystem, SQLite and CPU-heavy parse/serialization work off the event loop.
+- Bound source agents, source subworkers, HTTP connections, transform workers and queues.
+- Prefer streaming batches and backpressure over materializing complete refreshes.
+- Persist discovery batches through the single SQLite writer and finalize disappearance only for successful sources.
+- Honor `Retry-After`, preserve rate-limit telemetry, and let adaptive concurrency back off faster than it recovers.
+- Reuse HTTP/DNS/cache/SQLite resources in service mode.
+- Treat `304 Not Modified` plus cached parsed observations as a first-class successful refresh result.
+- Do not add process pools merely because parsing is synchronous; profile first.
 
-## Claims
+## Data workflow rules
 
-Before calling one product better than another, say what dimension is being compared: price, included RAM, verified memory potential, software maturity, sourced measured throughput, measured energy efficiency, or another explicit factor. Do not turn a catalog score into a performance claim.
+- Discovery/history is staging evidence until reviewed into canonical `data/catalog/*.json` fragments.
+- Preserve exact SKU/configuration/source semantics and memory evidence boundaries.
+- Unknown performance is valid; never infer tokens/sec from TOPS/TFLOPS/bandwidth/TDP.
+- Multi-source ranges require compatible independent measured records.
 
-## Accelerator changes
+## Required validation
 
-Read `.agents/skills/accelerator-research/SKILL.md` and `docs/ACCELERATORS.md`. Runtime evidence is required before marking an accelerator as a plausible LLM candidate, but a full benchmark is not required to catalog/watch it.
+Run:
 
-## Benchmark changes
+```bash
+python scripts/check_governance.py
+python scripts/check_async_blocking.py
+python scripts/validate_catalog.py
+python scripts/validate_evidence_records.py
+python scripts/validate_benchmark_profiles.py
+python scripts/render_parts_table.py
+pytest -q
+```
 
-Benchmark work is optional supporting evidence. When modifying it, read `.agents/skills/benchmark-hardware/SKILL.md`, `docs/BENCHMARK_HARNESS.md`, and `specs/BENCHMARKING.md`, preserve non-blocking behavior, validate profiles, and keep workload/power boundaries explicit.
+For material discovery-runtime changes, also run the synthetic performance harness and JSON-LD profiler where relevant.
+
+Update README, CHANGELOG, TODO and affected specifications whenever behavior or the next-work sequence changes.
