@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented here.
 
+## [0.5.0] - 2026-08-12
+
+### Added
+
+- Bounded asynchronous catalog discovery pipeline with generic JSON-feed and schema.org JSON-LD product-page adapters.
+- Non-blocking SQLite catalog history with price, currency, title, stock, disappearance and reappearance change events.
+- Discovery normalization for form factor, dimensions, DC input, PSU/cooling/host requirements, board-RAM evidence and exact-SKU metadata.
+- Seller, source and exact-SKU confidence scoring.
+- Explicit-FX CAD conversion and Canada landed-cost estimates with shipping, duty, brokerage and province-tax planning assumptions.
+- Catalog reports for sub-$100/$200/$500 candidates, high-memory bargains, low-power nodes, weird hardware and EOL bargains.
+- Self-contained interactive HTML catalog dashboard with comparison selection and saved browser filters.
+- Sourced performance-record model and JSON/JSONL importer carrying hardware/model/runtime/workload/quantization/context/power provenance.
+- Confidence-aware measured performance ranges that require multiple independent compatible sources.
+- Model-fit presets for common 1B-70B quantized model classes while preserving the capacity-only warning.
+- Explicit published-power boundary helper that distinguishes accelerator/board measurements from processor TDP/cTDP.
+- Discovery configuration and performance-record schemas, example discovery configuration, initial watchlist, and one vendor-provenance Hailo-10H record.
+- Tests for asynchronous discovery, JSON-LD extraction, history/change detection, normalization/confidence, landed-cost estimates, performance ranges, power scope, reports and model presets.
+
+### Changed
+
+- Catalog shortlist scoring now incorporates seller/source and exact-SKU confidence when those fields exist without converting marketing compute specifications into performance.
+- Board maximum-memory evidence can now carry a source URL/verification date and receives stronger confidence than an unlinked maximum.
+- CLI now supports `discover`, `report`, `dashboard`, `landed-cost` and `performance-range`, plus `fit --preset` and `list --min-sku-confidence`.
+- `TODO.md`, sourcing/evidence/catalog specifications and catalog-curation agent guidance now describe the automated refresh workflow and the next promotion/evidence work.
+- Benchmarking remains optional and specialist metrics remain isolated from LLM throughput.
+
 ## [0.4.1] - 2026-08-10
 
 ### Changed

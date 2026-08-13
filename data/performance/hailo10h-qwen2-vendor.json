@@ -1,0 +1,22 @@
+{
+  "records": [
+    {
+      "hardware_id": "accel-rpi-ai-hat2-hailo10h",
+      "source_type": "vendor_measured",
+      "source_url": "https://hailo.ai/blog/bringing-generative-ai-to-the-edge-llm-on-hailo-10h/",
+      "source_name": "Hailo",
+      "model": "Qwen2-1.5B",
+      "runtime": "Hailo GenAI runtime",
+      "runtime_version": "vendor-published",
+      "workload_class": "llm_decode",
+      "metric_name": "tokens_per_second",
+      "value": 9.45,
+      "unit": "tok/s",
+      "quantization": "vendor Hailo-10H build",
+      "context_tokens": 2048,
+      "power_w": 2.1,
+      "power_scope": "accelerator_chip_vendor_measurement",
+      "observed_on": "2026-08-12"
+    }
+  ]
+}

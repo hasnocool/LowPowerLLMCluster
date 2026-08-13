@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/lowpowerllmcluster/performance-record.schema.json",
+  "title": "Sourced performance record collection",
+  "type": "object",
+  "required": ["records"],
+  "properties": {
+    "records": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/record"}
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "record": {
+      "type": "object",
+      "required": ["hardware_id", "source_type", "source_url", "model", "runtime", "workload_class", "metric_name", "value", "unit"],
+      "properties": {
+        "hardware_id": {"type": "string", "minLength": 1},
+        "source_type": {"enum": ["measured_local", "community_measured", "vendor_measured", "derived_estimate", "spec_based_estimate", "unknown"]},
+        "source_url": {"type": "string", "format": "uri"},
+        "source_name": {"type": "string"},
+        "model": {"type": "string", "minLength": 1},
+        "runtime": {"type": "string", "minLength": 1},
+        "runtime_version": {"type": "string"},
+        "workload_class": {"enum": ["llm_prefill", "llm_decode", "vision", "audio", "embedding", "reranking", "other_specialist"]},
+        "metric_name": {"type": "string", "minLength": 1},
+        "value": {"type": "number"},
+        "unit": {"type": "string", "minLength": 1},
+        "quantization": {"type": "string"},
+        "context_tokens": {"type": ["integer", "null"], "minimum": 1},
+        "power_w": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "power_scope": {"type": "string"},
+        "observed_on": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

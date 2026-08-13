@@ -4,11 +4,11 @@
 
 The project tracks mini PCs, laptop/mobile-CPU boards, SBCs, dev boards, embedded systems, NPUs, TPUs, AI ASICs, FPGAs, specialty boards such as AMD BC-250, and interesting decommissioned accelerators.
 
-You do **not** need to own every product. The job of the catalog is to answer:
+You do **not** need to own every product. The catalog exists to answer:
 
 > **What can I buy, what does it cost, what can it probably fit/run, what software does it need, how efficient might it be, how strong is the evidence, and is it a good deal?**
 
-Current market snapshot: **August 10, 2026**. Prices and variants change; verify exact SKUs before purchasing.
+The repository keeps exact market observations separate from derived estimates. Prices and variants change; verify exact SKUs before purchasing.
 
 ## The project in one picture
 
@@ -17,24 +17,29 @@ Current market snapshot: **August 10, 2026**. Prices and variants change; verify
                            │
        ┌───────────────────┼───────────────────┐
        ▼                   ▼                   ▼
-    mini PCs            dev/SBCs          accelerators
- Ryzen / Intel        RK3588 / Jetson   NPU/TPU/ASIC/FPGA
+ JSON / JSON-LD       manual research       imports
        │                   │                   │
        └───────────────────┼───────────────────┘
+                           ▼
+                  NORMALIZE + CONFIDENCE
+                           │
+            ┌──────────────┼──────────────┐
+            ▼              ▼              ▼
+      listing history   exact SKU      hardware shape
+      price/stock       confidence     RAM/DC/cooling
+            │              │              │
+            └──────────────┼──────────────┘
                            ▼
                      PRODUCT CATALOG
                            │
           ┌────────────────┼────────────────┐
           ▼                ▼                ▼
-       price/URL       model-fit screen   evidence
-       lifecycle       RAM/software       provenance
+       reports          model fit        evidence
+      /dashboard        capacity         provenance
           │                │                │
           └────────────────┼────────────────┘
                            ▼
                     BUYING SHORTLIST
-                           │
-             optional real benchmarks
-             when hardware/data exists
 ```
 
 ## Evidence, not pretend precision
@@ -42,102 +47,148 @@ Current market snapshot: **August 10, 2026**. Prices and variants change; verify
 A product can be valuable even when no local benchmark exists. Performance evidence is labelled by provenance:
 
 ```text
-measured_local       highest direct confidence when reproducible
-community_measured   useful third-party evidence
-vendor_measured      useful, but preserve workload details
-derived_estimate     math based on measured evidence
+measured_local       direct project measurement
+community_measured   identifiable third-party measurement
+vendor_measured      vendor workload measurement
+
+derived_estimate     transformation of measured evidence
 spec_based_estimate  weak planning clue only
-unknown              completely acceptable
+unknown              valid when evidence does not exist
 ```
 
 The project **will not manufacture tokens/sec** from TOPS, TFLOPS, memory bandwidth, core count or TDP.
 
-## What can be estimated safely?
+v0.5 adds multi-source ranges, but a range is emitted only when at least two independent measured records share the same hardware/model/runtime/workload/metric/quantization/context signature. A single vendor result stays a single vendor result.
 
-Model-weight capacity can be screened transparently:
+## Automated discovery and history
 
-```text
-parameters × nominal bits/weight
-              │
-              ▼
-      approximate weight size
-              +
-   explicit planning headroom
-              │
-              ▼
-     compare with catalog RAM
-```
+The discovery subsystem is deliberately dependency-light and safe for low-power nodes:
 
-This answers **"is this worth investigating for a model this size?"** It does *not* predict speed and cannot know exact KV-cache/runtime overhead without a specific model/backend.
+- bounded `asyncio` concurrency;
+- blocking HTTP moved to worker threads;
+- no shared blocking response/connection objects across threads;
+- short-lived per-thread SQLite connections in WAL mode;
+- one source failure does not cancel all other adapters;
+- stable listing identity plus price/title/currency/stock change detection;
+- configurable disappearance threshold and reappearance events.
 
-Example:
+Built-in adapters support generic JSON feeds and schema.org `Product` JSON-LD pages. Source-specific marketplace adapters can be layered on without changing the history contract.
 
 ```bash
-llm-cluster fit special-amd-bc250-16g --params-b 14 --bits 4
+cp config/discovery.example.json config/discovery.local.json
+# Edit sources; remove the example.invalid feed before running.
+llm-cluster discover --config config/discovery.local.json
 ```
+
+History defaults to `results/catalog-history.sqlite3` and the latest normalized observations to `results/discovery-latest.json`.
 
 ## Memory semantics matter
 
-A barebone with a CPU that theoretically supports 256GB does **not** contain 256GB. v0.4.1 separates:
+A barebone with a CPU that theoretically supports 256GB does **not** contain 256GB. The catalog separates:
 
-- `memory_capacity_gb` — RAM actually included/fixed in that referenced configuration;
-- `max_memory_gb` — verified maximum for the board/product, when known;
+- `memory_capacity_gb` — RAM actually included/fixed in the referenced configuration;
+- `max_memory_gb` — verified maximum for the actual board/product when known;
+- `max_memory_source_url` / `max_memory_verified_on` — evidence for that board maximum;
 - `cpu_max_memory_gb` — processor-theoretical maximum only;
 - `memory_config_status` — included, fixed, configurable or unknown.
 
-That prevents shopping rankings and model-fit screens from being distorted by CPU datasheets.
+Board-level maximums can therefore be trusted more strongly than CPU-only limits without pretending every legacy record is already verified.
 
-## Browse the catalog
+## Browse, report and compare
 
 ```bash
 python -m pip install -e .
 
-# Buying/research shortlist — not a performance benchmark
+# Shopping/research shortlist — not a performance benchmark
 llm-cluster rank
 
 # Browse likely LLM-capable hardware under $250
 llm-cluster list --llm-only --max-price 250
 
-# Find 32GB+ candidates
-llm-cluster list --llm-only --min-memory 32 --sort price
+# Require stronger exact-SKU confidence when metadata exists
+llm-cluster list --llm-only --min-sku-confidence 0.70 --sort price
 
-# Inspect one record and its evidence status
-llm-cluster show special-amd-bc250-16g
+# Generated buying views
+llm-cluster report best_under_200
+llm-cluster report high_memory_bargains
+llm-cluster report low_power_nodes
+llm-cluster report weird_hardware
+llm-cluster report eol_bargains
 
-# Conservative capacity screen for a 14B 4-bit model
+# Self-contained interactive dashboard
+llm-cluster dashboard --output results/catalog-dashboard.html
+```
+
+The dashboard supports budget, RAM, published-power-boundary and risk filters, side-by-side selection, and browser-saved filters. Power labels retain their scope; a processor TDP is never shown as wall power.
+
+## Safe model-fit presets
+
+Model fit is a **capacity screen**, not a speed predictor. v0.5 adds reusable presets while preserving explicit parameter/bit controls:
+
+```bash
+llm-cluster fit special-amd-bc250-16g --preset 14b-q4
 llm-cluster fit special-amd-bc250-16g --params-b 14 --bits 4
 ```
 
-## Hardware families
+Presets currently cover representative 1B, 3B, 7B, 14B, 32B and 70B quantized classes. Runtime overhead and KV cache remain model/backend specific and are called out in the result.
 
-The catalog intentionally spans different kinds of useful hardware:
+## CAD / Canada landed-cost planning
+
+Landed cost uses an **explicit FX snapshot** rather than silently fetching a rate, which makes saved calculations reproducible:
+
+```bash
+llm-cluster landed-cost \
+  --price 220 --currency USD \
+  --fx-rate 1.37 --fx-as-of 2026-08-12 \
+  --province BC --shipping 25 --duty-rate 0.00 --brokerage-cad 15
+```
+
+This is a planning estimate, not a customs/tax guarantee. Shipping, duty classification, brokerage and tax assumptions are printed with the result.
+
+## Sourced performance records
+
+Performance records preserve model/runtime/workload provenance rather than attaching a naked throughput number to hardware.
+
+```bash
+llm-cluster performance-range data/performance/my-records.json \
+  --hardware-id node-example \
+  --model Example-7B \
+  --runtime llama.cpp \
+  --workload-class llm_decode \
+  --metric tokens_per_second
+```
+
+Specialist vision/audio/embedding/reranking records are kept out of the LLM range bucket. `data/performance/hailo10h-qwen2-vendor.json` is an example of a single vendor-provenance record; by design it cannot create a multi-source confidence range by itself.
+
+## Hardware families
 
 | Class | Examples | Why track it? |
 |---|---|---|
 | low-power x86 | Ryzen 7735U/8845HS, N100 | common Linux ecosystem, replaceable RAM on many models |
 | high-memory mobile boards | 8745HS/HX370/7945HX | dense CPU/APU compute with laptop-class efficiency |
 | unusual APU | AMD BC-250 | cheap unified GDDR6 and interesting Vulkan potential |
-| ARM/SBC | RK3588, Jetson Orin | very low power and compact always-on nodes |
-| GenAI NPU/TPU | Hailo-10H, SOPHGO | purpose-built inference paths at low power |
-| AI ASIC | Tenstorrent | open/interesting accelerator architecture and fast local memory |
+| ARM/SBC | RK3588, RK3576, Jetson Orin | low power and compact always-on nodes |
+| GenAI NPU/TPU | Hailo-10H, SOPHGO | real purpose-built transformer paths at low power |
+| AI ASIC | Tenstorrent | interesting accelerator architecture and fast local memory |
 | FPGA/adaptive | Kria, Versal, Alveo | custom low-precision research potential |
-| specialist | Coral, MemryX | vision/audio offload can keep larger nodes asleep |
+| specialist | Coral, MemryX | fixed inference can keep larger nodes asleep |
 | decommissioned | Alveo/NCS2/etc. | liquidation pricing can create strange bargains |
 
-See **[PARTS.md](PARTS.md)** for the generated current catalog and direct URLs.
+See **[PARTS.md](PARTS.md)** for the canonical catalog. `data/discovery/watchlist.json` holds newly researched targets that still need exact price/SKU verification before promotion.
 
 ## Catalog score vs performance
 
-`llm-cluster rank` is deliberately shopping-oriented. It considers things like price, memory evidence, power hints, software maturity, lifecycle and risk.
+`llm-cluster rank` is deliberately shopping-oriented. It considers price, memory evidence, published power hints, software maturity, lifecycle, risk, and—when present—seller/source/SKU confidence.
 
 ```text
 CATALOG SCORE                   PERFORMANCE EVIDENCE
 ─────────────                   ────────────────────
 price                           measured tokens/sec
-RAM included/potential          vendor/community result
-power hint                      complete-node watts
-software maturity               tokens/joule
-risk / availability             model-specific throughput
+RAM included/potential          exact model/runtime/workload
+published power scope           complete-node watts when measured
+software maturity               tokens/joule when comparable
+seller/SKU confidence           independent source provenance
+risk / availability             measured range confidence
 
             kept as separate dimensions
 ```
@@ -146,20 +197,7 @@ A high catalog score means **"worth investigating"**, not "fastest LLM hardware.
 
 ## Optional benchmark subsystem
 
-The v0.4 `llm-cluster-bench` harness remains in the repository. It is useful for your own ThinkPad L14 or contributed third-party hardware, but it is no longer the center of the project.
-
-```text
-YOUR / CONTRIBUTED HARDWARE
-           │
-           ▼
-   optional benchmark harness
-           │
-           ▼
- reproducible evidence record
-           │
-           ▼
-       product catalog
-```
+The `llm-cluster-bench` harness remains available for local or contributed measurements. It is evidence tooling, not a catalog-release gate.
 
 See [docs/BENCHMARK_HARNESS.md](docs/BENCHMARK_HARNESS.md).
 
@@ -167,29 +205,25 @@ See [docs/BENCHMARK_HARNESS.md](docs/BENCHMARK_HARNESS.md).
 
 ```text
 LowPowerLLMCluster/
-├── data/parts.json             catalog manifest
-├── data/catalog/               product records by family
-├── PARTS.md                    generated human-readable catalog
-├── specs/HARDWARE_CATALOG.md   product data contract
-├── specs/EVIDENCE.md           provenance + safe estimation rules
-├── docs/PROJECT_CHARTER.md     catalog-first mission
-├── docs/GUARDRAILS.md          anti-drift / anti-fake-performance rules
-├── src/lowpower_llm_cluster/   browser, scoring, fit planner
-├── benchmarks/                 optional benchmark profiles
-└── results/                    optional reproducible measurements
+├── config/discovery.example.json    discovery adapter example
+├── data/parts.json                  canonical catalog manifest
+├── data/catalog/                    reviewed product records by family
+├── data/discovery/                  researched promotion/watch targets
+├── data/performance/                sourced performance evidence
+├── PARTS.md                         generated canonical catalog
+├── specs/HARDWARE_CATALOG.md        product data contract
+├── specs/EVIDENCE.md                provenance + estimation rules
+├── specs/discovery-config.schema.json
+├── specs/performance-record.schema.json
+├── docs/SOURCING.md                 source/history/promotion workflow
+├── src/lowpower_llm_cluster/        discovery, history, planner, reports, UI
+├── benchmarks/                      optional benchmark profiles
+└── results/                         generated local outputs
 ```
 
 ## Next priorities
 
-The next releases should concentrate on the catalog itself:
-
-1. automated product discovery and price refresh;
-2. historical pricing and listing-disappearance tracking;
-3. CAD/landed-cost estimates;
-4. more exact memory/configuration metadata;
-5. sourced vendor/community benchmark ingestion with confidence labels;
-6. filters such as best under $100/$200/$500, high-memory bargains, low-power nodes and weird-hardware deals;
-7. use the ThinkPad L14 as an optional local reference/calibration node—not as a requirement to own everything else.
+See **[TODO.md](TODO.md)**. The next accuracy work is source-specific marketplace adapters, automated promotion diffs, live-FX as an optional provider, legacy board-memory/spec backfilling, and more independent real performance records.
 
 ## Data quality rule
 

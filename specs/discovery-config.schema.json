@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/lowpowerllmcluster/discovery-config.schema.json",
+  "title": "Catalog discovery configuration",
+  "type": "object",
+  "required": ["sources"],
+  "properties": {
+    "concurrency": {"type": "integer", "minimum": 1, "maximum": 64},
+    "timeout_s": {"type": "number", "exclusiveMinimum": 0},
+    "disappearance_after_runs": {"type": "integer", "minimum": 1},
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "type"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "type": {"enum": ["json", "jsonld"]},
+          "source_trust": {"type": "number", "minimum": 0, "maximum": 1},
+          "endpoint": {"type": "string", "format": "uri"},
+          "urls": {"type": "array", "items": {"type": "string", "format": "uri"}, "minItems": 1},
+          "items_path": {"type": "string"},
+          "fields": {"type": "object", "additionalProperties": {"type": "string"}},
+          "constants": {"type": "object"},
+          "attribute_fields": {"type": "object", "additionalProperties": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
