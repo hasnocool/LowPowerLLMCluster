@@ -8,6 +8,7 @@
 4. matching skill under `.agents/skills/`
 5. `docs/CONCURRENCY.md` for discovery/service/runtime work
 6. `docs/DISTRIBUTED_RUNTIME.md` for remote-worker/coordinator work
+7. `docs/DASHBOARD.md` for dashboard/data-UX work
 
 ## Project purpose
 
@@ -24,6 +25,10 @@ LowPowerLLMCluster is primarily a **catalog, sourcing and buying/research planne
 - Capacity/model-fit estimates must expose assumptions and warn that they are not throughput predictions.
 - Machine-readable catalog fragments are authoritative; generated docs follow them.
 - Discovery/history/remote-worker data is staging evidence until reviewed into canonical catalog fragments.
+- The dashboard is a research console, not a raw-schema dump: preserve the Overview → Browse → Inspect → Compare hierarchy and keep decision-critical columns narrow by default.
+- Dashboard unknown values remain explicit; never render a missing value as zero, and never visually present the catalog score as measured/predicted performance.
+- Dashboard product details must preserve price, memory, power and evidence scope/basis labels; staging/runtime data must remain visually distinct from canonical catalog truth when added later.
+- Escape catalog text before HTML insertion and restrict generated external links to safe HTTP/HTTPS URLs. Keep the generated dashboard dependency-free, responsive and keyboard-usable.
 - Async source/history/service/distributed code must keep blocking network/filesystem/database/meaningful parse work off the event loop.
 - All task, queue, HTTP, source, normalization and remote-worker fan-out must remain bounded.
 - Reuse long-lived HTTP/DNS/cache/SQLite resources in service/worker modes instead of recreating them every cycle/task.
@@ -53,4 +58,5 @@ LowPowerLLMCluster is primarily a **catalog, sourcing and buying/research planne
 - `python scripts/validate_benchmark_profiles.py` passes.
 - `python scripts/render_parts_table.py` leaves `PARTS.md` clean.
 - `pytest -q` passes.
+- Material dashboard changes include focused view-model/render-safety/information-hierarchy tests.
 - Material runtime changes run the synthetic performance gate; the threshold must remain broad enough for shared runners rather than becoming a flaky microbenchmark.
