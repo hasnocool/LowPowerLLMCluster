@@ -1,0 +1,7 @@
+{
+  "notes": "Conservative reference floors derived from the v0.5 synthetic E2E harness. The PR gate intentionally allows large shared-runner variance and is meant to catch catastrophic regressions, not small timing noise.",
+  "results": [
+    {"observations": 1000, "observations_per_s": 1600.0, "peak_rss_mb": 160.0, "p95_event_loop_lag_ms": 10.0},
+    {"observations": 10000, "observations_per_s": 3000.0, "peak_rss_mb": 160.0, "p95_event_loop_lag_ms": 10.0}
+  ]
+}

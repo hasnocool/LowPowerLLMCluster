@@ -1,0 +1,42 @@
+{
+  "verified_on": "2026-08-12",
+  "purpose": "Discovery targets awaiting exact-SKU promotion into data/catalog after price/configuration verification.",
+  "targets": [
+    {
+      "family": "Ryzen 9 8945HS mini PC",
+      "product": "MINISFORUM UM890 Pro",
+      "source_url": "https://store.minisforum.com/en-ca",
+      "why": "Official store currently lists Ryzen 9 8945HS and board support up to 96GB DDR5; useful exact-SKU/high-memory target."
+    },
+    {
+      "family": "Ryzen 7 7840HS mini PC",
+      "product": "MINISFORUM UM780 XTX",
+      "source_url": "https://store.minisforum.com/blogs/blog/minisforum-reddot-award-2024",
+      "why": "Official MINISFORUM material documents 7840HS, up to 96GB DDR5 and OCuLink; useful secondary/legacy bargain target."
+    },
+    {
+      "family": "RK3576 16GB SBC",
+      "product": "Radxa ROCK 4D",
+      "source_url": "https://radxa.com/products/rock4/4d/",
+      "why": "Official product page documents RK3576, LPDDR5 up to 16GB, RKNN and LLM support."
+    },
+    {
+      "family": "RK3588 32GB SBC",
+      "product": "Orange Pi 5B 32GB",
+      "source_url": "http://www.orangepi.org/html/hardWare/computerAndMicrocontrollers/details/Orange-Pi-5B-32GB.html",
+      "why": "Adds another high-capacity RK3588-class source target alongside existing Orange Pi 5 Plus/Radxa records."
+    },
+    {
+      "family": "large-memory edge accelerator system",
+      "product": "Orange Pi AI Station 96GB",
+      "source_url": "http://www.orangepi.org/html/hardWare/computerAndMicrocontrollers/details/Orange-Pi-AIstation.html",
+      "why": "Unusual 96GB LPDDR4X Ascend-based system worth runtime and availability verification before catalog promotion."
+    },
+    {
+      "family": "decommissioned HBM/AI accelerator",
+      "product": "AMD Alveo U50 / V70 secondary market",
+      "source_url": "https://www.amd.com/en/products/accelerators/alveo.html",
+      "why": "Used/EOL accelerator watch; promotion requires current acquisition price, surviving toolchain and transformer-path evidence."
+    }
+  ]
+}

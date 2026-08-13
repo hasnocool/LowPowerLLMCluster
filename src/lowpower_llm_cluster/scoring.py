@@ -1,8 +1,9 @@
+# src/lowpower_llm_cluster/scoring.py
 from __future__ import annotations
 
 from typing import Any
 
-from .catalog import midpoint_price
+from .catalog import exact_sku_confidence, midpoint_price
 from .evidence import memory_basis
 
 _MATURITY = {
@@ -12,6 +13,7 @@ _MATURITY = {
     "vendor_llm_toolchain": 0.90,
     "active_vendor_llm_stack": 0.90,
     "community_linux_rk3588": 0.72,
+    "community_linux_rk3576": 0.70,
     "mature_fpga_toolchain": 0.72,
     "active_vendor_edge_stack": 0.70,
     "experimental_vulkan": 0.52,
@@ -20,7 +22,7 @@ _MATURITY = {
 }
 _RISK = {"low": 1.0, "medium": 0.82, "high": 0.58}
 _STATUS = {
-    "current_reference": 1.0, "available": 1.0, "observed_market": 0.95,
+    "current_reference": 1.0, "official_reference": 1.0, "available": 1.0, "observed_market": 0.95,
     "market_reference": 0.85, "watch": 0.65, "sold_out_reference": 0.45,
 }
 
@@ -29,8 +31,8 @@ def catalog_score(part: dict[str, Any]) -> float:
     """Buying/research shortlist score; deliberately not an inference benchmark.
 
     Rewards affordability, memory *potential*, low published power hints, software
-    maturity, lifecycle/availability and lower ownership risk. It never uses TOPS,
-    TFLOPS or invented tokens/sec. Configurable/unverified memory is discounted.
+    maturity, lifecycle/availability, SKU confidence and lower ownership risk. It
+    never uses TOPS, TFLOPS or invented tokens/sec.
     """
     if not part.get("llm_candidate", part.get("category") == "compute_node"):
         return 0.0
@@ -49,14 +51,18 @@ def catalog_score(part: dict[str, Any]) -> float:
     maturity_term = _MATURITY.get(str(part.get("software_maturity", "")), 0.70)
     risk_term = _RISK.get(str(part.get("risk_level", "medium")), 0.82)
     status_term = _STATUS.get(str(part.get("listing_status", "")), 0.80)
+    sku_term = exact_sku_confidence(part)
+    seller_term = float(part.get("seller_confidence", 0.65))
 
     score = 20.0 * (
-        0.30 * min(value_term, 2.0) / 2.0
-        + 0.28 * min(memory_term, 2.0) / 2.0
-        + 0.16 * min(power_term, 2.0) / 2.0
-        + 0.14 * maturity_term
-        + 0.07 * risk_term
-        + 0.05 * status_term
+        0.28 * min(value_term, 2.0) / 2.0
+        + 0.26 * min(memory_term, 2.0) / 2.0
+        + 0.15 * min(power_term, 2.0) / 2.0
+        + 0.12 * maturity_term
+        + 0.06 * risk_term
+        + 0.04 * status_term
+        + 0.05 * sku_term
+        + 0.04 * max(0.0, min(1.0, seller_term))
     )
     return round(score, 2)
 

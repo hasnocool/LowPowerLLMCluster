@@ -1,0 +1,12 @@
+{
+  "notes": "Measured synthetic refresh baselines by execution environment. These are runtime regression measurements, not hardware-product LLM performance claims.",
+  "classes": {
+    "github-hosted-linux-x86_64": {
+      "source": "v0.5 synthetic E2E GitHub-hosted runner measurements",
+      "results": [
+        {"observations": 1000, "min_observations_per_s": 1200.0, "max_peak_rss_mb": 220.0, "max_p95_event_loop_lag_ms": 20.0},
+        {"observations": 10000, "min_observations_per_s": 2200.0, "max_peak_rss_mb": 220.0, "max_p95_event_loop_lag_ms": 20.0}
+      ]
+    }
+  }
+}

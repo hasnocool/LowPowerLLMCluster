@@ -1,0 +1,64 @@
+{
+  "agent_workers": 4,
+  "subworkers_per_agent": 4,
+  "normalize_workers": 2,
+  "queue_size": 64,
+  "http_concurrency": 16,
+  "http_per_host": 4,
+  "timeout_s": 20,
+  "max_response_bytes": 8388608,
+  "retry_attempts": 3,
+  "retry_backoff_base_s": 0.5,
+  "retry_backoff_max_s": 15,
+  "retry_jitter_s": 0.25,
+  "adaptive_concurrency": true,
+  "adaptive_min_subworkers": 1,
+  "adaptive_success_window": 8,
+  "adaptive_latency_target_ms": 1500,
+  "circuit_breaker": true,
+  "circuit_failure_threshold": 4,
+  "circuit_recovery_timeout_s": 120,
+  "circuit_half_open_calls": 1,
+  "adaptive_batching": true,
+  "adaptive_batch_min": 64,
+  "adaptive_batch_max": 2048,
+  "adaptive_batch_initial": 256,
+  "adaptive_batch_target_ms": 250,
+  "adaptive_batch_rss_soft_limit_mb": 1024,
+  "adaptive_batch_success_window": 4,
+  "cache_observation_limit": 5000,
+  "cache_ttl_s": 604800,
+  "cache_max_entries": 10000,
+  "cache_compress": false,
+  "disappearance_after_runs": 2,
+  "sources": [
+    {
+      "name": "manufacturer-pages",
+      "type": "jsonld",
+      "source_trust": 0.95,
+      "subworkers": 4,
+      "urls": ["https://store.minisforum.com/en-os/products/minisforum-um890pro-mini-pc"],
+      "worker_requirements": {
+        "capabilities": ["jsonld"],
+        "max_cpu_load": 0.9,
+        "min_available_memory_mb": 512
+      }
+    },
+    {
+      "name": "example-json-feed",
+      "type": "json",
+      "source_trust": 0.7,
+      "endpoint": "https://example.invalid/catalog.json",
+      "streaming_json": true,
+      "items_path": "products",
+      "worker_affinity": ["thinkpad-l14"],
+      "worker_requirements": {
+        "capabilities": ["json"],
+        "labels": {"region": "trailer"},
+        "max_thermal_c": 90
+      },
+      "fields": {"source_id":"id","listing_url":"url","title":"name","price":"price","currency":"currency","seller":"seller.name","seller_rating":"seller.rating","seller_review_count":"seller.review_count","seller_verified":"seller.verified","manufacturer":"manufacturer","sku":"sku","mpn":"mpn","in_stock":"in_stock"},
+      "attribute_fields": {"cpu":"specs.cpu","memory_capacity_gb":"specs.memory_gb","board_max_memory_gb":"specs.max_memory_gb","board_max_memory_source_url":"specs.max_memory_source_url","dimensions":"specs.dimensions","dc_input_v":"specs.dc_input_v","power_adapter":"specs.power_adapter","cooling":"specs.cooling","host_requirements":"specs.host_requirements"}
+    }
+  ]
+}

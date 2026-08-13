@@ -15,7 +15,9 @@ jobs:
       - run: python scripts/check_governance.py
       - run: python scripts/check_bios_pair_governance.py
       - run: python scripts/check_mobile_firmware_governance.py
+      - run: python scripts/check_async_blocking.py
       - run: python scripts/validate_catalog.py
+      - run: python scripts/validate_evidence_records.py
       - run: python scripts/validate_benchmark_profiles.py
       - run: python scripts/render_parts_table.py
       - name: Ensure generated parts table is committed
@@ -23,3 +25,4 @@ jobs:
       - run: python -m pip install pytest
       - run: python -m pip install -e .
       - run: pytest -q
+      - run: python scripts/run_distributed_faults.py

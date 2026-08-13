@@ -1,8 +1,19 @@
+# src/lowpower_llm_cluster/estimates.py
 from __future__ import annotations
 
 from typing import Any
 
 from .evidence import memory_basis
+
+MODEL_PRESETS: dict[str, dict[str, float | str]] = {
+    "tiny-1b-q4": {"params_b": 1.0, "bits_per_weight": 4.0, "description": "~1B class model at nominal 4-bit weights"},
+    "small-3b-q4": {"params_b": 3.0, "bits_per_weight": 4.0, "description": "~3B class model at nominal 4-bit weights"},
+    "7b-q4": {"params_b": 7.0, "bits_per_weight": 4.0, "description": "~7B class model at nominal 4-bit weights"},
+    "14b-q4": {"params_b": 14.0, "bits_per_weight": 4.0, "description": "~14B class model at nominal 4-bit weights"},
+    "32b-q4": {"params_b": 32.0, "bits_per_weight": 4.0, "description": "~32B class model at nominal 4-bit weights"},
+    "70b-q4": {"params_b": 70.0, "bits_per_weight": 4.0, "description": "~70B class model at nominal 4-bit weights"},
+    "70b-q6": {"params_b": 70.0, "bits_per_weight": 6.0, "description": "~70B class model at nominal 6-bit weights"},
+}
 
 
 def model_weight_gb(params_b: float, bits_per_weight: float) -> float:
@@ -19,13 +30,7 @@ def model_fit_screen(
     runtime_headroom_fraction: float = 0.12,
     extra_headroom_gb: float = 2.0,
 ) -> dict[str, Any]:
-    """Conservative capacity screen, not a throughput prediction.
-
-    It estimates weight storage from parameter count and nominal bits/weight, then
-    adds configurable planning headroom. KV cache/runtime details vary by model and
-    backend, so the result intentionally says only whether this is a reasonable
-    catalog candidate to investigate further.
-    """
+    """Conservative capacity screen, not a throughput prediction."""
     if runtime_headroom_fraction < 0 or extra_headroom_gb < 0:
         raise ValueError("headroom values cannot be negative")
     weights = model_weight_gb(params_b, bits_per_weight)
@@ -55,3 +60,15 @@ def model_fit_screen(
         "status": status,
         "warning": "Capacity screen only. It does not predict tokens/sec and cannot know exact KV-cache/runtime overhead without a specific model/backend.",
     }
+
+
+def model_fit_preset(part: dict[str, Any], preset: str, *, runtime_headroom_fraction: float = 0.12, extra_headroom_gb: float = 2.0) -> dict[str, Any]:
+    try:
+        selected = MODEL_PRESETS[preset]
+    except KeyError as exc:
+        raise KeyError(f"unknown model preset {preset!r}; choices: {', '.join(sorted(MODEL_PRESETS))}") from exc
+    result = model_fit_screen(
+        part, params_b=float(selected["params_b"]), bits_per_weight=float(selected["bits_per_weight"]),
+        runtime_headroom_fraction=runtime_headroom_fraction, extra_headroom_gb=extra_headroom_gb,
+    )
+    return {**result, "preset": preset, "preset_description": selected["description"]}
