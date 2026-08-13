@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "policy": {
+    "require_mpn": true,
+    "manufacturer_https_only": true,
+    "minimum_identity_score": 0.72,
+    "cache_ttl_days": 30,
+    "timeout_seconds": 20,
+    "max_candidate_urls": 10,
+    "max_sitemaps_per_domain": 8,
+    "max_urls_scanned_per_domain": 12000
+  },
+  "manufacturers": [
+    {
+      "name": "MSI",
+      "aliases": ["Micro-Star International", "Micro Star", "MSI Computer"],
+      "domains": ["msi.com"]
+    },
+    {
+      "name": "Corsair",
+      "aliases": ["Corsair Memory", "Corsair Components"],
+      "domains": ["corsair.com"],
+      "search_url_templates": ["https://www.corsair.com/us/en/search?q={query}"]
+    },
+    {
+      "name": "Intel",
+      "aliases": ["Intel Corporation"],
+      "domains": ["intel.com"]
+    },
+    {
+      "name": "NVIDIA",
+      "aliases": ["Nvidia Corporation", "Nvidia"],
+      "domains": ["nvidia.com"]
+    },
+    {
+      "name": "AMD",
+      "aliases": ["Advanced Micro Devices"],
+      "domains": ["amd.com"]
+    },
+    {
+      "name": "ASUS",
+      "aliases": ["ASUSTeK", "Asus Computer International"],
+      "domains": ["asus.com"]
+    },
+    {
+      "name": "Gigabyte",
+      "aliases": ["GIGABYTE Technology"],
+      "domains": ["gigabyte.com"]
+    },
+    {
+      "name": "ASRock",
+      "aliases": ["ASRock Inc."],
+      "domains": ["asrock.com"]
+    },
+    {
+      "name": "Kingston",
+      "aliases": ["Kingston Technology", "Kingston Technology Company"],
+      "domains": ["kingston.com"]
+    },
+    {
+      "name": "Crucial",
+      "aliases": ["Micron Crucial", "Crucial by Micron"],
+      "domains": ["crucial.com"]
+    },
+    {
+      "name": "Samsung",
+      "aliases": ["Samsung Electronics"],
+      "domains": ["samsung.com"]
+    },
+    {
+      "name": "Western Digital",
+      "aliases": ["WD", "Western Digital Technologies"],
+      "domains": ["westerndigital.com"]
+    },
+    {
+      "name": "Seasonic",
+      "aliases": ["Sea Sonic", "Sea Sonic Electronics"],
+      "domains": ["seasonic.com"]
+    },
+    {
+      "name": "be quiet!",
+      "aliases": ["be quiet", "Listan"],
+      "domains": ["bequiet.com"]
+    },
+    {
+      "name": "Noctua",
+      "aliases": ["Noctua.at"],
+      "domains": ["noctua.at"]
+    },
+    {
+      "name": "Cooler Master",
+      "aliases": ["CoolerMaster"],
+      "domains": ["coolermaster.com"]
+    }
+  ]
+}

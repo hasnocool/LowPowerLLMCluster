@@ -9,16 +9,17 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from lowpower_llm_cluster.catalog import load_catalog  # noqa: E402
 
-CATALOG = ROOT / "data" / "parts.json"
+CATALOG = ROOT / "data/parts.json"
 REQUIRED = {
     "id", "category", "name", "vendor", "price_min_usd", "price_max_usd",
     "price_status", "moq", "url", "verified_on", "listing_status", "plain_language",
 }
 LLM_REQUIRED = {"hardware_class", "software_maturity", "risk_level", "memory_config_status"}
 ACCELERATOR_CATEGORIES = {
-    "npu_accelerator", "tpu_accelerator", "ai_asic_accelerator", "fpga_accelerator",
+    "gpu_accelerator", "npu_accelerator", "tpu_accelerator", "ai_asic_accelerator", "fpga_accelerator",
     "adaptive_soc", "decommissioned_accelerator",
 }
+MOBILE_ENDPOINT_CATEGORIES = {"mobile_phone", "tablet", "media_device"}
 ACCELERATOR_REQUIRED = {
     "hardware_class", "accelerator_family", "accelerator", "host_mode", "llm_support",
     "workload_role", "software_stack", "software_maturity", "risk_level", "lifecycle_status",
@@ -27,6 +28,7 @@ VALID_RISK = {"low", "medium", "high"}
 VALID_MEMORY_STATUS = {"included", "fixed", "configurable", "unknown"}
 VALID_PERFORMANCE_SOURCE = {"measured_local", "community_measured", "vendor_measured", "derived_estimate", "spec_based_estimate", "unknown"}
 VALID_CONFIDENCE = {"high", "medium", "low", "unknown"}
+UNRESOLVED_PRICE_MARKERS = {"watch", "not_resolved", "live_market_required"}
 
 
 def main() -> int:
@@ -61,8 +63,10 @@ def main() -> int:
                 errors.append(f"{part_id}: minimum price exceeds maximum")
             if float(low) <= 0:
                 errors.append(f"{part_id}: known price must be positive; use null when unresolved")
-        elif "watch" not in str(part.get("price_status", "")) and "not_resolved" not in str(part.get("price_status", "")):
-            errors.append(f"{part_id}: unresolved price needs an explicit watch/not_resolved price_status")
+        else:
+            status = str(part.get("price_status", "")).casefold()
+            if not any(marker in status for marker in UNRESOLVED_PRICE_MARKERS):
+                errors.append(f"{part_id}: unresolved price needs an explicit watch/not_resolved/live_market_required price_status")
 
         try:
             date.fromisoformat(part.get("verified_on", ""))
@@ -83,7 +87,12 @@ def main() -> int:
             installed = part.get("memory_capacity_gb")
             board_max = part.get("max_memory_gb")
             cpu_max = part.get("cpu_max_memory_gb")
-            if installed is None and board_max is None and cpu_max is None:
+            memory_unknown_mobile = (
+                part.get("category") in MOBILE_ENDPOINT_CATEGORIES
+                and part.get("memory_config_status") == "unknown"
+                and installed is None and board_max is None and cpu_max is None
+            )
+            if installed is None and board_max is None and cpu_max is None and not memory_unknown_mobile:
                 errors.append(f"{part_id}: LLM candidate needs installed, board-max, or CPU-max memory evidence")
             if part.get("memory_config_status") in {"included", "fixed"} and installed is None:
                 errors.append(f"{part_id}: included/fixed memory status requires memory_capacity_gb")
@@ -103,6 +112,11 @@ def main() -> int:
                 errors.append(f"{part_id}: accelerator entry missing {sorted(accel_missing)}")
             if not part.get("precision_formats") and part.get("lifecycle_status") != "discontinued":
                 errors.append(f"{part_id}: accelerator entry needs precision_formats")
+            if part.get("category") == "gpu_accelerator":
+                if part.get("memory_config_status") != "fixed" or part.get("memory_capacity_gb") is None:
+                    errors.append(f"{part_id}: discrete GPU entries must record fixed VRAM capacity")
+                if not part.get("power_scope"):
+                    errors.append(f"{part_id}: GPU board power must include an explicit power_scope")
 
     if errors:
         print("Catalog validation failed:", file=sys.stderr)

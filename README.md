@@ -1,302 +1,197 @@
 # LowPowerLLMCluster
 
-**A catalog-first research, buying and evidence-backed workload placement planner for cheap, efficient and unusual local-AI hardware.**
+**A catalog-first research and buying planner for cheap, efficient and unusual local-LLM hardware — including discrete GPUs.**
 
-The project tracks mini PCs, laptop/mobile-CPU boards, SBCs, dev boards, embedded systems, NPUs, TPUs, AI ASICs, FPGAs, specialty boards such as AMD BC-250, GPUs and interesting decommissioned accelerators.
+The project tracks mini PCs, laptop/mobile-CPU boards, SBCs, dev boards, embedded systems, discrete GPUs, NPUs, TPUs, AI ASICs, FPGAs, specialty boards such as AMD BC-250, and interesting decommissioned accelerators.
 
-You do **not** need to own every product. The project can answer two different questions without mixing them:
+You do **not** need to own every product. The catalog and market-intelligence layers answer:
 
-> **What hardware is worth investigating or buying?**
-
-and, when real performance evidence exists:
-
-> **Which available device is the best place to run this workload under my model, power, energy, budget and off-grid constraints?**
+> **What can I buy, what does the complete usable node cost, what can it probably fit/run, what software/host infrastructure does it need, what might it cost to operate, how strong is the evidence, and is it a good deal?**
 
 Current market snapshot: **August 10, 2026**. Prices and variants change; verify exact SKUs before purchasing.
 
-## The project in one picture
+## Complete-node cost, not sticker-price theater
+
+A GPU/card is not compared with an integrated mini PC on board price alone.
 
 ```text
-                     PRODUCT DISCOVERY
-                           │
-       ┌───────────────────┼───────────────────┐
-       ▼                   ▼                   ▼
-    mini PCs            dev/SBCs          accelerators
- Ryzen / Intel        RK3588 / Jetson   GPU/NPU/TPU/FPGA
-       │                   │                   │
-       └───────────────────┼───────────────────┘
-                           ▼
-                     PRODUCT CATALOG
-                           │
-          ┌────────────────┼────────────────┐
-          ▼                ▼                ▼
-       price/URL       model-fit screen   evidence
-       lifecycle       RAM/software       provenance
-          │                │                │
-          └────────────┬───┴────────────────┘
-                       ▼
-                BUYING SHORTLIST
-                       │
-          sourced / measured benchmarks
-                       │
-                       ▼
-             NORMALIZED OPTIMIZER
-                       │
-       ┌───────────────┼─────────────────┐
-       ▼               ▼                 ▼
-   workload fit     energy/cost       off-grid fit
-   model/context    task Wh/time      battery/solar
+product price
+    │
+    ├── host
+    ├── RAM
+    ├── storage
+    ├── PSU
+    ├── PCIe / OCuLink / riser
+    ├── cooling
+    └── chassis / integration
+    │
+    ▼
+complete-node acquisition
+    │
+    + idle/load electricity scenario
+    │
+    ▼
+TOTAL COST OF OWNERSHIP
 ```
+
+For example, a CA$500 used 24GB GPU can be a worse complete-node deal than a CA$700 integrated system when the GPU still needs several hundred dollars of host infrastructure and much higher ongoing power.
+
+`data/market/tco-scenarios.json` contains **editable planning assumptions**, not claimed live prices or electricity tariffs. Replace them with sourced local values before a purchase decision.
+
+```bash
+llm-cluster-refresh tco --scenario mixed-3yr
+llm-cluster-refresh tco --scenario always-on-3yr
+llm-cluster-refresh recommendations --scenario high-electricity-3yr
+llm-cluster-refresh tco-scenarios
+```
+
+Autonomous refresh generates `reports/current/daily-tco.md/json` and re-ranks the final Buy/Watch/Ignore/Experimental recommendations using complete-node acquisition + operating cost.
+
+GPU TGP/TBP remains **board power**. When complete-node wall input is not measured, TCO uses an explicitly low-confidence planning estimate that adds host and PSU/cooling assumptions. It is never relabeled as measured tokens/joule.
+
+## v0.5 market intelligence
+
+```text
+manufacturer pages     distributors       marketplaces
+ JSON-LD offers       Mouser / DigiKey       eBay CA
+       │                    │                   │
+       └────────────────────┼───────────────────┘
+                            ▼
+                    async discovery
+                            │
+             SKU / seller / lifecycle
+                            │
+                            ▼
+                       price history
+                            │
+                 Bank of Canada FX
+                            │
+                            ▼
+                 Canadian landed cost
+                            │
+                      TCO + decision
+                            │
+                            ▼
+                BUY / WATCH / IGNORE /
+                    EXPERIMENTAL
+```
+
+Named refresh profiles live in `data/market/profiles.json`:
+
+```bash
+llm-cluster-refresh run daily-market
+llm-cluster-refresh run weekly-deep-scan
+llm-cluster-refresh health
+llm-cluster-refresh stale --hours 72
+llm-cluster-refresh alerts
+llm-cluster-refresh recommendations
+```
+
+Transient HTTP/network failures use exponential backoff and jitter; rate-limited/failed sources cannot manufacture disappearance events. Source budgets, watchlists, price-drop alerts, stock returns, all-time lows, benchmark changes and decision reports remain separate evidence layers.
+
+## Automatic hardware identity enrichment
+
+Identity is now enriched **before** matching, price history, adaptive power learning, TCO, and recommendations. Structured source data is preferred over prose: schema.org `additionalProperty`, DigiKey parameters, distributor attributes/specifications, and eBay aspects can preserve explicit identity fields such as:
+
+- SSD/NVMe controller, NAND type/revision, interface, and capacity;
+- GPU board partner/MPN, PCB/board revision, VBIOS, and explicit host CPU/motherboard/PSU/RAM context;
+- DIMM/module count, per-module capacity, channel topology, and DDR/LPDDR generation;
+- mobile device SKU/model, SoC, and explicit SoC variant.
+
+Marketplace short descriptions are also fed into the conservative text fallback. Existing structured values always win; text only fills missing explicit facts and never guesses silicon, PCB revisions, GPU bins, SSD controllers, NAND, or SoC variants.
+
+These increasingly narrow identities feed the self-improving power model, so an exact SSD controller/NAND combination or GPU board + host configuration can form its own measured power distribution instead of contaminating a broad family average.
+
+See `docs/AUTOMATIC_IDENTITY_ENRICHMENT.md` and `docs/HARDWARE_POWER_IDENTITY.md`.
+
+## Firmware and first-boot readiness
+
+Motherboard firmware evidence is evaluated separately from performance. The project preserves CPU support matrices, minimum BIOS versions, vendor-aware version ordering, BIOS Flashback/CPU-less recovery, generic BIOS history, and revision-scoped manufacturer BIOS history.
+
+Structured marketplace listings can additionally retain seller-stated **PCB revision + currently installed BIOS/UEFI**. Seller evidence is lower authority than manufacturer evidence, but it can improve first-boot confidence after conservative correlation:
+
+```text
+seller board revision 1.2
+        +
+seller installed BIOS F14
+        +
+manufacturer revision-1.2 history contains F14
+        +
+selected CPU requires F12
+        +
+Gigabyte-safe comparison: F14 > F12
+        │
+        ▼
+ready_by_correlated_seller_installed_firmware
+```
+
+A seller claim never overwrites an official CPU-support matrix, factory/shipped-BIOS statement, or manufacturer BIOS history. Unknown vendor version formats remain unresolved.
+
+See `docs/FIRMWARE_BOOT_READINESS.md` and `docs/BIOS_VERSIONING.md`.
 
 ## Evidence, not pretend precision
 
-A product can be valuable even when no local benchmark exists. Performance evidence is labelled by provenance:
+Performance provenance remains explicit:
 
 ```text
-measured_local       highest direct confidence when reproducible
-community_measured   useful third-party evidence
-vendor_measured      useful, but preserve workload details
-derived_estimate     math based on measured evidence
-spec_based_estimate  weak planning clue only
-unknown              completely acceptable
+measured_local
+community_measured
+vendor_measured
+derived_estimate
+spec_based_estimate
+unknown
 ```
 
-The project **will not manufacture tokens/sec** from TOPS, TFLOPS, memory bandwidth, core count or TDP.
+The project does **not** manufacture tokens/sec from TOPS, TFLOPS, memory bandwidth, core count or TDP/TGP/TBP. Model-fit estimates are transparent capacity screens only.
 
-## What can be estimated safely?
+## GPU rules
 
-Model-weight capacity can be screened transparently:
+Discrete GPUs are first-class `gpu_accelerator` products. Fixed VRAM counts as model-capacity memory; board power does not count as complete-system power.
 
-```text
-parameters × nominal bits/weight
-              │
-              ▼
-      approximate weight size
-              +
-   explicit planning headroom
-              │
-              ▼
-     compare with catalog RAM
-```
+The initial catalog covers RTX 5060 Ti 16GB, RTX 3090 24GB, RX 9070/9070 XT 16GB, Arc B580 12GB and Arc A770 16GB, with autonomous GPU market queries and a `gpu-value` watchlist.
 
-This answers **"is this worth investigating for a model this size?"** It does *not* predict speed and cannot know exact KV-cache/runtime overhead without a specific model/backend.
+See `docs/GPUS.md` and `docs/TOTAL_COST_OF_OWNERSHIP.md`.
 
-Example:
+## Memory semantics
 
-```bash
-llm-cluster fit special-amd-bc250-16g --params-b 14 --bits 4
-```
-
-## Memory semantics matter
-
-A barebone with a CPU that theoretically supports 256GB does **not** contain 256GB. The catalog separates:
-
-- `memory_capacity_gb` — RAM actually included/fixed in that referenced configuration;
-- `max_memory_gb` — verified maximum for the board/product, when known;
+- `memory_capacity_gb` — actually included/fixed RAM or VRAM;
+- `max_memory_gb` — verified board/product maximum;
 - `cpu_max_memory_gb` — processor-theoretical maximum only;
 - `memory_config_status` — included, fixed, configurable or unknown.
 
-That prevents shopping rankings and model-fit screens from being distorted by CPU datasheets.
+A barebone does not magically include the CPU's theoretical maximum RAM.
 
 ## Browse the catalog
 
 ```bash
 python -m pip install -e .
-
-# Buying/research shortlist — not a performance benchmark
 llm-cluster rank
-
-# Browse likely LLM-capable hardware under $250
 llm-cluster list --llm-only --max-price 250
-
-# Find 32GB+ candidates
 llm-cluster list --llm-only --min-memory 32 --sort price
-
-# Inspect one record and its evidence status
 llm-cluster show special-amd-bc250-16g
-
-# Conservative capacity screen for a 14B 4-bit model
 llm-cluster fit special-amd-bc250-16g --params-b 14 --bits 4
 ```
 
-## v0.5 heterogeneous AI optimizer
+## Repository map
 
-`llm-cluster-optimize` compares unlike hardware on a common evidence-aware scale while keeping each tradeoff visible. It supports Ryzen APUs, RTX-style GPUs, Apple Silicon, Intel/AMD NPUs, Coral-style specialist TPUs, BC-250, Raspberry Pi accelerators and old datacenter hardware as long as the input record describes what is actually known.
+- `data/catalog/` — curated hardware records, including `gpus.json`.
+- `data/market/sources.json` — source configuration without secrets.
+- `data/market/profiles.json` — autonomous polling profiles and TCO scenario selection.
+- `data/market/watchlists.json` — alert/watch targets including GPU value.
+- `data/market/tco-scenarios.json` — editable infrastructure, power and electricity planning assumptions.
+- `data/market/price-history.json` — append-only market observations.
+- `data/evidence/performance.json` — sourced benchmark evidence.
+- `reports/current/` — current buying, change, decision and TCO reports.
+- `docs/AUTOMATIC_IDENTITY_ENRICHMENT.md` — listing/manufacturer identity extraction rules.
+- `docs/HARDWARE_POWER_IDENTITY.md` — narrow identity and learned power-distribution methodology.
+- `docs/FIRMWARE_BOOT_READINESS.md` — CPU/BIOS, Flashback and boot-readiness evidence.
+- `docs/BIOS_VERSIONING.md` — conservative vendor BIOS ordering.
+- `docs/DECISION_QUALITY.md` — recommendation methodology.
+- `docs/TOTAL_COST_OF_OWNERSHIP.md` — complete-node cost methodology.
+- `docs/GPUS.md` — GPU sourcing and evidence rules.
+- `benchmarks/` — optional local measurement tooling.
+- `PARTS.md` — deterministic human-readable catalog view.
 
-The core normalized dimensions are:
+## Design rule
 
-```text
-LLM speed
-model capacity
-AI compute (theoretical, kept separate)
-power efficiency
-cost efficiency
-off-grid suitability
-```
-
-Operational dimensions are also reported:
-
-```text
-software support
-deployability
-reliability from soak evidence
-sustained-performance ratio
-thermal headroom
-energy proportionality
-```
-
-Workload profiles currently include `interactive_chat`, `coding_agent`, `long_context`, `always_on_agent`, `off_grid_ai` and `vision`.
-
-Try the included example:
-
-```bash
-llm-cluster-optimize data/scoring.example.json \
-  --workload off_grid_ai \
-  --model-params-b 14 \
-  --bits 4 \
-  --prompt-tokens 2000 \
-  --output-tokens 1000 \
-  --battery-wh 500 \
-  --solar-w 250
-```
-
-Apply hard constraints:
-
-```bash
-llm-cluster-optimize data/scoring.example.json \
-  --workload coding_agent \
-  --model-params-b 14 \
-  --min-decode 15 \
-  --max-power 80 \
-  --budget 300
-```
-
-Show only candidates on the measured time/energy Pareto frontier:
-
-```bash
-llm-cluster-optimize data/scoring.example.json \
-  --workload off_grid_ai \
-  --output-tokens 2000 \
-  --pareto
-```
-
-Machine-readable output is available with `--json`.
-
-### Why this is different from TOPS/TFLOPS ranking
-
-TOPS/TFLOPS are retained as **theoretical compute evidence**. They can contribute to the AI-compute dimension but are never converted into fake LLM throughput. Practical LLM speed requires decode and prefill evidence from measurements or documented sources.
-
-When measured complete-node power and throughput exist, the optimizer may calculate arithmetic derivatives:
-
-```text
-tokens/joule
-joules/token
-tokens/kWh
-task seconds
-Wh/task
-battery runtime / tokens per battery
-solar recovery hours
-```
-
-Board-only accelerator power is not accepted as canonical whole-system power for tokens/joule.
-
-### Hard compatibility gates
-
-Known failures are rejected before ranking, including insufficient verified memory/context, runtime or precision incompatibility, throughput below a requested floor, excessive complete-system watts, excessive task Wh and purchase cost above budget. Unknown evidence remains unknown instead of being silently invented.
-
-### Cluster and scheduling primitives
-
-The scoring library also includes helpers for aggregate usable memory, combined power, ideal independent throughput and **measured** distributed scaling efficiency. This is the base layer for future dynamic workload placement across multiple local nodes and specialist accelerators.
-
-See **[specs/SCORING.md](specs/SCORING.md)** for the scoring contract and **[specs/normalized-device.schema.json](specs/normalized-device.schema.json)** for optimizer input fields.
-
-## Hardware families
-
-The catalog intentionally spans different kinds of useful hardware:
-
-| Class | Examples | Why track it? |
-|---|---|---|
-| low-power x86 | Ryzen 7735U/8845HS, N100 | common Linux ecosystem, replaceable RAM on many models |
-| high-memory mobile boards | 8745HS/HX370/7945HX | dense CPU/APU compute with laptop-class efficiency |
-| unusual APU | AMD BC-250 | cheap unified GDDR6 and interesting Vulkan potential |
-| ARM/SBC | RK3588, Jetson Orin | very low power and compact always-on nodes |
-| GenAI NPU/TPU | Hailo-10H, SOPHGO | purpose-built inference paths at low power |
-| AI ASIC | Tenstorrent | open/interesting accelerator architecture and fast local memory |
-| FPGA/adaptive | Kria, Versal, Alveo | custom low-precision research potential |
-| specialist | Coral, MemryX | vision/audio offload can keep larger nodes asleep |
-| decommissioned | Alveo/NCS2/etc. | liquidation pricing can create strange bargains |
-
-See **[PARTS.md](PARTS.md)** for the generated current catalog and direct URLs.
-
-## Catalog score vs measured optimization
-
-`llm-cluster rank` is deliberately shopping-oriented. It considers price, memory evidence, power hints, software maturity, lifecycle and risk.
-
-```text
-CATALOG SCORE                   OPTIMIZER / PERFORMANCE EVIDENCE
-─────────────                   ────────────────────────────────
-price                           measured decode/prefill
-RAM included/potential          measured complete-node watts
-power hint                      tokens/joule and task Wh
-software maturity               model/context fit
-risk / availability             workload profile + hard gates
-
-            kept as separate systems
-```
-
-A high catalog score means **"worth investigating"**, not "fastest LLM hardware."
-
-## Optional benchmark subsystem
-
-The `llm-cluster-bench` harness remains the source of reproducible local measurements. Benchmark-schema-v2 output can be passed directly to `llm-cluster-optimize`; the bridge imports measured LLM or vision throughput and only accepts `complete_node_input` power for canonical system-efficiency calculations.
-
-```text
-YOUR / CONTRIBUTED HARDWARE
-           │
-           ▼
-   optional benchmark harness
-           │
-           ▼
- reproducible evidence record
-           │
-      ┌────┴────┐
-      ▼         ▼
-   catalog    optimizer
-```
-
-See [docs/BENCHMARK_HARNESS.md](docs/BENCHMARK_HARNESS.md).
-
-## Repository layout
-
-```text
-LowPowerLLMCluster/
-├── data/parts.json                       catalog manifest
-├── data/catalog/                         product records by family
-├── data/scoring.example.json             optimizer example input
-├── PARTS.md                              generated human-readable catalog
-├── specs/HARDWARE_CATALOG.md             product data contract
-├── specs/EVIDENCE.md                     provenance + safe estimation rules
-├── specs/SCORING.md                      catalog + normalized optimizer scoring
-├── specs/normalized-device.schema.json   optimizer device contract
-├── docs/PROJECT_CHARTER.md               catalog-first mission
-├── docs/GUARDRAILS.md                    anti-drift / anti-fake-performance rules
-├── src/lowpower_llm_cluster/             catalog, benchmark and optimizer code
-├── benchmarks/                           optional benchmark profiles
-└── results/                              optional reproducible measurements
-```
-
-## Next priorities
-
-1. ingest real vendor/community/local benchmark evidence into normalized device records;
-2. populate comparable Ryzen APU, RTX GPU, Apple Silicon, NPU, Coral/vision, BC-250 and SBC cohorts;
-3. add live battery/solar telemetry and dynamic local-node placement;
-4. add interconnect-aware multi-node placement and measured cluster scaling;
-5. automate product discovery, price refresh and historical pricing;
-6. add CAD/landed-cost estimates and exact-SKU configuration confidence;
-7. add dashboard views for score dimensions, Pareto fronts, battery runtime and solar recovery.
-
-## Data quality rule
-
-**Measured ≠ published ≠ community-reported ≠ derived ≠ speculative.**
-
-The distinction is a feature of the project, not an inconvenience.
+The catalog is the durable product identity layer. Listings, component prices, exchange rates, benchmark results and TCO assumptions are evidence with explicit provenance. A partial component price must never masquerade as the cost of a complete usable node.

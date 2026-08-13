@@ -1,143 +1,144 @@
-# Scoring Specification
+# Catalog and Decision Scoring Specification
 
-## Two scoring systems with different jobs
+## Purpose
 
-LowPowerLLMCluster keeps **catalog scoring** and **measured workload scoring** separate.
+`llm-cluster rank` remains a **shopping/research shortlist**, not a simulated benchmark.
 
-`llm-cluster rank` remains a shopping/research shortlist. It may use current acquisition price, included/fixed memory or discounted configurable memory potential, published power hints, software maturity, lifecycle/availability, and setup/ownership risk. It must not use TOPS, TFLOPS or invented tokens/sec.
+The autonomous decision layer goes further by producing a ranked **Buy / Watch / Ignore / Experimental** report from real market evidence. Neither score may manufacture throughput from hardware specifications.
 
-`llm-cluster-optimize` is an evidence-backed workload placement tool. It may use measured or explicitly sourced throughput, complete-node power, memory capacity/bandwidth, cost and operational evidence. Missing performance remains missing; theoretical compute never becomes synthetic tokens/sec.
+## Catalog shortlist score
 
-## Normalized 0-100 dimensions
+The catalog shortlist may use:
 
-The optimizer exposes independent dimensions instead of hiding all tradeoffs inside one number:
+- current acquisition price;
+- included/fixed memory or discounted configurable memory potential;
+- published power hints, clearly distinguished from complete-node measurements;
+- software maturity;
+- lifecycle/availability;
+- setup/ownership risk.
 
-- `llm_speed` — measured/sourced decode, prefill and latency;
-- `model_capacity` — usable AI memory, verified Q4 model capacity, bandwidth and context capacity;
-- `ai_compute` — theoretical cross-precision FP/INT capability, confidence-adjusted and only across supported metrics;
-- `power_efficiency` — measured tokens/joule, complete-system watts, idle power and sustained ratio;
-- `cost_efficiency` — measured throughput/$, usable memory/$, bandwidth/$ and energy efficiency;
-- `off_grid` — tokens/joule, absolute load/idle power, DC powerability, sleep/wake, cooling and reliability.
+It must not use TOPS, TFLOPS or invented tokens/sec.
 
-The default optional composite is:
+## Decision-quality deal score
 
-```text
-25% LLM speed
-20% model capacity
-10% AI compute
-15% power efficiency
-15% cost efficiency
-15% off-grid
-```
+The daily deal score is 0-100 and uses:
 
-The off-grid profile shifts weight toward efficiency and absolute power:
+- **35% price-history position** — current observed price relative to the product's own sourced history;
+- **25% model-capacity fit** — transparent Q4 memory-fit presets only;
+- **20% evidence confidence** — SKU/seller/market, memory evidence, software maturity and risk;
+- **10% opportunity freshness** — whether the current listing remains fresh enough to act on;
+- **10% price stability** — volatility penalty so noisy/transient prices do not dominate.
 
-```text
-20% LLM speed
-20% model capacity
- 5% AI compute
-25% power efficiency
-10% cost efficiency
-20% off-grid
-```
+A product without a current priced opportunity is capped below the `Buy` range.
 
-Missing dimensions are not treated as zero. Available weights are renormalized and coverage is reported.
+## Model-capacity fit
 
-## Percentile normalization
+Default presets are 7B, 14B, 32B and 70B at nominal 4-bit weights with 40% planning headroom.
 
-Raw metrics are normalized against the current comparison population with duplicate-safe midpoint percentiles. This avoids fixed ceilings that become obsolete when hardware improves.
+This is a capacity screen only. It does not predict:
 
-For metrics such as throughput, capacity and bandwidth, higher is better. For latency, watts, energy/task and price, lower is better and the percentile is inverted.
+- tokens/sec;
+- runtime compatibility;
+- context/KV-cache limits;
+- prompt/decode behavior;
+- complete-node efficiency.
 
-Every normalized metric is multiplied by its evidence confidence. Supported provenance includes measured local, community measured, vendor measured, manufacturer/theoretical, derived estimate, spec-based estimate and unknown.
+For discrete GPUs, fixed VRAM is valid capacity evidence. For configurable systems, board-verified memory maximum receives less confidence than included/fixed RAM/VRAM.
 
-## Hard compatibility gates
+## Memory confidence
 
-Known incompatibility is different from poor performance. Before ranking, the optimizer can reject candidates for:
+Memory contributes according to evidence quality:
 
-- insufficient verified usable AI memory for the requested model;
-- insufficient verified context capacity;
-- measured decode/prefill below a requested minimum;
-- complete-system power above a power budget;
-- acquisition price above budget;
-- missing required runtime or precision support;
-- unsupported workload class;
-- task energy above an explicit Wh budget.
-
-Unknown data does not become an invented failure or invented success; it lowers coverage and is visible in the result.
-
-## Safe model-capacity planning
-
-The capacity gate uses the same transparent planning idea as `llm-cluster fit`:
-
-```text
-weights_gb = parameters_b × bits_per_weight / 8
-planning_gb = weights_gb × 1.12 + 2GB
-```
-
-This is a conservative screening estimate, not a promise that a specific model/backend/context will fit.
-
-## Derived energy metrics
-
-When measured/sourced decode throughput and **complete-node input power** are both available, arithmetic-only derivatives may be calculated:
-
-```text
-tokens/joule = decode_tokens_s / system_watts
-joules/token = system_watts / decode_tokens_s
-tokens/kWh   = 3,600,000 / joules_per_token
-```
-
-With an explicit task size, the optimizer also derives task seconds, joules/task, Wh/task, battery runtime/tokens and solar-recovery hours. These are arithmetic transformations of supplied evidence; they never infer throughput from TOPS/TFLOPS.
-
-Board-only accelerator power must not produce canonical whole-system tokens/joule. The benchmark-result bridge only accepts `complete_node_input` power for that purpose.
-
-## Workload profiles
-
-Built-in profiles are:
-
-- `interactive_chat`;
-- `coding_agent`;
-- `long_context`;
-- `always_on_agent`;
-- `off_grid_ai`;
-- `vision`.
-
-Profiles weight different evidence and may define a minimum usability floor. A device that is exceptionally efficient but unusably slow therefore cannot win solely by consuming little power.
-
-## Operational dimensions
-
-Operational evidence stays visible alongside performance:
-
-- software support: runtimes, quantization, OS, drivers, multi-device and deployment support;
-- deployability: installation, drivers/firmware, power/cooling, host compatibility, runtime setup and model conversion;
-- reliability: reproducible soak duration, crashes, resets, inference errors, throughput variance, thermal throttling, recovery/watchdog/ECC;
-- sustained ratio: long-run throughput divided by burst throughput;
-- thermal headroom: throttle temperature minus sustained temperature;
-- energy proportionality: how much power falls from loaded to idle.
-
-The optimizer reports theoretical and practical scores separately so high paper TOPS cannot conceal weak runtime support or measured performance.
-
-## Pareto selection
-
-When task time and task Wh are available, `--pareto` removes candidates dominated by another device that is both faster and lower-energy. This is often more robust than forcing every decision into one weighted average.
-
-## Cluster measurements
-
-Multiple nodes can be summarized with aggregate usable memory, combined idle/load watts and ideal independent decode throughput. When a real combined distributed benchmark is supplied:
-
-```text
-scaling_efficiency = measured_combined_decode / sum(independent_decode)
-```
-
-The system does not assume perfect multi-node scaling.
-
-## Catalog score remains separate
-
-Memory confidence rules still apply to the shopping score:
-
-1. included/fixed RAM — strongest;
+1. included/fixed RAM or VRAM — strongest;
 2. verified board maximum — useful but requires additional purchase;
 3. CPU theoretical maximum — weak and heavily discounted;
 4. unknown — little/no capacity credit.
 
-A high catalog score means **worth investigating**. A high optimizer score means **strong for this evidence-backed workload and constraint set**. Neither is a substitute for provenance.
+This prevents a barebone with a CPU that theoretically supports 256GB from appearing to include 256GB.
+
+## Price-history position
+
+Price observations must be matched to a catalog product with sufficient configuration confidence.
+
+The current decision price is chosen from active latest listing observations and converted to CAD using the current sourced FX snapshot. Historical normalized CAD comparisons use the same current FX snapshot so the price-position signal reflects seller-price movement rather than pretending historical FX is known when it is not.
+
+### All-time low
+
+A new all-time low is detected in the seller's native currency. This avoids generating a fake seller-price record solely from exchange-rate movement.
+
+### Trend
+
+Recent trend compares median price in the earlier half of the recent observation window with the median in the later half.
+
+### Volatility
+
+Volatility is recent population standard deviation divided by mean. High volatility reduces the stability component of the deal score.
+
+## Evidence confidence
+
+Decision confidence combines:
+
+- exact-SKU/configuration confidence;
+- seller/source confidence;
+- memory evidence quality;
+- software maturity;
+- project risk level.
+
+Confidence does not mean speed.
+
+## Opportunity freshness
+
+Opportunity expiry is an internal freshness TTL unless the seller supplies a parseable listing end time. It is not a prediction that a product will definitely sell or disappear.
+
+Expired/stale opportunities cannot receive `Buy`.
+
+## Recommendation classes
+
+### Buy
+
+Requires a strong score, current price, non-expired opportunity, adequate confidence, usable model-fit evidence and favorable observed price position.
+
+### Watch
+
+Promising but price, evidence or freshness is not yet strong enough for action.
+
+### Experimental
+
+Research/high-risk hardware is isolated from ordinary purchasing recommendations even when it scores well on raw price/capacity.
+
+### Ignore
+
+Current evidence does not justify attention. This can change automatically when the market changes.
+
+## Alert priority
+
+Change alerts receive a second priority score using:
+
+- alert severity/type;
+- magnitude;
+- current Buy/Watch status;
+- market confidence;
+- opportunity urgency.
+
+Priority bands are P1/P2/P3/P4, with P1 highest.
+
+All-time lows join the same stream as price drops, stock returns, landed-cost changes, new products and compatible benchmark changes.
+
+## GPU treatment
+
+Discrete GPUs are evaluated using:
+
+- live price history;
+- fixed VRAM/model fit;
+- exact board/listing confidence;
+- software maturity;
+- used-market risk where applicable;
+- opportunity freshness.
+
+GPU TGP/TBP is board-power/deployment friction. It is **not** complete-node power and does not become tokens/joule without a complete-node measurement.
+
+## Performance evidence remains separate
+
+When vendor/community/local performance exists, display it alongside source type and confidence. Do not multiply a weak benchmark into the deal score.
+
+Optional benchmark comparisons may use genuinely compatible measured tokens/sec and complete-node energy, but those measurements remain evidence records rather than prerequisites for catalog inclusion or daily recommendations.

@@ -1,37 +1,32 @@
 # Accelerator Landscape
 
-LowPowerLLMCluster treats accelerators as **specialists**, not magical replacements for CPUs and GPUs. The useful question is not "how many TOPS?" It is:
+LowPowerLLMCluster treats **GPUs, NPUs, TPUs, AI ASICs, FPGAs and adaptive SoCs as distinct accelerator families** with different software, memory and power tradeoffs. The useful question is not "how many TOPS?" It is:
 
 > **Is this exact product worth tracking or buying for a real workload, given its memory, runtime, price, host requirements, power scope and evidence quality?**
+
+Discrete GPUs are now a first-class sourcing category rather than an implicit baseline outside the catalog. See `docs/GPUS.md` for GPU-specific VRAM, board-partner, used-market and power rules.
 
 ## The expanded accelerator map
 
 ```text
                            AI ACCELERATOR DISCOVERY
                                     │
-              ┌─────────────────────┼─────────────────────┐
-              │                     │                     │
-              ▼                     ▼                     ▼
-        LLM-CAPABLE            SPECIALIST AI          RESEARCH / EOL
-              │                     │                     │
-      Hailo-10H NPU           Coral Edge TPU          AMD Kria FPGA
-      SOPHGO BM1688           MemryX MX3 NPU          Versal adaptive SoC
-      BM1684X TPU             Hailo-8 class           Alveo V70 EOL
-      Tenstorrent ASIC        vision inference        old Movidius VPUs
-              │                     │                     │
-              └─────────────────────┼─────────────────────┘
+        ┌───────────────────────────┼───────────────────────────┐
+        ▼                           ▼                           ▼
+   GENERAL GPUs                GENAI / LLM               SPECIALIST / RESEARCH
+        │                           │                           │
+ NVIDIA CUDA                 Hailo-10H NPU               Coral Edge TPU
+ AMD ROCm/Vulkan             SOPHGO BM1688               MemryX MX3
+ Intel SYCL/Vulkan           BM1684X TPU                 AMD Kria / Versal
+        │                    Tenstorrent ASIC             Alveo / EOL hardware
+        └───────────────────────────┼───────────────────────────┘
                                     ▼
-                         WORKLOAD-AWARE ROUTER
-                                    │
-          ┌─────────────────────────┼─────────────────────────┐
-          ▼                         ▼                         ▼
-     text generation          camera / vision          experiments
-      LLM / VLM                fixed models           custom datapaths
+                         WORKLOAD-AWARE BUYING / ROUTING
 ```
 
 ## Why this matters
 
-A heterogeneous cluster can reduce average power by sending work to the smallest device that actually supports it.
+A heterogeneous cluster can reduce average power by sending work to the smallest device that actually supports it, while the market layer can still discover a larger GPU when VRAM-per-dollar makes it the better purchase.
 
 ```text
        incoming task
@@ -42,19 +37,36 @@ A heterogeneous cluster can reduce average power by sending work to the smallest
    │ this really?     │
    └────────┬─────────┘
             │
-     ┌──────┼──────────────┐
-     │      │              │
-     ▼      ▼              ▼
-  vision   small LLM     large LLM
-     │      │              │
-     ▼      ▼              ▼
- Coral /  Hailo-10H /   Ryzen / BC-250 /
- MemryX   SOPHGO        bigger accelerator
+     ┌──────┼───────────────────┐
+     │      │                   │
+     ▼      ▼                   ▼
+  vision   small LLM        larger LLM
+     │      │                   │
+     ▼      ▼                   ▼
+ Coral /  Hailo /          discrete GPU /
+ MemryX   SOPHGO           high-memory node
 ```
 
-A 2W vision TPU that cannot run an LLM can still improve the **whole cluster** if it keeps the 30W or 100W inference node asleep.
+A 2W vision TPU that cannot run an LLM can still improve the **whole cluster** if it keeps a larger inference node asleep. Conversely, a 24GB used GPU may be a strong model-capacity bargain even though its board power makes it unsuitable for an always-on low-power role.
 
 ## Families
+
+### Discrete GPU
+
+Examples: NVIDIA GeForce RTX, AMD Radeon and Intel Arc.
+
+GPUs combine relatively large fixed VRAM with mature or emerging general-purpose inference stacks. They are tracked as `gpu_accelerator` entries because their purchasing constraints differ materially from system nodes and fixed-function accelerators.
+
+The catalog records:
+
+- fixed VRAM and memory type;
+- CUDA, ROCm/HIP/Vulkan or oneAPI/SYCL software path;
+- exact host requirements;
+- board TGP/TBP power scope;
+- lifecycle/current-versus-used-market status;
+- live seller/board-partner evidence separately from reference GPU identity.
+
+GPU VRAM can feed the conservative model-fit screen. GPU TOPS/TFLOPS cannot be converted into tokens/sec, and board TGP/TBP cannot be presented as complete-node power.
 
 ### NPU
 
@@ -72,7 +84,7 @@ Examples: SOPHGO BM1684X/BM1688 and Google Coral Edge TPU.
 
 Example: Tenstorrent Wormhole.
 
-Purpose-built AI ASICs can offer model-oriented memory/interconnect designs that commodity Ethernet clusters cannot reproduce. Wormhole is too power-hungry to be a normal low-power node, but its open software stack and 400GbE-class accelerator links make it a valuable performance/scaling reference.
+Purpose-built AI ASICs can offer model-oriented memory/interconnect designs that commodity Ethernet clusters cannot reproduce. Wormhole is too power-hungry to be a normal low-power node, but its open software stack and high-speed accelerator links make it a valuable performance/scaling reference.
 
 ### FPGA and adaptive SoC
 
@@ -120,11 +132,11 @@ Discontinued hardware can become attractive when enterprise inventory is liquida
   catalog/buying evidence
 ```
 
-INT4 TOPS, INT8 TOPS, FP16 TFLOPS and custom dataflow throughput cannot be directly compared without the same model, quantization, context and runtime.
+The same rule applies to GPUs: gaming benchmark rankings, CUDA core counts, shader counts, AI TOPS and FP16 TFLOPS are not direct LLM throughput measurements.
 
 ## Optional accelerator benchmark rules
 
-For every accelerator benchmark, record at least:
+For every accelerator benchmark, including GPUs, record at least:
 
 - exact board/module and accelerator chip;
 - host CPU and host RAM;
@@ -136,7 +148,7 @@ For every accelerator benchmark, record at least:
 - context size;
 - prefill and decode throughput separately;
 - accelerator-only power when available;
-- **complete-node input power**;
+- **complete-node input power** when efficiency is being compared;
 - thermals and throttling;
 - setup/reproducibility problems.
 

@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "profiles": {
+    "daily-market": {
+      "description": "Daily public/current-market refresh across compact nodes, Apple/mobile systems, accelerators and discrete GPUs.",
+      "sources": ["manufacturer", "mouser", "digikey", "ebay"],
+      "queries": [
+        "Ryzen 8845HS mini PC", "Ryzen 7735U mini PC", "BC-250 16GB", "RK3588 32GB", "Jetson Orin Nano Super", "Hailo-10H", "BM1688", "Alveo U50",
+        "MacBook Air M1 16GB", "Mac mini M1 16GB", "Mac mini M4 24GB", "MacBook Air M5 24GB", "MacBook Pro M1 Max 64GB", "MacBook Pro M5 Max 64GB", "Mac Studio M4 Max", "iPad Pro M4 16GB", "iPad Pro M5 16GB", "iPhone 17 Pro", "Pixel 10 Pro 16GB", "Galaxy S26 Ultra 16GB",
+        "GeForce RTX 5060 Ti 16GB", "GeForce RTX 3090 24GB", "Radeon RX 9070 16GB", "Intel Arc B580 12GB", "Intel Arc A770 16GB"
+      ],
+      "refresh_fx": true,
+      "currencies": ["USD", "EUR", "GBP", "JPY", "CNY", "AUD"],
+      "generate_reports": true,
+      "tax_rate": 0.12,
+      "tco_scenario": "mixed-3yr",
+      "stale_after_hours": 72,
+      "price_drop_pct": 10,
+      "landed_cost_change_pct": 8,
+      "benchmark_change_pct": 10,
+      "source_budgets": {
+        "manufacturer": {"max_queries_per_run": 25, "daily_request_budget": 144},
+        "mouser": {"max_queries_per_run": 16, "daily_request_budget": 90},
+        "digikey": {"max_queries_per_run": 16, "daily_request_budget": 90},
+        "ebay": {"max_queries_per_run": 25, "daily_request_budget": 160}
+      },
+      "retry": {"attempts": 4, "base_delay_s": 1.0, "max_delay_s": 30.0}
+    },
+    "weekly-deep-scan": {
+      "description": "Broader weekly refresh for unusual, EOL, high-memory, Apple/mobile and GPU bargain hardware.",
+      "sources": ["manufacturer", "mouser", "digikey", "ebay"],
+      "queries": [
+        "Alveo U50", "Alveo V70", "Tenstorrent Wormhole", "Kria KV260", "Versal AI Edge", "Coral Edge TPU", "MemryX MX3", "SOPHGO BM1684X", "SOPHGO BM1688", "Orange Pi 5 Plus 32GB", "Radxa ROCK 5 ITX 32GB", "Turing RK1 32GB",
+        "MacBook Air M1 16GB", "MacBook Air M2 24GB", "MacBook Air M3 24GB", "MacBook Air M4 32GB", "MacBook Air M5 32GB", "Mac mini M1 16GB", "Mac mini M2 Pro 32GB", "Mac mini M4 Pro 64GB", "MacBook Pro M1 Pro 32GB", "MacBook Pro M1 Max 64GB", "MacBook Pro M2 Max 96GB", "MacBook Pro M3 Max 128GB", "MacBook Pro M4 Max 128GB", "MacBook Pro M5 Max 128GB", "Mac Studio M1 Ultra 128GB", "Mac Studio M3 Ultra", "Mac Studio M4 Max", "iMac M4 32GB", "iPad Pro M1 16GB", "iPad Pro M4 16GB", "iPad Pro M5 16GB", "iPad Air M4", "iPhone 16 Pro", "iPhone 17 Pro", "Pixel 10 Pro 16GB", "Galaxy S26 Ultra 16GB",
+        "GeForce RTX 5060 Ti 16GB", "GeForce RTX 3090 24GB", "Radeon RX 9070 16GB", "Radeon RX 9070 XT 16GB", "Intel Arc B580 12GB", "Intel Arc A770 16GB"
+      ],
+      "refresh_fx": true,
+      "generate_reports": true,
+      "tax_rate": 0.12,
+      "tco_scenario": "mixed-3yr",
+      "stale_after_hours": 168,
+      "price_drop_pct": 12,
+      "landed_cost_change_pct": 10,
+      "benchmark_change_pct": 12,
+      "source_budgets": {
+        "manufacturer": {"max_queries_per_run": 42, "daily_request_budget": 180},
+        "mouser": {"max_queries_per_run": 20, "daily_request_budget": 100},
+        "digikey": {"max_queries_per_run": 20, "daily_request_budget": 100},
+        "ebay": {"max_queries_per_run": 42, "daily_request_budget": 220}
+      },
+      "retry": {"attempts": 5, "base_delay_s": 2.0, "max_delay_s": 60.0}
+    }
+  }
+}
