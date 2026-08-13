@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "base": "CAD",
+  "rates_to_cad": {
+    "CAD": 1.0
+  },
+  "as_of": null,
+  "source_url": null,
+  "source": "Bank of Canada Valet API",
+  "notes": "Run `llm-cluster-market refresh-fx` to populate sourced non-CAD rates. Rates are CAD per unit of source currency."
+}

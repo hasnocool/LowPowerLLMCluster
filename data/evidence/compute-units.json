@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "policy": {
+    "cross_architecture_comparable": false,
+    "notes": "Native compute-unit counts describe architecture-specific execution resources. AMD CUs, NVIDIA CUDA cores/SMs, Intel Xe-cores, Apple GPU cores, CPU cores, NPU engines, TPU cores and FPGA fabrics are not numerically interchangeable. Unknown internal counts remain unknown."
+  },
+  "records": [
+    {
+      "part_id": "gpu-nvidia-rtx-5060-ti-16g",
+      "domain": "gpu",
+      "unit_type": "cuda_core",
+      "unit_count": 4608,
+      "source_type": "manufacturer_spec",
+      "source_url": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/",
+      "confidence": "high",
+      "notes": "NVIDIA publishes 4,608 CUDA cores for the RTX 5060 Ti. CUDA-core counts are retained natively and are not compared numerically with AMD CUs or Intel Xe-cores."
+    },
+    {
+      "part_id": "gpu-nvidia-rtx-3090-24g",
+      "domain": "gpu",
+      "unit_type": "cuda_core",
+      "unit_count": 10496,
+      "source_type": "manufacturer_spec",
+      "source_url": "https://www.nvidia.com/en-us/geforce/graphics-cards/30-series/rtx-3090/",
+      "confidence": "high",
+      "notes": "NVIDIA publishes 10,496 CUDA cores for the RTX 3090."
+    },
+    {
+      "part_id": "gpu-amd-rx-9070-16g",
+      "domain": "gpu",
+      "unit_type": "amd_compute_unit",
+      "unit_count": 56,
+      "source_type": "manufacturer_spec",
+      "source_url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9070.html",
+      "confidence": "high",
+      "notes": "AMD publishes 56 RDNA 4 Compute Units for Radeon RX 9070."
+    },
+    {
+      "part_id": "gpu-amd-rx-9070-xt-16g",
+      "domain": "gpu",
+      "unit_type": "amd_compute_unit",
+      "unit_count": 64,
+      "source_type": "manufacturer_spec",
+      "source_url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9070xt.html",
+      "confidence": "high",
+      "notes": "AMD publishes 64 RDNA 4 Compute Units for Radeon RX 9070 XT."
+    },
+    {
+      "part_id": "gpu-intel-arc-b580-12g",
+      "domain": "gpu",
+      "unit_type": "intel_xe_core",
+      "unit_count": 20,
+      "source_type": "manufacturer_spec",
+      "source_url": "https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/desktop/b-series.html",
+      "confidence": "high",
+      "notes": "Intel publishes 20 Xe-cores for Arc B580."
+    },
+    {
+      "part_id": "gpu-intel-arc-a770-16g",
+      "domain": "gpu",
+      "unit_type": "intel_xe_core",
+      "unit_count": 32,
+      "source_type": "manufacturer_spec",
+      "source_url": "https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/desktop/a-series.html",
+      "confidence": "high",
+      "notes": "Intel publishes 32 Xe-cores for Arc A770 16GB."
+    },
+    {
+      "part_id": "special-amd-bc250-16g",
+      "domain": "gpu",
+      "unit_type": "amd_compute_unit",
+      "unit_count": 24,
+      "source_type": "community_verified_hardware",
+      "source_url": "https://github.com/akandr/bc250/blob/main/Readme.md",
+      "confidence": "high",
+      "notes": "Exact stock BC-250 configuration used by the stored llama.cpp benchmark is verified as 24 enabled CUs. Unlocked 40-CU firmware is a different hardware configuration."
+    },
+    {
+      "part_id": "module-turing-rk1-32g",
+      "domain": "gpu",
+      "unit_type": "mali_gpu_core",
+      "unit_count": 4,
+      "source_type": "soc_spec",
+      "source_url": "https://www.rock-chips.com/a/en/products/RK35_Series/2022/0926/1660.html",
+      "confidence": "medium",
+      "notes": "RK3588 integrates Mali-G610 MP4; MP4 denotes four Mali GPU cores. Keep this architecture-native count separate from desktop GPU CU/SM counts."
+    },
+    {
+      "part_id": "dev-nvidia-jetson-orin-nano-super-8g",
+      "domain": "gpu",
+      "unit_type": "cuda_core",
+      "unit_count": 1024,
+      "source_type": "manufacturer_spec",
+      "source_url": "https://developer.nvidia.com/embedded/jetson-orin-nano-super-developer-kit",
+      "confidence": "high",
+      "notes": "NVIDIA publishes a 1,024-core Ampere GPU for Jetson Orin Nano Super."
+    }
+  ]
+}

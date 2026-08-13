@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "policy": {
+    "require_https_source": true,
+    "generic_serial_decoding_allowed": false,
+    "allow_unpublished_manufacturer_rules": false,
+    "notes": "Rules must encode an explicit manufacturer-published relationship. Do not reverse-engineer serial formats and present them as vendor facts."
+  },
+  "rules": [
+    {
+      "id": "asrock-default-bios-chip-sticker-method",
+      "enabled": true,
+      "manufacturer": "ASRock",
+      "model": null,
+      "match_kind": "factory_bios_label",
+      "observed_label_is_factory_bios": true,
+      "source_url": "https://www.asrock.com/support/index.asp?cat=FindBIOS",
+      "notes": "ASRock documents that the sticker on the BIOS chip contains the default BIOS version. This is an inspection evidence method, not a serial decoder."
+    }
+  ]
+}

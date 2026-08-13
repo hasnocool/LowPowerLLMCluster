@@ -2,6 +2,125 @@
 
 All notable changes to this project will be documented here.
 
+## [0.5.0] - 2026-08-10
+
+### Added
+
+- Harvested exact measured-power evidence across multiple hardware classes: M1 Max and M4-family Apple systems, Minisforum UM780 XTX, Pixel 10 Pro XL, Galaxy S26 Ultra, and MSI RTX 3090 Gaming X Trio board-only power.
+- `docs/EVIDENCE_HARVESTING.md` with per-category identity requirements, power-boundary rules, current measured coverage, and the highest-value remaining evidence gaps.
+- Automatic listing-time extraction of explicit SSD/NVMe controller, NAND type, storage interface, GPU board partner/revision/VBIOS, RAM topology, mobile SKU/SoC variant and accelerator host-context facts.
+- Seller-stated PCB revision and currently installed BIOS/UEFI evidence for structured marketplace listings, retained below manufacturer evidence in confidence/authority.
+- Revision-scoped BIOS history ingestion from official manufacturer BIOS API payloads when board/PCB revision metadata is explicitly present.
+- `docs/AUTOMATIC_IDENTITY_ENRICHMENT.md` plus deterministic identity/firmware tests and governance.
+- Exact Apple marketplace configuration resolution for A-number/model/part identity, M1-M5 chip family, installed unified memory, SSD/storage, screen size, and explicitly stated CPU/GPU core counts.
+- Used-Apple condition evidence for battery cycle count, battery health, stated Activation Lock / Find My status, and MDM / Remote Management state without treating condition as SKU identity.
+- Apple configuration enrichment in live manufacturer JSON-LD and eBay marketplace listings before catalog matching, price-history persistence, CAD landed-cost calculation and TCO analysis.
+- Manufacturer CPU-support endpoint ingestion with bounded async pagination, provider-aware normalization for ASUS/MSI/Gigabyte-ASRock style support surfaces, and strict same-manufacturer host boundaries.
+- Explicit CPU-support matrix completeness proofs from total-page count, total-row count, or `hasMore=false` metadata; static/short responses remain incomplete without proof.
+- Structured motherboard enrichment can promote an explicitly complete API matrix, use a larger partial API matrix for better coverage, and refuses to let smaller partial responses erase stronger existing evidence.
+- Asynchronous product-discovery adapter contract plus deterministic JSON feed importer.
+- Live manufacturer JSON-LD discovery for public schema.org `Product` / `Offer` pages.
+- Mouser Search API adapter using `MOUSER_API_KEY`.
+- DigiKey Product Information V4 adapter using external OAuth credentials with CA/CAD locale defaults.
+- eBay Browse API adapter using application OAuth and the Canadian marketplace for used/secondary-market discovery.
+- Credential-free source configuration in `data/market/sources.json`; secrets remain environment-only.
+- Normalized listing model and concurrent multi-source discovery with source/listing deduplication and per-source success/failure status.
+- Append-only price observation history linked back to catalog part IDs.
+- Exact-SKU/configuration confidence scoring that does not confuse CPU theoretical RAM limits with installed RAM.
+- Independent seller/source confidence using source class plus marketplace feedback signals when available.
+- Query-scope-aware `discovered`, `disappeared`, and `reappeared` listing lifecycle tracking.
+- Automatic sourced CAD FX snapshots from the Bank of Canada Valet API with append-only FX history.
+- Explicit Canadian landed-cost breakdown for item, shipping, duty, brokerage and tax.
+- Sourced vendor/community performance ingestion requiring model, runtime, workload, metric, unit and source URL provenance.
+- Strict compatible-performance aggregation that keeps different model variants, quantizations, runtime versions, workload phases, units, context dimensions and hardware configurations separate.
+- Turing RK1 32GB catalog reference with exact-product, vendor-published llama.cpp Q4_K_M benchmark evidence for 1.5B, 3B and 7B models.
+- Exact-hardware Jetson Orin Nano Super community llama.cpp/CUDA evidence plus NVIDIA MLC INT4 reference measurements kept in separate compatibility groups.
+- Exact-hardware stock 24-CU AMD BC-250 community llama.cpp/Vulkan prefill and decode evidence, explicitly separated from 40-CU unlock results.
+- CAD buying reports for under CA$100, CA$250 and CA$500, 32GB+, low-power, weird-hardware, EOL and measured-evidence candidates.
+- Broader official manufacturer/source seed registry, including Turing Pi, Radxa/ALLNET and Orange Pi references.
+- Source-health history with last-success/failure state, result counts and consecutive-failure tracking.
+- Exponential retry/backoff with jitter and numeric `Retry-After` handling for transient network, 429 and common 5xx failures.
+- Stale-listing warnings based on last successful observation without deleting historical data or claiming the listing is gone.
+- Named `daily-market` and `weekly-deep-scan` autonomous refresh profiles.
+- Per-source `max_queries_per_run` and daily request-budget caps with persisted UTC-day usage state.
+- Configurable watchlists for exact parts, categories, keywords, sources, memory and target-power constraints.
+- Significant price-drop, stock-return and new-product alerts.
+- Fingerprint-based alert deduplication so historical changes are not re-emitted every refresh.
+- Compact `reports/current/daily-changes.md` and machine-readable `daily-changes.json` change-intelligence outputs.
+- First-class `gpu_accelerator` catalog/sourcing category with fixed-VRAM and explicit board-power semantics.
+- Initial discrete-GPU reference catalog covering RTX 5060 Ti 16GB, RTX 3090 24GB, RX 9070/9070 XT 16GB, Arc B580 12GB and Arc A770 16GB.
+- GPU sourcing queries in both autonomous refresh profiles plus a dedicated `gpu-value` watchlist.
+- Official NVIDIA/AMD/Intel GPU specification/reference URLs in the source registry without treating launch/reference pages as live street prices.
+- Decision-quality engine using price-history position, conservative model-capacity fit, evidence confidence, opportunity freshness and price stability.
+- Native-currency new-all-time-low detection so FX movement cannot fabricate a seller-price record.
+- Price trend and volatility metrics for matched product histories.
+- Source-class-aware opportunity freshness/expiry with seller end-time support when parseable.
+- P1-P4 alert prioritization using alert type/severity, magnitude, current recommendation, confidence and opportunity urgency.
+- Ranked `Buy`, `Watch`, `Ignore` and `Experimental` daily recommendations.
+- Complete-node TCO engine covering product price, required host/RAM/storage/PSU/PCIe/cooling/chassis infrastructure, and multi-year electricity scenarios.
+- Editable light/mixed/always-on/high-electricity TCO assumptions in `data/market/tco-scenarios.json`.
+- TCO-aware recommendation re-ranking plus `reports/current/daily-tco.md` / `daily-tco.json`.
+- Break-even analysis for product price, electricity rate and daily load hours between complete-node options.
+- Ownership-aware TCO profiles: `new-build`, `reuse-host-core`, `reuse-complete-host`, and `reuse-everything`.
+- Custom already-owned component overrides for TCO and break-even comparisons.
+- Separate incremental infrastructure cost and avoided-acquisition value for compatible already-owned hardware.
+- Live BOM product/cost sourcing for CPU/host, motherboard, RAM, storage, PSU, PCIe/OCuLink, cooling and chassis components.
+- Cross-component complete-build solver for socket, memory, PCIe, PSU, form-factor, storage, GPU-clearance and cooler constraints.
+- Exact-SKU manufacturer specification enrichment with identity verification before compatibility facts are admitted.
+- Field-level manufacturer-spec provenance with source URL, observation time, extraction method, association ID and confidence.
+- Exact/reference GPU board enrichment that can supply dimensions, slot width, PSU, connector, PCIe and Resizable BAR requirements without copying them to arbitrary partner cards.
+- Initial exact/reference spec associations for MSI B550-A PRO, MSI PRO B660M-A DDR4, Corsair RM750e, Corsair 4000D Airflow, Intel Core i5-12400, RTX 3090 Founders Edition and Intel Arc B580 Limited Edition.
+- Automatic manufacturer association discovery using normalized manufacturer + MPN identity, an official-domain registry, manufacturer-owned search pages when configured, bounded official sitemap discovery and conservative page identity scoring.
+- Persistent verified/not-verified manufacturer association cache with expiry so exact-SKU coverage grows across refreshes without repeatedly rediscovering the same product page.
+- Structured-source manufacturer/MPN preservation in Mouser, DigiKey and manufacturer JSON-LD listings.
+- Conservative automatic manufacturer-page compatibility parsing for CPU, motherboard, PSU, chassis, cooler and exact GPU facts.
+- Automatic manufacturer evidence retains association origin, cache-hit state, identity score and field-level extraction provenance.
+- Structured manufacturer document ingestion for schema.org `Product.additionalProperty`, HTML specification tables, CPU/BIOS support matrices and same-manufacturer PDF manuals/datasheets before generic page-text parsing.
+- Bounded manufacturer-PDF text extraction through `pypdf` without OCR, with PDF URLs and source class retained in field-level provenance.
+- Structured evidence priority that lets exact curated fields win, then structured page/manual evidence fill unresolved fields, with flattened-page regexes used only as the final fallback.
+- `docs/STRUCTURED_MANUFACTURER_INGESTION.md` plus deterministic fixtures covering JSON-LD properties, spec tables, BIOS support matrices, PDF-link filtering and provenance.
+- `llm-cluster-refresh manufacturer-config` and `manufacturer-associations` inspection commands.
+- Persisted `data/market/spec-evidence.json`, `data/market/manufacturer-associations.json` and `data/market/compatible-builds.json` evidence/build state.
+- `llm-cluster-refresh spec-config`, `spec-evidence`, `refresh-bom`, and `compatible-builds` operator workflows.
+- `docs/EXACT_SKU_ENRICHMENT.md` methodology and extension guide.
+- `llm-cluster-refresh tco`, `recommendations --scenario`, ownership flags, `break-even`, and `tco-scenarios` commands.
+- `reports/current/daily-recommendations.md` and machine-readable `daily-recommendations.json` outputs.
+- `docs/GPUS.md`, `docs/DECISION_QUALITY.md`, and `docs/TOTAL_COST_OF_OWNERSHIP.md` guides.
+- `llm-cluster-refresh` CLI for profile execution, health inspection, stale warnings, source budgets, watchlists, alerts, recommendations, TCO and report regeneration.
+- Scheduled GitHub Actions refresh that can use optional marketplace secrets, refresh Bank of Canada FX, regenerate current reports/change intelligence/decision reports and commit changed evidence.
+- `docs/AUTONOMOUS_REFRESH.md` and `docs/CHANGE_INTELLIGENCE.md` operational guides.
+- `llm-cluster-market` CLI with `discover`, `history`, `landed`, `refresh-fx`, `ingest-performance`, `aggregate-performance`, and `report` workflows.
+- `specs/MARKET_INTELLIGENCE.md` and tests for matching, history deduplication, seller confidence, lifecycle tracking, landed-cost math, evidence ingestion, compatible aggregation, JSON-LD normalization, CAD report behavior, retry policy, stale detection, source budgets and change-alert deduplication.
+- Decision-quality and TCO tests covering GPU VRAM model-fit screening, all-time-low detection, trend/volatility, opportunity expiry, alert prioritization, host infrastructure, ownership reuse, board-power scope and complete-system comparisons.
+- Exact-SKU enrichment tests covering association priority, field provenance, provisional-to-compatible promotion and manufacturer-evidence-driven rejection.
+- Automatic manufacturer discovery/parser tests covering cache reuse, PSU connectors/power, motherboard lane-sharing facts, chassis clearances and exact GPU physical requirements.
+- First-class Apple-silicon, mobile phone, tablet and media-device catalog categories with M1-through-M5 Apple coverage plus current Android reference phones.
+- Mobile runtime policy and conservative unified/shared-memory fit budgets that keep macOS service nodes distinct from sandboxed mobile endpoints.
+- Linked official manufacturer support-endpoint discovery, BIOS Flashback / CPU-less recovery evidence and a separate boot-readiness score on complete builds.
+
+### Changed
+
+- Every normalized listing now receives a conservative identity-enrichment pass that fills only missing explicit facts and never overwrites stronger structured evidence.
+- Adaptive power matching can consume newly extracted storage silicon, GPU board/VBIOS/host context, RAM topology and mobile SKU/SoC identity.
+- Manufacturer BIOS API probing now preserves revision-scoped rows separately from unscoped BIOS history.
+- Live market I/O uses `httpx.AsyncClient`; blocking filesystem work is isolated from the event loop.
+- Failed, credential-disabled or budget-exhausted sources cannot generate false listing-disappearance events.
+- v0.5 keeps the catalog authoritative while listings, prices, FX rates, seller reputation, source budgets and benchmark records remain time-stamped evidence layers.
+- Benchmark evidence stays attached to the exact tested product/configuration instead of being copied across boards that merely share a SoC.
+- CAD reports prefer active live listing observations and fall back to clearly labeled catalog midpoint pricing only when sourced FX is available.
+- Community energy-efficiency evidence preserves its published measurement boundary; internal Jetson rail telemetry is not relabeled as complete-node wall-input power.
+- Discrete GPU TGP/TBP is treated as host/PSU/cooling friction, never as complete-node tokens/joule.
+- Daily recommendations are explainable buying decisions rather than synthetic hardware-performance rankings.
+- Final recommendation ordering incorporates complete-node acquisition and scenario operating cost so component-only sticker prices cannot hide required infrastructure.
+- Already-owned compatible infrastructure now has zero incremental acquisition cost while remaining part of complete-node operating-power calculations.
+- Exact manufacturer specification facts override weaker title-derived compatibility facts only at the individual field level.
+- Generic GPU family listings remain provisional for board-specific dimensions/connectors unless an exact/reference-board association or automatically verified board-partner MPN association exists.
+- Automatic manufacturer discovery never broadens authority beyond the configured official manufacturer domains.
+- Structured manufacturer evidence is consumed before generic flattened-page regexes; weaker sources can fill missing fields but do not overwrite stronger verified values.
+- Complete-build ranking prefers fully compatible builds, then better manufacturer-spec coverage, before relying on provisional unknowns.
+- Apple exact configuration evidence is resolved before marketplace matching; broad A-number/chip family evidence cannot manufacture missing RAM/SSD/GPU-bin details.
+- CPU support matrix completeness is now a persisted evidence claim requiring explicit pagination proof rather than a row-count heuristic.
+
 ## [0.4.1] - 2026-08-10
 
 ### Changed
@@ -53,43 +172,17 @@ All notable changes to this project will be documented here.
 - Reusable `accelerator-research` agent skill.
 - Accelerator metadata for family, host mode, software stack, LLM support, lifecycle, precision formats, power scope and workload role.
 - Catalog schema v3 support for unresolved/EOL pricing without fake zero-dollar values.
-- Modular catalog manifest plus category-sized JSON fragments to reduce merge conflicts as the hardware universe grows.
-
-### Changed
-
-- Screening and BOM code now handles unresolved prices safely.
-- LLM screening explicitly excludes TOPS/TFLOPS from the heuristic.
-- Fixed-function vision accelerators are cataloged as specialists rather than mislabeled LLM workers.
-- Project charter and guardrails now cover accelerator power boundaries, runtime evidence and lifecycle risk.
 
 ## [0.2.0] - 2026-08-10
 
 ### Added
 
-- Expanded project scope from Ryzen laptop-class nodes to heterogeneous mini PCs, development boards, SBCs, embedded boards and specialty compute.
-- AMD BC-250 experimental candidate with explicit community-evidence and risk labels.
-- NVIDIA Jetson Orin Nano Super, Orange Pi 5 Plus 32GB, Radxa ROCK 5 ITX+ 32GB, MINISFORUM BD795M, Framework Ryzen AI mainboard and Intel N100 control-plane references.
-- Project charter and mechanical guardrails.
-- Hardware catalog, benchmark, scoring and agent-workflow specifications.
-- Five reusable agent skills for hardware research, catalog curation, benchmarking, architecture review and release governance.
-- PR and hardware-candidate templates.
-- Mechanical version/document governance check in CI.
-
-### Changed
-
-- Screening score now supports heterogeneous hardware and explicitly avoids CPU-core-based cross-architecture performance claims.
-- Parts table now supports Alibaba, AliExpress and manufacturer/reference sources instead of labelling every URL as Alibaba.
+- Heterogeneous hardware catalog covering mini PCs, dev boards, embedded boards, SBCs and specialty/decommissioned hardware.
+- Initial low-power cluster scoring, BOM and catalog CLI.
+- Project governance, agent skills, catalog schemas and deterministic generated parts table.
 
 ## [0.1.0] - 2026-08-10
 
 ### Added
 
-- Initial low-power distributed LLM cluster architecture.
-- Alibaba hardware-market snapshot with prices, URLs, seller verification state and plain-language rationale.
-- Ryzen 7 7735U, Ryzen 7 8845HS, Ryzen 7 8745HS and Ryzen AI 9 HX 370 node candidates.
-- 2.5GbE switch, DDR5 SO-DIMM and NVMe sourcing leads.
-- ASCII architecture, power, networking and model-placement diagrams.
-- Machine-readable `data/parts.json` catalog.
-- CLI node-ranking and BOM calculations.
-- Catalog validation, stale-price checks and generated PARTS.md workflow.
-- GitHub Actions validation workflow.
+- Initial LowPowerLLMCluster project structure and catalog concept.

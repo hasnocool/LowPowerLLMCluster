@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "currency": "CAD",
+  "destination_country": "CA",
+  "tax_rate": 0.12,
+  "sources": ["mouser", "digikey", "ebay"],
+  "selection": {
+    "minimum_seller_confidence": 0.45,
+    "maximum_results_per_component": 12,
+    "prefer_authorized_sources_within_pct": 12.0,
+    "max_candidates_per_component_for_build_solver": 5,
+    "maximum_compatible_builds": 25,
+    "allow_provisional_compatibility": true
+  },
+  "build_solver": {
+    "required_components": ["cpu_host", "motherboard", "host_ram_32gb", "storage_1tb", "psu_750w", "cooling", "chassis"],
+    "reject_unknown_socket_or_memory": false,
+    "unknown_fact_penalty_cad": 5.0
+  },
+  "components": {
+    "cpu_host": {
+      "description": "CPU for a low-cost PCIe GPU host build",
+      "queries": ["AMD Ryzen 5 5600 processor", "Intel Core i5-12400 processor"],
+      "required_terms_any": ["ryzen 5 5600", "i5-12400", "i5 12400"],
+      "exclude_terms": ["laptop", "not working", "for parts"],
+      "variants": [
+        {"id": "ryzen-5-5600", "match_terms": ["ryzen 5 5600"], "facts": {"socket": "AM4", "memory_types": ["DDR4"], "pcie_generation": 4, "tdp_w": 65}},
+        {"id": "core-i5-12400", "match_terms": ["i5-12400", "i5 12400"], "facts": {"socket": "LGA1700", "memory_types": ["DDR4", "DDR5"], "pcie_generation": 5, "tdp_w": 65}}
+      ]
+    },
+    "motherboard": {
+      "description": "ATX/mATX motherboard with a full-length PCIe GPU slot",
+      "queries": ["MSI B550-A PRO motherboard", "MSI PRO B660M-A DDR4 motherboard", "B550 DDR4 motherboard AM4 PCIe x16", "B660 DDR4 motherboard LGA1700 PCIe x16"],
+      "required_terms_any": ["b550", "b660"],
+      "exclude_terms": ["mini itx only", "not working", "for parts"],
+      "variants": [
+        {"id": "b550-ddr4", "match_terms": ["b550"], "facts": {"socket": "AM4", "memory_type": "DDR4", "gpu_slot": "PCIe x16", "gpu_slot_lanes": 16, "pcie_generation": 4, "form_factors": ["ATX", "mATX"]}},
+        {"id": "b660-ddr4", "match_terms": ["b660"], "facts": {"socket": "LGA1700", "memory_type": "DDR4", "gpu_slot": "PCIe x16", "gpu_slot_lanes": 16, "pcie_generation": 4, "form_factors": ["ATX", "mATX"]}}
+      ]
+    },
+    "host_ram_32gb": {
+      "description": "32GB desktop memory kit",
+      "queries": ["32GB DDR4 2x16GB desktop memory kit"],
+      "required_terms_any": ["32gb", "2x16", "2 x 16"],
+      "exclude_terms": ["sodimm", "so-dimm", "laptop", "for parts"],
+      "variants": [
+        {"id": "ddr4-32gb", "match_terms": ["ddr4"], "facts": {"memory_type": "DDR4", "capacity_gb": 32, "form_factor": "DIMM"}}
+      ]
+    },
+    "storage_1tb": {
+      "description": "1TB NVMe SSD",
+      "queries": ["1TB NVMe M.2 SSD"],
+      "required_terms_any": ["1tb", "1 tb"],
+      "exclude_terms": ["enclosure", "case only", "for parts"],
+      "variants": [
+        {"id": "nvme-m2-1tb", "match_terms": ["nvme", "m.2", "m2"], "facts": {"interface": "NVMe", "form_factor": "M.2", "capacity_gb": 1000}}
+      ]
+    },
+    "psu_750w": {
+      "description": "750W ATX PSU suitable for a discrete GPU",
+      "queries": ["Corsair RM750e CP-9020295-NA", "750W ATX power supply 80 Plus Gold PCIe 8 pin", "750W ATX 12V-2x6 power supply"],
+      "required_terms_any": ["750w", "750 w", "rm750e"],
+      "exclude_terms": ["server", "breakout", "for parts"],
+      "variants": [
+        {"id": "atx-750w", "match_terms": ["750w", "750 w", "rm750e"], "facts": {"wattage_w": 750, "form_factor": "ATX"}}
+      ]
+    },
+    "pcie_adapter": {
+      "description": "PCIe riser/extension/OCuLink integration allowance when required",
+      "queries": ["PCIe 4.0 x16 riser cable", "OCuLink PCIe adapter"],
+      "required_terms_any": ["pcie", "pci-e", "oculink"],
+      "exclude_terms": ["usb mining riser", "for parts"],
+      "variants": [
+        {"id": "pcie4-x16-riser", "match_terms": ["pcie 4.0 x16", "pci-e 4.0 x16"], "facts": {"interface": "PCIe", "generation": 4, "lanes": 16}},
+        {"id": "oculink", "match_terms": ["oculink"], "facts": {"interface": "OCuLink", "lanes": 4}}
+      ]
+    },
+    "cooling": {
+      "description": "CPU air cooler for the host processor",
+      "queries": ["AM4 LGA1700 CPU tower cooler 155mm", "AM4 LGA1700 low profile CPU cooler"],
+      "required_terms_any": ["cpu cooler", "tower cooler", "am4", "lga1700"],
+      "exclude_terms": ["replacement gpu fan", "water block only", "for parts"],
+      "variants": [
+        {"id": "universal-air-cooler", "match_terms": ["am4", "lga1700"], "facts": {"supported_sockets": ["AM4", "LGA1700"]}}
+      ]
+    },
+    "chassis": {
+      "description": "ATX/mATX chassis with room for a full-size GPU and tower cooler",
+      "queries": ["Corsair 4000D Airflow CC-9011200-WW", "ATX mid tower case 360mm GPU clearance 160mm CPU cooler"],
+      "required_terms_any": ["4000d", "atx", "mid tower", "mid-tower"],
+      "exclude_terms": ["mini itx", "empty box", "for parts"],
+      "variants": [
+        {"id": "atx-mid-tower-large", "match_terms": ["mid tower", "mid-tower", "4000d"], "facts": {"motherboard_form_factors": ["ATX", "mATX"], "max_gpu_length_mm": 360, "max_gpu_slots": 4, "max_cpu_cooler_height_mm": 160}}
+      ]
+    }
+  }
+}
