@@ -245,6 +245,8 @@ class StreamingDiscoveryPipeline:
         queue: asyncio.Queue[Any | None] = asyncio.Queue(maxsize=self.queue_size)
         output: asyncio.Queue[DiscoveryBatch | tuple[str, float] | None] = asyncio.Queue(maxsize=self.queue_size)
         seen: dict[str, set[tuple[str, str]]] = {}
+        raw_counts: dict[str, int] = {}
+        unique_counts: dict[str, int] = {}
         errors: dict[str, str] = {}
         durations: dict[str, float] = {}
 
@@ -289,13 +291,30 @@ class StreamingDiscoveryPipeline:
                     errors[item.source] = item.error
                     yield item
                     continue
+                raw_counts[item.source] = raw_counts.get(item.source, 0) + len(item.observations)
                 source_seen = seen.setdefault(item.source, set())
                 unique: list[ProductObservation] = []
                 for observation in item.observations:
                     if observation.identity not in source_seen:
                         source_seen.add(observation.identity)
                         unique.append(observation)
+                unique_counts[item.source] = unique_counts.get(item.source, 0) + len(unique)
                 if unique:
                     yield DiscoveryBatch(item.source, tuple(unique))
         self.last_errors = errors
-        self.last_metrics = {"agent_workers": self.worker_count, "source_count": len(self.adapters), "sources_succeeded": len(self.adapters) - len(errors), "sources_failed": len(errors), "elapsed_ms": round((time.perf_counter() - started) * 1000, 3), "source_durations_ms": durations, "streamed_identity_count": sum(map(len, seen.values()))}
+        duplicate_rates = {
+            source: round(1.0 - (unique_counts.get(source, 0) / max(1, raw)), 6)
+            for source, raw in raw_counts.items()
+        }
+        self.last_metrics = {
+            "agent_workers": self.worker_count,
+            "source_count": len(self.adapters),
+            "sources_succeeded": len(self.adapters) - len(errors),
+            "sources_failed": len(errors),
+            "elapsed_ms": round((time.perf_counter() - started) * 1000, 3),
+            "source_durations_ms": durations,
+            "source_raw_observations": raw_counts,
+            "source_unique_observations": unique_counts,
+            "source_duplicate_rates": duplicate_rates,
+            "streamed_identity_count": sum(map(len, seen.values())),
+        }
