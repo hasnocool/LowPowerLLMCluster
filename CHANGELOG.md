@@ -8,11 +8,19 @@ All notable changes to this project will be documented here.
 
 - Bounded asynchronous catalog discovery pipeline with generic JSON-feed and schema.org JSON-LD product-page adapters.
 - Hierarchical source-agent workers plus per-source URL subworkers with bounded queues/backpressure.
-- Native pooled `aiohttp` networking with global/per-host concurrency caps, keep-alive reuse and response-size limits.
-- Runtime telemetry for total/discovery/persistence-normalization duration, per-source timing, request count, transferred bytes and peak in-flight requests.
+- Native pooled `aiohttp` networking with global/per-host concurrency caps, keep-alive/DNS reuse and response-size limits.
+- Conditional HTTP caching with `ETag` / `Last-Modified` and parsed-observation reuse on `304 Not Modified` responses.
+- Bounded retry/backoff/jitter for transient HTTP failures plus `Retry-After` handling and per-source rate-limit telemetry.
+- AIMD-like adaptive per-source concurrency that backs off quickly after errors/rate limits and recovers cautiously after healthy requests.
+- Long-running `llm-cluster-service` command that reuses HTTP connections, DNS cache, conditional cache, normalization workers and SQLite state across refresh cycles.
+- Incremental discovery batches, incremental SQLite refresh writes and an on-disk normalized-observation spool to bound refresh memory.
+- Streaming bounded synchronous worker transforms via `map_sync_bounded_iter`.
+- Runtime telemetry for total/discovery/persistence-normalization duration, per-source timing, request attempts, retries, rate limits, transferred bytes, cache hits and peak in-flight requests.
 - Persistent single-writer SQLite history actor using one dedicated worker thread, WAL mode and batched writes.
-- CI `check_async_blocking.py` guard for obvious event-loop blocking regressions in the end-to-end refresh path.
-- `docs/CONCURRENCY.md` with worker hierarchy, tuning guidance and non-blocking invariants.
+- CI `check_async_blocking.py` guard for event-loop blocking regressions across discovery, HTTP, streaming persistence and service mode.
+- `docs/CONCURRENCY.md` with worker hierarchy, conditional cache, retry/adaptive behavior, streaming design and service tuning guidance.
+- Synthetic E2E performance harness for 100/1,000/10,000 observations with throughput, peak RSS and event-loop-lag measurements.
+- JSON-LD parser profiler and optional manual GitHub Actions performance workflow; current measurements do not justify a default process pool.
 - Non-blocking SQLite catalog history with price, currency, title, stock, disappearance and reappearance change events.
 - Discovery normalization for form factor, dimensions, DC input, PSU/cooling/host requirements, board-RAM evidence and exact-SKU metadata.
 - Seller, source and exact-SKU confidence scoring.
@@ -24,18 +32,20 @@ All notable changes to this project will be documented here.
 - Model-fit presets for common 1B-70B quantized model classes while preserving the capacity-only warning.
 - Explicit published-power boundary helper that distinguishes accelerator/board measurements from processor TDP/cTDP.
 - Discovery configuration and performance-record schemas, example discovery configuration, initial watchlist, and one vendor-provenance Hailo-10H record.
-- Tests for asynchronous discovery, JSON-LD extraction, worker bounds/backpressure, history/change detection, normalization/confidence, landed-cost estimates, performance ranges, power scope, reports and model presets.
+- Tests for asynchronous discovery, conditional caching, retry/rate-limit behavior, adaptive concurrency, streaming workers, service reuse, history/change detection, normalization/confidence, landed-cost estimates, performance ranges, power scope, reports and model presets.
 
 ### Changed
 
 - Replaced thread-wrapped `urllib` discovery HTTP with a real async pooled client so socket I/O no longer consumes the global thread pool.
-- JSON/HTML parsing and normalization are kept off the event loop; normalization and SQLite persistence now overlap safely after discovery.
-- SQLite schema initialization/open-close churn was removed from hot operations; refresh writes now use batched `executemany` transactions.
+- JSON/HTML parsing and normalization are kept off the event loop; normalization and SQLite persistence overlap safely in streamed batches.
+- SQLite schema initialization/open-close churn was removed from hot operations; refreshes now support `begin_refresh` / `record_batch` / `finish_refresh` with batched transactions.
 - Discovery concurrency is configurable independently for source agents, source subworkers, HTTP global/per-host limits, normalization workers and queue size.
+- Failed discovery sources no longer participate in disappearance detection for that cycle.
+- Very large source results are processed incrementally rather than retained as one complete in-memory observation list.
 - Catalog shortlist scoring now incorporates seller/source and exact-SKU confidence when those fields exist without converting marketing compute specifications into performance.
 - Board maximum-memory evidence can now carry a source URL/verification date and receives stronger confidence than an unlinked maximum.
-- CLI now supports `discover`, `report`, `dashboard`, `landed-cost` and `performance-range`, plus `fit --preset` and `list --min-sku-confidence`.
-- `TODO.md`, sourcing/evidence/catalog specifications and catalog-curation agent guidance now describe the automated refresh workflow and the next promotion/evidence work.
+- CLI now supports `discover`, `report`, `dashboard`, `landed-cost` and `performance-range`, plus `fit --preset` and `list --min-sku-confidence`; persistent operation is exposed through `llm-cluster-service`.
+- `TODO.md` now marks the E2E efficiency layer complete and moves the next runtime phase to circuit breakers, cache lifecycle, adaptive batching, health/metrics, service installation and distributed source workers.
 - Benchmarking remains optional and specialist metrics remain isolated from LLM throughput.
 
 ## [0.4.1] - 2026-08-10
