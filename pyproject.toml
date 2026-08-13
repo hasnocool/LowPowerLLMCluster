@@ -14,6 +14,7 @@ dependencies = ["aiohttp>=3.14.3,<4"]
 
 [project.scripts]
 llm-cluster = "lowpower_llm_cluster.cli:main"
+llm-cluster-service = "lowpower_llm_cluster.service_cli:main"
 llm-cluster-bench = "lowpower_llm_cluster.benchmarking.cli:main"
 
 [tool.setuptools.packages.find]
