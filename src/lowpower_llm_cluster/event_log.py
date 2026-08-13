@@ -7,9 +7,11 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from .debug_artifacts import sanitize
+
 
 class EventJournal:
-    """Append-only JSONL event journal with lightweight async tailing support."""
+    """Append-only sanitized JSONL event journal with lightweight async tailing support."""
 
     def __init__(self, path: str | Path = "results/events.jsonl", *, max_bytes: int = 8 * 1024 * 1024) -> None:
         self.path = Path(path).expanduser().resolve()
@@ -20,7 +22,7 @@ class EventJournal:
     async def emit(self, event: str, **fields: Any) -> dict[str, Any]:
         async with self._lock:
             self._sequence += 1
-            payload = {"seq": self._sequence, "ts": datetime.now(UTC).isoformat(), "event": event, **fields}
+            payload = sanitize({"seq": self._sequence, "ts": datetime.now(UTC).isoformat(), "event": event, **fields})
             await asyncio.to_thread(self._append_sync, payload)
             return payload
 
