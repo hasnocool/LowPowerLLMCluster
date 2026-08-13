@@ -3,7 +3,13 @@
 ## Completed in v0.5.0 — automated catalog intelligence
 
 - [x] Build bounded asynchronous product/source adapters for current hardware discovery (`json` feeds and schema.org `Product` JSON-LD pages).
-- [x] Keep blocking HTTP and SQLite work off the event loop with bounded worker-thread I/O and per-thread SQLite connections.
+- [x] Replace thread-wrapped `urllib` with pooled native `aiohttp` networking and reusable keep-alive connections.
+- [x] Add hierarchical bounded concurrency: source-agent workers, per-source URL subworkers, per-host HTTP limits, normalization workers and queue backpressure.
+- [x] Keep meaningful network/filesystem/database/parse operations off the asyncio event loop.
+- [x] Add a CI async-blocking guard for the end-to-end catalog refresh path.
+- [x] Convert SQLite history to a persistent single-writer actor with WAL and batched `executemany` writes instead of schema/open/query churn per operation.
+- [x] Run normalization and SQLite persistence concurrently after discovery.
+- [x] Add runtime telemetry for total/discovery/persist+normalize time, per-source duration, request count, bytes and max in-flight HTTP work.
 - [x] Add historical pricing plus title/currency/stock/listing disappearance and reappearance detection.
 - [x] Add explicit-FX CAD conversion and Canada landed-cost planning with shipping, duty, brokerage and province tax assumptions.
 - [x] Add seller/source confidence and exact-SKU configuration confidence.
@@ -18,14 +24,22 @@
 - [x] Add generic third-party JSON/JSONL benchmark import mapping.
 - [x] Keep specialist vision/audio/etc. records separate from LLM prefill/decode records.
 - [x] Keep benchmarking optional; catalog releases do not require benchmark results.
-- [x] Add a current discovery watchlist for 7840HS/8945HS, RK3576/RK3588, unusually large-memory edge systems and used Alveo-class hardware.
 
-## Highest priority — next catalog work
+## Highest priority — next efficiency/speed work
 
-- [ ] Add source-specific adapters for marketplace APIs/exports where generic JSON or JSON-LD is insufficient (eBay, AliExpress/Alibaba exports, used-market feeds, retailer APIs).
-- [ ] Add a scheduler/service command for periodic discovery refreshes, retention and notification hooks without making CI depend on live marketplaces.
-- [ ] Add automatic merge/promotion from high-confidence discovery observations into reviewed catalog fragments with a human-readable diff.
-- [ ] Add a pluggable live FX-rate provider while preserving the current explicit-rate/offline mode for reproducibility.
+- [ ] Add conditional GET (`ETag`/`Last-Modified`) caching so unchanged product pages avoid body download and parsing.
+- [ ] Add per-source retry/backoff/jitter and `Retry-After` handling with explicit rate-limit telemetry.
+- [ ] Add adaptive concurrency that lowers or raises per-source workers from latency/error/rate-limit signals.
+- [ ] Add a long-running scheduler/service mode that reuses HTTP/DNS pools across refresh cycles instead of recreating them per CLI invocation.
+- [ ] Add benchmarkable end-to-end load fixtures (100/1,000/10,000 observations) and record throughput, peak RSS and event-loop lag in CI or an optional perf job.
+- [ ] Profile JSON-LD parsing at large scale; add an optional process pool only if CPU parsing, rather than network latency, becomes the measured bottleneck.
+- [ ] Add incremental/streaming normalization + persistence so very large sources do not require retaining every observation in memory before commit.
+- [ ] Add source-specific adapters for marketplace APIs/exports where generic JSON or JSON-LD is insufficient.
+- [ ] Add automatic promotion from high-confidence discovery observations into reviewed catalog fragments with a human-readable diff.
+- [ ] Add a pluggable live FX-rate provider while preserving explicit-rate/offline reproducibility.
+
+## Catalog accuracy — next
+
 - [ ] Backfill `max_memory_source_url`, dimensions, DC input and exact configuration evidence across legacy catalog records.
 - [ ] Promote the highest-confidence discovery-watchlist targets into `data/catalog/` after exact SKU, price and availability verification.
 - [ ] Expand exact-SKU coverage for Ryzen 7840HS/8845HS/8945HS/HX370 systems, especially 64-128GB-capable bargains.
@@ -39,14 +53,6 @@
 - [ ] Add result deduplication/fingerprints so mirrored benchmark posts do not count as independent sources.
 - [ ] Import reproducible BC-250/RK3588/Jetson/Hailo/SOPHGO community results while keeping vendor and community evidence distinct.
 - [ ] Benchmark the ThinkPad L14 as an optional local reference/calibration node.
-
-## Hardware discovery — next
-
-- [ ] Verify current prices/availability for the discovery watchlist and score promotion readiness.
-- [ ] Find cheap high-capacity DDR5/LPDDR systems with board-verified 96GB/128GB+ support.
-- [ ] Add more current GenAI NPUs/TPUs/ASICs only when a real transformer runtime and memory boundary are documented.
-- [ ] Track used/decommissioned Alveo, edge-inference and large-memory accelerator listings with current price history.
-- [ ] Continue console-derived / specialty APU research only where Linux/runtime support is practically usable.
 
 ## Optional benchmark tooling — maintenance
 

@@ -60,19 +60,53 @@ The project **will not manufacture tokens/sec** from TOPS, TFLOPS, memory bandwi
 
 v0.5 adds multi-source ranges, but a range is emitted only when at least two independent measured records share the same hardware/model/runtime/workload/metric/quantization/context signature. A single vendor result stays a single vendor result.
 
-## Automated discovery and history
+## Fast, bounded end-to-end discovery
 
-The discovery subsystem is deliberately dependency-light and safe for low-power nodes:
+The discovery path is designed to run efficiently on laptop/mini-PC class systems while still scaling to many sources:
 
-- bounded `asyncio` concurrency;
-- blocking HTTP moved to worker threads;
-- no shared blocking response/connection objects across threads;
-- short-lived per-thread SQLite connections in WAL mode;
-- one source failure does not cancel all other adapters;
-- stable listing identity plus price/title/currency/stock change detection;
-- configurable disappearance threshold and reappearance events.
+```text
+source queue
+   │
+   ├─ agent worker ─┬─ URL subworker ─┐
+   ├─ agent worker ─┼─ URL subworker ─┼─> pooled aiohttp connections
+   └─ agent worker ─┴─ URL subworker ─┘       │
+                                              ▼
+                                    off-loop parse/normalize
+                                              │
+                                ┌─────────────┴─────────────┐
+                                ▼                           ▼
+                         normalized output          SQLite writer actor
+                                                   WAL + batched writes
+```
 
-Built-in adapters support generic JSON feeds and schema.org `Product` JSON-LD pages. Source-specific marketplace adapters can be layered on without changing the history contract.
+Important properties:
+
+- native async HTTP through a shared `aiohttp.ClientSession` rather than thread-wrapped `urllib`;
+- bounded source-agent workers and bounded per-source URL subworkers;
+- global and per-host connection limits with keep-alive reuse;
+- bounded queues provide backpressure instead of unbounded task creation;
+- JSON/HTML parse and normalization work stays off the event loop when it can become material;
+- SQLite owns one persistent connection on one dedicated writer thread and batches mutations;
+- normalization and history persistence run concurrently after discovery;
+- atomic JSON output avoids partially-written refresh snapshots;
+- runtime telemetry records stage latency, per-source timing, requests, bytes and max in-flight HTTP work;
+- CI rejects obvious event-loop blocking regressions in the end-to-end path.
+
+The defaults are conservative. Configure worker levels independently:
+
+```json
+{
+  "agent_workers": 4,
+  "subworkers_per_agent": 4,
+  "normalize_workers": 2,
+  "queue_size": 64,
+  "http_concurrency": 16,
+  "http_per_host": 4,
+  "timeout_s": 20
+}
+```
+
+See [docs/CONCURRENCY.md](docs/CONCURRENCY.md) for the worker hierarchy and tuning guidance.
 
 ```bash
 cp config/discovery.example.json config/discovery.local.json
@@ -99,23 +133,16 @@ Board-level maximums can therefore be trusted more strongly than CPU-only limits
 ```bash
 python -m pip install -e .
 
-# Shopping/research shortlist — not a performance benchmark
 llm-cluster rank
-
-# Browse likely LLM-capable hardware under $250
 llm-cluster list --llm-only --max-price 250
-
-# Require stronger exact-SKU confidence when metadata exists
 llm-cluster list --llm-only --min-sku-confidence 0.70 --sort price
 
-# Generated buying views
 llm-cluster report best_under_200
 llm-cluster report high_memory_bargains
 llm-cluster report low_power_nodes
 llm-cluster report weird_hardware
 llm-cluster report eol_bargains
 
-# Self-contained interactive dashboard
 llm-cluster dashboard --output results/catalog-dashboard.html
 ```
 
@@ -123,14 +150,14 @@ The dashboard supports budget, RAM, published-power-boundary and risk filters, s
 
 ## Safe model-fit presets
 
-Model fit is a **capacity screen**, not a speed predictor. v0.5 adds reusable presets while preserving explicit parameter/bit controls:
+Model fit is a **capacity screen**, not a speed predictor:
 
 ```bash
 llm-cluster fit special-amd-bc250-16g --preset 14b-q4
 llm-cluster fit special-amd-bc250-16g --params-b 14 --bits 4
 ```
 
-Presets currently cover representative 1B, 3B, 7B, 14B, 32B and 70B quantized classes. Runtime overhead and KV cache remain model/backend specific and are called out in the result.
+Presets cover representative 1B, 3B, 7B, 14B, 32B and 70B quantized classes. Runtime overhead and KV cache remain model/backend specific and are called out in the result.
 
 ## CAD / Canada landed-cost planning
 
@@ -205,7 +232,7 @@ See [docs/BENCHMARK_HARNESS.md](docs/BENCHMARK_HARNESS.md).
 
 ```text
 LowPowerLLMCluster/
-├── config/discovery.example.json    discovery adapter example
+├── config/discovery.example.json    discovery + worker configuration
 ├── data/parts.json                  canonical catalog manifest
 ├── data/catalog/                    reviewed product records by family
 ├── data/discovery/                  researched promotion/watch targets
@@ -216,14 +243,15 @@ LowPowerLLMCluster/
 ├── specs/discovery-config.schema.json
 ├── specs/performance-record.schema.json
 ├── docs/SOURCING.md                 source/history/promotion workflow
-├── src/lowpower_llm_cluster/        discovery, history, planner, reports, UI
+├── docs/CONCURRENCY.md              async worker/backpressure architecture
+├── src/lowpower_llm_cluster/        discovery, runtime, history, planner, reports, UI
 ├── benchmarks/                      optional benchmark profiles
 └── results/                         generated local outputs
 ```
 
 ## Next priorities
 
-See **[TODO.md](TODO.md)**. The next accuracy work is source-specific marketplace adapters, automated promotion diffs, live-FX as an optional provider, legacy board-memory/spec backfilling, and more independent real performance records.
+See **[TODO.md](TODO.md)**. The next speed/efficiency work is conditional HTTP caching, retry/backoff and rate-limit handling, adaptive concurrency, long-running pool reuse, load benchmarks, and streaming persistence. Accuracy work continues with source-specific marketplace adapters, promotion diffs, board-memory/spec backfilling, and independent performance evidence.
 
 ## Data quality rule
 

@@ -5,7 +5,14 @@
   "type": "object",
   "required": ["sources"],
   "properties": {
-    "concurrency": {"type": "integer", "minimum": 1, "maximum": 64},
+    "agent_workers": {"type": "integer", "minimum": 1, "maximum": 64},
+    "subworkers_per_agent": {"type": "integer", "minimum": 1, "maximum": 64},
+    "normalize_workers": {"type": "integer", "minimum": 1, "maximum": 32},
+    "queue_size": {"type": "integer", "minimum": 1, "maximum": 4096},
+    "http_concurrency": {"type": "integer", "minimum": 1, "maximum": 256},
+    "http_per_host": {"type": "integer", "minimum": 1, "maximum": 64},
+    "max_response_bytes": {"type": "integer", "minimum": 1024},
+    "concurrency": {"type": "integer", "minimum": 1, "maximum": 256, "description": "Deprecated alias for http_concurrency."},
     "timeout_s": {"type": "number", "exclusiveMinimum": 0},
     "disappearance_after_runs": {"type": "integer", "minimum": 1},
     "sources": {
@@ -17,6 +24,7 @@
           "name": {"type": "string", "minLength": 1},
           "type": {"enum": ["json", "jsonld"]},
           "source_trust": {"type": "number", "minimum": 0, "maximum": 1},
+          "subworkers": {"type": "integer", "minimum": 1, "maximum": 64},
           "endpoint": {"type": "string", "format": "uri"},
           "urls": {"type": "array", "items": {"type": "string", "format": "uri"}, "minItems": 1},
           "items_path": {"type": "string"},

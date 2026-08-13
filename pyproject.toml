@@ -5,12 +5,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "lowpower-llm-cluster"
 version = "0.5.0"
-description = "Catalog-first research and buying planner for low-power local LLM hardware, with asynchronous market discovery and optional benchmark evidence tooling."
+description = "Catalog-first research and buying planner for low-power local LLM hardware with asynchronous market discovery."
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [{name = "LowPowerLLMCluster contributors"}]
-dependencies = []
+dependencies = ["aiohttp>=3.14.3,<4"]
 
 [project.scripts]
 llm-cluster = "lowpower_llm_cluster.cli:main"

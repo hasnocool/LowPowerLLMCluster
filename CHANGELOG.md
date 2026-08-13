@@ -7,6 +7,12 @@ All notable changes to this project will be documented here.
 ### Added
 
 - Bounded asynchronous catalog discovery pipeline with generic JSON-feed and schema.org JSON-LD product-page adapters.
+- Hierarchical source-agent workers plus per-source URL subworkers with bounded queues/backpressure.
+- Native pooled `aiohttp` networking with global/per-host concurrency caps, keep-alive reuse and response-size limits.
+- Runtime telemetry for total/discovery/persistence-normalization duration, per-source timing, request count, transferred bytes and peak in-flight requests.
+- Persistent single-writer SQLite history actor using one dedicated worker thread, WAL mode and batched writes.
+- CI `check_async_blocking.py` guard for obvious event-loop blocking regressions in the end-to-end refresh path.
+- `docs/CONCURRENCY.md` with worker hierarchy, tuning guidance and non-blocking invariants.
 - Non-blocking SQLite catalog history with price, currency, title, stock, disappearance and reappearance change events.
 - Discovery normalization for form factor, dimensions, DC input, PSU/cooling/host requirements, board-RAM evidence and exact-SKU metadata.
 - Seller, source and exact-SKU confidence scoring.
@@ -18,10 +24,14 @@ All notable changes to this project will be documented here.
 - Model-fit presets for common 1B-70B quantized model classes while preserving the capacity-only warning.
 - Explicit published-power boundary helper that distinguishes accelerator/board measurements from processor TDP/cTDP.
 - Discovery configuration and performance-record schemas, example discovery configuration, initial watchlist, and one vendor-provenance Hailo-10H record.
-- Tests for asynchronous discovery, JSON-LD extraction, history/change detection, normalization/confidence, landed-cost estimates, performance ranges, power scope, reports and model presets.
+- Tests for asynchronous discovery, JSON-LD extraction, worker bounds/backpressure, history/change detection, normalization/confidence, landed-cost estimates, performance ranges, power scope, reports and model presets.
 
 ### Changed
 
+- Replaced thread-wrapped `urllib` discovery HTTP with a real async pooled client so socket I/O no longer consumes the global thread pool.
+- JSON/HTML parsing and normalization are kept off the event loop; normalization and SQLite persistence now overlap safely after discovery.
+- SQLite schema initialization/open-close churn was removed from hot operations; refresh writes now use batched `executemany` transactions.
+- Discovery concurrency is configurable independently for source agents, source subworkers, HTTP global/per-host limits, normalization workers and queue size.
 - Catalog shortlist scoring now incorporates seller/source and exact-SKU confidence when those fields exist without converting marketing compute specifications into performance.
 - Board maximum-memory evidence can now carry a source URL/verification date and receives stronger confidence than an unlinked maximum.
 - CLI now supports `discover`, `report`, `dashboard`, `landed-cost` and `performance-range`, plus `fit --preset` and `list --min-sku-confidence`.

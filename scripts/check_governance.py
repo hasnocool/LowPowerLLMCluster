@@ -41,12 +41,13 @@ def main() -> int:
 
     required = [
         "README.md", "PARTS.md", "TODO.md", "CHANGELOG.md", "AGENTS.md",
-        "docs/PROJECT_CHARTER.md", "docs/GUARDRAILS.md", "docs/ACCELERATORS.md", "docs/SOURCING.md",
+        "docs/PROJECT_CHARTER.md", "docs/GUARDRAILS.md", "docs/ACCELERATORS.md", "docs/SOURCING.md", "docs/CONCURRENCY.md",
         "specs/HARDWARE_CATALOG.md", "specs/EVIDENCE.md", "specs/BENCHMARKING.md", "specs/SCORING.md",
         "specs/hardware-catalog.schema.json", "specs/hardware-part.schema.json",
         "specs/benchmark.schema.json", "specs/benchmark-profile.schema.json",
         "specs/adapter-output.schema.json", "specs/discovery-config.schema.json", "specs/performance-record.schema.json",
         "config/discovery.example.json", "data/discovery/watchlist.json",
+        "scripts/check_async_blocking.py",
         "docs/BENCHMARK_HARNESS.md", "benchmarks/README.md", "results/README.md",
         ".agents/skills/hardware-research/SKILL.md",
         ".agents/skills/catalog-curation/SKILL.md",
