@@ -1,6 +1,8 @@
 # src/lowpower_llm_cluster/scoring_inputs.py
 from __future__ import annotations
 
+import hashlib
+import json
 from typing import Any, Mapping, Sequence
 
 
@@ -28,16 +30,23 @@ def _phase_power(result: Mapping[str, Any], phase: str) -> float | None:
     return None
 
 
-def benchmark_result_to_device(result: Mapping[str, Any]) -> dict[str, Any]:
-    """Map one benchmark-schema-v2 result to normalized scoring fields.
+def _condition_id(result: Mapping[str, Any]) -> str:
+    condition = {
+        "model": result.get("model", {}),
+        "runtime": result.get("runtime", {}),
+        "workload": result.get("workload", {}),
+        "workload_class": result.get("workload_class"),
+    }
+    encoded = json.dumps(condition, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()[:16]
 
-    Only complete-node power becomes canonical system power. Board-only power is
-    intentionally ignored for tokens/joule scoring, matching benchmark guardrails.
-    """
+
+def benchmark_result_to_device(result: Mapping[str, Any]) -> dict[str, Any]:
+    """Map one benchmark result without merging incompatible benchmark conditions."""
     hardware_id = str(result.get("hardware_id", "unknown"))
     configuration_id = str(result.get("configuration_id", "default"))
     device: dict[str, Any] = {
-        "id": f"{hardware_id}:{configuration_id}",
+        "id": f"{hardware_id}:{configuration_id}:{_condition_id(result)}",
         "name": hardware_id,
         "workloads": [],
         "metrics": {},
@@ -60,18 +69,14 @@ def benchmark_result_to_device(result: Mapping[str, Any]) -> dict[str, Any]:
             device["metrics"]["prefill_power_w"] = {"value": prefill_w, "source_type": "measured_local", "confidence": 1.0}
     elif workload_class == "vision":
         device["workloads"] = ["vision"]
-        primary = None
-        for key in ("frames_per_second", "images_per_second", "inferences_per_second"):
-            primary = _median_metric(result, key)
-            if primary is not None:
-                break
+        primary = next((_median_metric(result, key) for key in ("frames_per_second", "images_per_second", "inferences_per_second") if _median_metric(result, key) is not None), None)
         if primary is not None:
             device["metrics"]["vision_units_s"] = {"value": primary, "source_type": "measured_local", "confidence": 1.0}
         active_w = _phase_power(result, "active")
         if active_w is not None:
             device["metrics"]["system_power_w"] = {"value": active_w, "source_type": "measured_local", "confidence": 1.0}
             if primary is not None and active_w > 0:
-                device["metrics"]["vision_units_per_joule"] = {"value": primary / active_w, "source_type": "derived_estimate", "confidence": 1.0}
+                device["metrics"]["vision_units_per_joule"] = {"value": primary / active_w, "source_type": "derived_estimate", "confidence": 0.60}
 
     cost = result.get("cost", {})
     if isinstance(cost, Mapping):
@@ -79,6 +84,7 @@ def benchmark_result_to_device(result: Mapping[str, Any]) -> dict[str, Any]:
             value = cost.get(key)
             if isinstance(value, (int, float)):
                 device["price_usd"] = float(value)
+                device["confidence"]["price_usd"] = 1.0
                 break
     runtime = result.get("runtime", {})
     if isinstance(runtime, Mapping) and runtime.get("runtime_name"):
@@ -90,13 +96,13 @@ def benchmark_result_to_device(result: Mapping[str, Any]) -> dict[str, Any]:
     if isinstance(workload, Mapping):
         context = workload.get("context_tokens")
         if isinstance(context, int):
-            device["context_capacity_tokens"] = context
+            device["benchmarked_context_tokens"] = context
     device["benchmark_result_id"] = result.get("result_id")
     return device
 
 
 def merge_device_records(records: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
-    """Merge records with the same id, preferring later concrete values."""
+    """Merge only records with the same condition-aware id."""
     merged: dict[str, dict[str, Any]] = {}
     for record in records:
         key = str(record.get("id", record.get("name", "unknown")))
