@@ -66,6 +66,17 @@ def _load_sources_config(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _performance_records(payload: object) -> list[dict]:
+    if isinstance(payload, list):
+        return payload
+    if isinstance(payload, dict):
+        records = payload.get("records", [])
+        if not isinstance(records, list):
+            raise ValueError("performance input 'records' must be an array")
+        return records
+    raise ValueError("performance input must be an object or array")
+
+
 async def _discover(args: argparse.Namespace) -> int:
     parts = load_catalog()["parts"]
     adapters = [JsonFeedAdapter(path, name=f"json:{path.stem}") for path in args.feed]
@@ -149,8 +160,7 @@ def main() -> int:
         return asyncio.run(_refresh_fx(args))
     if args.command == "ingest-performance":
         payload = json.loads(args.file.read_text(encoding="utf-8"))
-        records = payload.get("records", payload if isinstance(payload, list) else [])
-        result = ingest_performance(records)
+        result = ingest_performance(_performance_records(payload))
         print(f"Added {result['added']} performance records ({result['total']} total).")
         return 0
     if args.command == "aggregate-performance":
