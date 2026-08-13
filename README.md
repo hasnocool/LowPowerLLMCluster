@@ -241,7 +241,20 @@ llm-cluster report eol_bargains
 llm-cluster dashboard --output results/catalog-dashboard.html
 ```
 
-The shopping/catalog score is separate from measured performance. A high catalog score means **worth investigating**, not fastest LLM hardware.
+The dashboard has been rebuilt around a four-step research flow rather than a raw catalog table:
+
+```text
+OVERVIEW  →  BROWSE  →  INSPECT  →  COMPARE
+coverage     filter      one item     up to four
+```
+
+- **Overview** shows catalog size, LLM-candidate count, data completeness, catalog mix and top research candidates.
+- **Browse** keeps only decision-critical columns visible: product, price, memory/evidence basis, power boundary/scope, risk, evidence source and research score.
+- Selecting a row opens a structured **product inspector** for buying status, memory evidence, power/deployment requirements, software/workload support and source provenance.
+- **Compare** uses a dedicated matrix for up to four products instead of compressing comparisons into prose.
+- Filters and comparison state persist locally, global search supports `Ctrl/Cmd+K`, and the self-contained dashboard adapts its navigation/filter layout for smaller screens.
+
+Unknown values remain unknown, CPU-theoretical memory does not masquerade as board verification, and the shopping/catalog score remains separate from measured performance. See [docs/DASHBOARD.md](docs/DASHBOARD.md) for the dashboard information architecture and data-boundary rules.
 
 ## Safe model-fit presets
 
@@ -286,6 +299,7 @@ LowPowerLLMCluster/
 ├── data/performance/                   sourced performance evidence
 ├── docs/CONCURRENCY.md                 local runtime/backpressure design
 ├── docs/DISTRIBUTED_RUNTIME.md         lease/worker/coordinator design
+├── docs/DASHBOARD.md                   dashboard UX + data-boundary design
 ├── specs/discovery-config.schema.json  source/runtime configuration contract
 ├── src/lowpower_llm_cluster/           planner + local/distributed runtime
 ├── benchmarks/perf-baseline.json       broad synthetic regression reference
@@ -296,7 +310,7 @@ LowPowerLLMCluster/
 
 ## Next priorities
 
-See [TODO.md](TODO.md). With the current resilience layer complete, the next runtime phase is **secure/automatic distributed operation**: service-integrated remote cycles, authenticated workers and TLS/mTLS, streamed remote result transport, capability-aware scheduling, drain/cancel semantics, coordinator recovery/HA, optional native OTLP export, resource/thermal-aware controls, and fault-injection tests. Catalog work then continues with marketplace-specific adapters, reviewed promotion proposals, optional live FX and exact-SKU enrichment.
+See [TODO.md](TODO.md). The next dashboard/data-UX phase is a **live but evidence-separated operations view**: service/source health, discovery history/change events, price-history timelines, distributed cycle state, model-fit/landed-cost actions, portable saved research views and compatible measured-performance visualizations. Secure/automatic distributed operation remains the parallel runtime priority: service-integrated remote cycles, authenticated workers and TLS/mTLS, streamed remote result transport, capability-aware scheduling, coordinator recovery/HA, resource-aware controls and fault-injection tests.
 
 ## Data quality rule
 
