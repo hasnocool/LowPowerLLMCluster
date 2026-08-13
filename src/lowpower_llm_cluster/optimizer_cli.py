@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -20,37 +21,23 @@ def load_devices(paths: list[Path]) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
     for path in paths:
         data = _load_json(path)
-        items = data if isinstance(data, list) else data.get("devices", data.get("results", [data]))
+        if isinstance(data, list):
+            items = data
+        elif isinstance(data, Mapping):
+            items = data.get("devices", data.get("results", [data]))
+        else:
+            raise SystemExit(f"Unsupported input shape in {path}")
         if not isinstance(items, list):
             raise SystemExit(f"Unsupported input shape in {path}")
         for item in items:
             if not isinstance(item, dict):
                 continue
-            if item.get("schema_version") == 2 and "hardware_id" in item and "metrics" in item:
-                records.append(benchmark_result_to_device(item))
-            else:
-                records.append(item)
+            records.append(benchmark_result_to_device(item) if item.get("schema_version") == 2 and "hardware_id" in item and "metrics" in item else item)
     return merge_device_records(records)
 
 
 def requirements_from_args(args: argparse.Namespace) -> TaskRequirements:
-    return TaskRequirements(
-        workload=args.workload,
-        model_params_b=args.model_params_b,
-        bits_per_weight=args.bits,
-        context_tokens=args.context_tokens,
-        min_decode_tokens_s=args.min_decode,
-        min_prefill_tokens_s=args.min_prefill,
-        max_system_power_w=args.max_power,
-        max_energy_wh=args.max_energy_wh,
-        budget_usd=args.budget,
-        required_runtime=args.runtime,
-        required_precision=args.precision,
-        expected_output_tokens=args.output_tokens,
-        expected_prompt_tokens=args.prompt_tokens,
-        usable_battery_wh=args.battery_wh,
-        available_solar_w=args.solar_w,
-    )
+    return TaskRequirements(workload=args.workload, model_params_b=args.model_params_b, bits_per_weight=args.bits, context_tokens=args.context_tokens, min_decode_tokens_s=args.min_decode, min_prefill_tokens_s=args.min_prefill, max_system_power_w=args.max_power, max_energy_wh=args.max_energy_wh, budget_usd=args.budget, required_runtime=args.runtime, required_precision=args.precision, expected_output_tokens=args.output_tokens, expected_prompt_tokens=args.prompt_tokens, usable_battery_wh=args.battery_wh, available_solar_w=args.solar_w)
 
 
 def _print_table(rows: list[dict[str, Any]], *, limit: int) -> None:
@@ -64,28 +51,19 @@ def _print_table(rows: list[dict[str, Any]], *, limit: int) -> None:
             print("      gates: " + "; ".join(row["gates"]))
         derived = row.get("derived", {})
         details = []
-        for key, label, suffix in (
-            ("task_seconds", "task", "s"),
-            ("wh_per_task", "energy", "Wh"),
-            ("tokens_per_kwh", "tokens/kWh", ""),
-            ("battery_runtime_hours", "battery", "h"),
-            ("solar_recovery_hours", "solar recovery", "h"),
-        ):
+        for key, label, suffix in (("task_seconds", "task", "s"), ("wh_per_task", "energy", "Wh"), ("tokens_per_kwh", "tokens/kWh", ""), ("battery_runtime_hours", "battery", "h"), ("solar_recovery_hours", "solar recovery", "h")):
             value = derived.get(key) if isinstance(derived, dict) else None
             if isinstance(value, (int, float)):
                 details.append(f"{label}={value:.2f}{suffix}")
         if details:
             print("      " + ", ".join(details))
-        reasons = row.get("reasons", [])
-        if reasons:
-            print("      why: " + "; ".join(reasons[:3]))
+        if row.get("reasons"):
+            print("      why: " + "; ".join(row["reasons"][:3]))
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description="Normalize and rank heterogeneous AI hardware using measured evidence, capacity, power, cost and workload constraints."
-    )
-    parser.add_argument("inputs", nargs="+", type=Path, help="device JSON or benchmark-schema-v2 result JSON")
+    parser = argparse.ArgumentParser(description="Normalize and rank heterogeneous AI hardware using measured evidence, capacity, power, cost and workload constraints.")
+    parser.add_argument("inputs", nargs="+", type=Path)
     parser.add_argument("--workload", choices=sorted(WORKLOAD_PROFILES), default="interactive_chat")
     parser.add_argument("--model-params-b", type=float)
     parser.add_argument("--bits", type=float, default=4.0)
@@ -102,8 +80,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--battery-wh", type=float)
     parser.add_argument("--solar-w", type=float)
     parser.add_argument("--limit", type=int, default=20)
-    parser.add_argument("--pareto", action="store_true", help="show only non-dominated task-time/energy candidates")
-    parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
+    parser.add_argument("--pareto", action="store_true")
+    parser.add_argument("--json", action="store_true")
     return parser
 
 
@@ -114,7 +92,7 @@ def main() -> int:
         raise SystemExit("No device records found")
     rows = rank_devices_full(devices, requirements_from_args(args))
     if args.pareto:
-        rows = list(pareto_frontier(rows))
+        rows = list(pareto_frontier([row for row in rows if row["eligible"]]))
     if args.json:
         print(json.dumps(rows[: args.limit], indent=2, sort_keys=True))
     else:
