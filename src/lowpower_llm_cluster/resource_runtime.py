@@ -97,18 +97,35 @@ class SchedulingRequirements:
                 return False, 0.0, f"label {key} mismatch"
         if self.affinity and worker_id not in self.affinity and not allow_steal:
             return False, 0.0, "waiting for affinity worker"
+
         cpu = resources.get("cpu_load_fraction")
-        if self.max_cpu_load is not None and cpu is not None and float(cpu) > self.max_cpu_load:
-            return False, 0.0, "cpu load above task limit"
+        if self.max_cpu_load is not None:
+            if cpu is None:
+                return False, 0.0, "cpu load unavailable for hard task limit"
+            if float(cpu) > self.max_cpu_load:
+                return False, 0.0, "cpu load above task limit"
+
         thermal = resources.get("thermal_c")
-        if self.max_thermal_c is not None and thermal is not None and float(thermal) > self.max_thermal_c:
-            return False, 0.0, "thermal limit exceeded"
+        if self.max_thermal_c is not None:
+            if thermal is None:
+                return False, 0.0, "thermal reading unavailable for hard task limit"
+            if float(thermal) > self.max_thermal_c:
+                return False, 0.0, "thermal limit exceeded"
+
         memory = resources.get("available_memory_mb")
-        if self.min_available_memory_mb is not None and memory is not None and float(memory) < self.min_available_memory_mb:
-            return False, 0.0, "insufficient available memory"
+        if self.min_available_memory_mb is not None:
+            if memory is None:
+                return False, 0.0, "available memory unknown for hard task requirement"
+            if float(memory) < self.min_available_memory_mb:
+                return False, 0.0, "insufficient available memory"
+
         power = resources.get("power_budget_w")
-        if self.min_power_budget_w is not None and power is not None and float(power) < self.min_power_budget_w:
-            return False, 0.0, "worker power budget below task requirement"
+        if self.min_power_budget_w is not None:
+            if power is None:
+                return False, 0.0, "power budget unavailable for hard task requirement"
+            if float(power) < self.min_power_budget_w:
+                return False, 0.0, "worker power budget below task requirement"
+
         score = 100.0
         if worker_id in self.affinity:
             score += 100.0
