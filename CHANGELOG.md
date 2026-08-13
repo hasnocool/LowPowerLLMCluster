@@ -37,13 +37,14 @@ All notable changes to this project will be documented here.
 - Seller, source and exact-SKU confidence scoring.
 - Explicit-FX CAD conversion and Canada landed-cost estimates with shipping, duty, brokerage and province-tax planning assumptions.
 - Catalog reports for sub-$100/$200/$500 candidates, high-memory bargains, low-power nodes, weird hardware and EOL bargains.
-- Self-contained interactive HTML catalog dashboard with comparison selection and saved browser filters.
+- `docs/DASHBOARD.md` defining the dashboard information hierarchy, evidence-boundary rules, responsive behavior and next live-data UX layer.
+- Dashboard regression tests for the richer view model, required Overview/Browse/Inspect/Compare hierarchy and safe embedded catalog data.
 - Sourced performance-record model and JSON/JSONL importer carrying hardware/model/runtime/workload/quantization/context/power provenance.
 - Confidence-aware measured performance ranges that require multiple independent compatible sources.
 - Model-fit presets for common 1B-70B quantized model classes while preserving the capacity-only warning.
 - Explicit published-power boundary helper that distinguishes accelerator/board measurements from processor TDP/cTDP.
 - Discovery configuration and performance-record schemas, example discovery configuration, initial watchlist, and one vendor-provenance Hailo-10H record.
-- Tests for discovery, cache lifecycle, retries/rate limits, adaptive controls, circuit breakers, streaming workers, service health, systemd rendering, process isolation, distributed lease/idempotency behavior, history/change detection, pricing/evidence and catalog reports.
+- Tests for discovery, cache lifecycle, retries/rate limits, adaptive controls, circuit breakers, streaming workers, service health, systemd rendering, process isolation, distributed lease/idempotency behavior, history/change detection, pricing/evidence, catalog reports and dashboard rendering.
 
 ### Changed
 
@@ -56,10 +57,14 @@ All notable changes to this project will be documented here.
 - Failed local or distributed sources do not participate in disappearance detection for that cycle.
 - Very large JSON source results can stream directly from HTTP rather than retaining the decoded source document in memory.
 - Distributed workers execute staging source work only; canonical history and promotion remain coordinator/collector responsibilities.
+- Rebuilt the catalog dashboard from the ground up around an Overview → Browse → Inspect → Compare research flow instead of a single dense table/filter bar.
+- Dashboard Browse now shows only decision-critical columns; product details expose buying state, memory evidence, power/deployment requirements, software/workload support and provenance in a structured drawer.
+- Dashboard comparison is now a dedicated four-product matrix, while overview cards/data-coverage indicators explain catalog completeness before filtering.
+- Dashboard rendering preserves richer catalog/evidence context, explicitly labels unknown/evidence boundaries, safely embeds catalog JSON, restricts external links to HTTP/HTTPS, persists local research state and adapts navigation/filtering for smaller screens.
 - Catalog shortlist scoring now incorporates seller/source and exact-SKU confidence when those fields exist without converting marketing compute specifications into performance.
 - Board maximum-memory evidence can carry a source URL/verification date and receives stronger confidence than an unlinked maximum.
-- CLI now supports `discover`, `report`, `dashboard`, `landed-cost` and `performance-range`, plus `fit --preset` and `list --min-sku-confidence`; persistent and distributed operation use `llm-cluster-service`, `llm-cluster-distributed` and `llm-cluster-install-service`.
-- `TODO.md` now marks the runtime-resilience phase complete and moves next work to secure/automatic distributed operation, streamed remote result transport, capability-aware scheduling, coordinator recovery and fault injection.
+- CLI supports `discover`, `report`, `dashboard`, `landed-cost` and `performance-range`, plus `fit --preset` and `list --min-sku-confidence`; persistent and distributed operation use `llm-cluster-service`, `llm-cluster-distributed` and `llm-cluster-install-service`.
+- `TODO.md` now places live/staging dashboard data UX alongside secure/automatic distributed operation as the next major work, including discovery/history views, price timelines and portable research sets.
 - Benchmarking remains optional and specialist metrics remain isolated from LLM throughput.
 
 ## [0.4.1] - 2026-08-10
