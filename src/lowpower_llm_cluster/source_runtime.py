@@ -5,6 +5,7 @@ from typing import Any, Iterable
 from .discovery import ProductObservation
 from .http_runtime import AdaptiveConcurrency, AsyncHttpClient, DiscoveryCache
 from .process_adapter import ProcessAdapter
+from .public_discovery import PublicWebDiscoveryAdapter
 from .resilience_runtime import AdaptiveBatchSizer, CircuitBreaker
 from .streaming_discovery import CachedJsonFeedAdapter, CachedJsonLdProductAdapter, CircuitProtectedAdapter, StreamingJsonFeedAdapter
 
@@ -70,11 +71,31 @@ def build_source_adapter(source: dict[str, Any], *, settings: Any, client: Async
         if not urls:
             raise ValueError(f"jsonld source {name!r} requires urls")
         inner = CachedJsonLdProductAdapter(name=name, urls=urls, client=client, cache=cache, adaptive=adaptive, subworkers=int(source.get("subworkers", settings.subworkers_per_agent)), queue_size=settings.queue_size, batch_sizer=batch_sizer)
+    elif source_type in {"sitemap", "feed", "html_index"}:
+        seeds = tuple(str(url) for url in source.get("seeds", source.get("urls", ())))
+        if not seeds:
+            raise ValueError(f"{source_type} source {name!r} requires seeds")
+        inner = PublicWebDiscoveryAdapter(
+            name=name,
+            mode=source_type,
+            seeds=seeds,
+            client=client,
+            cache=cache,
+            adaptive=adaptive,
+            include_patterns=tuple(str(value) for value in source.get("include_patterns", ())),
+            exclude_patterns=tuple(str(value) for value in source.get("exclude_patterns", ())),
+            same_host=bool(source.get("same_host", True)),
+            max_candidate_pages=int(source.get("max_candidate_pages", 250)),
+            max_index_pages=int(source.get("max_index_pages", 16)),
+            subworkers=int(source.get("subworkers", settings.subworkers_per_agent)),
+            batch_size=batch_size,
+            batch_sizer=batch_sizer,
+        )
     elif source_type == "process":
         command = tuple(str(value) for value in source.get("command", ()))
         if not command:
             raise ValueError(f"process source {name!r} requires command")
         inner = ProcessAdapter(name=name, command=command, source_config=source, timeout_s=float(source.get("process_timeout_s", 120)), batch_size=batch_size, max_line_bytes=int(source.get("process_max_line_bytes", 2 * 1024 * 1024)), batch_sizer=batch_sizer)
     else:
-        raise ValueError(f"unsupported source type {source_type!r}; built-ins are json, jsonld and process")
+        raise ValueError(f"unsupported source type {source_type!r}; built-ins are json, jsonld, sitemap, feed, html_index and process")
     return CircuitProtectedAdapter(name=name, inner=inner, circuit=circuit)
