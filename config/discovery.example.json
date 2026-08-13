@@ -32,55 +32,16 @@
   "cache_compress": false,
   "disappearance_after_runs": 2,
   "sources": [
-    {
-      "name": "manufacturer-pages",
-      "type": "jsonld",
-      "source_trust": 0.95,
-      "subworkers": 4,
-      "urls": [
-        "https://store.minisforum.com/en-os/products/minisforum-um890pro-mini-pc",
-        "https://www.raspberrypi.com/products/ai-hat-plus-2/",
-        "https://frame.work/products/mainboard-amd-ai300",
-        "https://turingpi.com/product/turing-rk1/",
-        "https://turingpi.com/product/turing-pi-2-5/"
-      ]
-    },
-    {
-      "name": "memory-express-public",
-      "type": "html_index",
-      "source_trust": 0.82,
-      "subworkers": 2,
-      "seeds": [
-        "https://www.memoryexpress.com/Category/VideoCards",
-        "https://www.memoryexpress.com/Category/DesktopComputers",
-        "https://www.memoryexpress.com/Category/Processors"
-      ],
-      "include_patterns": [
-        "^https://www\\.memoryexpress\\.com/Products/(?:MX|BDL_)[A-Za-z0-9]+(?:[/?#].*)?$"
-      ],
-      "exclude_patterns": ["/Products/Compare", "javascript:"],
-      "same_host": true,
-      "max_index_pages": 3,
-      "max_candidate_pages": 120,
-      "batch_size": 32
-    },
-    {
-      "name": "canada-computers-public",
-      "type": "html_index",
-      "source_trust": 0.82,
-      "subworkers": 2,
-      "seeds": [
-        "https://www.canadacomputers.com/en/915/desktop-graphics-cards",
-        "https://www.canadacomputers.com/en/931/desktop-computers"
-      ],
-      "include_patterns": [
-        "^https://www\\.canadacomputers\\.com/en/.+/[0-9]+/.+\\.html(?:[?#].*)?$"
-      ],
-      "exclude_patterns": ["/login", "/cart", "/compare"],
-      "same_host": true,
-      "max_index_pages": 2,
-      "max_candidate_pages": 100,
-      "batch_size": 32
-    }
+    {"name":"manufacturer-pages","type":"jsonld","source_trust":0.95,"subworkers":4,"urls":["https://store.minisforum.com/en-os/products/minisforum-um890pro-mini-pc","https://www.raspberrypi.com/products/ai-hat-plus-2/","https://frame.work/products/mainboard-amd-ai300","https://turingpi.com/product/turing-rk1/","https://turingpi.com/product/turing-pi-2-5/"]},
+    {"name":"memory-express-public","type":"html_index","source_trust":0.82,"subworkers":2,"seeds":["https://www.memoryexpress.com/Category/VideoCards","https://www.memoryexpress.com/Category/DesktopComputers","https://www.memoryexpress.com/Category/Processors"],"include_patterns":["^https://www\\.memoryexpress\\.com/Products/(?:MX|BDL_)[A-Za-z0-9]+(?:[/?#].*)?$"],"exclude_patterns":["/Products/Compare","javascript:"],"same_host":true,"max_index_pages":3,"max_candidate_pages":120,"batch_size":32},
+    {"name":"canada-computers-public","type":"html_index","source_trust":0.82,"subworkers":2,"seeds":["https://www.canadacomputers.com/en/915/desktop-graphics-cards","https://www.canadacomputers.com/en/931/desktop-computers","https://www.canadacomputers.com/en/53/motherboards"],"include_patterns":["^https://www\\.canadacomputers\\.com/en/.+/[0-9]+/.+\\.html(?:[?#].*)?$"],"exclude_patterns":["/login","/cart","/compare"],"same_host":true,"max_index_pages":3,"max_candidate_pages":140,"batch_size":32},
+    {"name":"best-buy-ca-public","type":"html_index","source_trust":0.8,"subworkers":2,"seeds":["https://www.bestbuy.ca/en-ca/category/graphics-cards/20397","https://www.bestbuy.ca/en-ca/category/cpu-computer-processors/29080","https://www.bestbuy.ca/en-ca/category/motherboards/29079","https://www.bestbuy.ca/en-ca/category/desktop-computers/20213"],"include_patterns":["^https://www\\.bestbuy\\.ca/en-ca/product/.+/[0-9]+(?:[/?#].*)?$"],"exclude_patterns":["/review","/questions","/seller/"],"same_host":true,"max_index_pages":4,"max_candidate_pages":160,"batch_size":32},
+    {"name":"newegg-ca-public","type":"html_index","source_trust":0.78,"subworkers":2,"seeds":["https://www.newegg.ca/p/pl?N=40000048&Submit=ENE","https://www.newegg.ca/p/pl?d=barebones+desktop","https://www.newegg.ca/p/pl?d=mini+pc"],"include_patterns":["^https://www\\.newegg\\.ca/.+/p/[A-Z0-9]+(?:[/?#].*)?$"],"exclude_patterns":["/p/pl","/compare","SellerStore"],"same_host":true,"max_index_pages":3,"max_candidate_pages":150,"batch_size":32},
+    {"name":"hp-ca-desktops-public","type":"html_index","source_trust":0.9,"subworkers":2,"seeds":["https://www.hp.com/ca-en/shop/listings/desktops"],"include_patterns":["^https://www\\.hp\\.com/ca-en/shop/products/desktops/.+"],"exclude_patterns":["/care-pack","/accessories/"],"same_host":true,"max_index_pages":1,"max_candidate_pages":80,"batch_size":24},
+    {"name":"dell-ca-desktops-public","type":"html_index","source_trust":0.9,"subworkers":2,"seeds":["https://www.dell.com/en-ca/shop/dell-desktops-workstations/sr/all-products/desktops","https://www.dell.com/en-ca/shop/deals/pc-desktop-deals"],"include_patterns":["^https://www\\.dell\\.com/en-ca/shop/.+/spd/.+"],"exclude_patterns":["/cart","/compare"],"same_host":true,"max_index_pages":2,"max_candidate_pages":90,"batch_size":24},
+    {"name":"lenovo-ca-desktops-public","type":"html_index","source_trust":0.9,"subworkers":2,"seeds":["https://www.lenovo.com/buy/ca/en/thinkcentre-gen-5-desktops-0alz00a","https://www.lenovo.com/buy/ca/en/intel/technical-computing-workstations-0acz00a"],"include_patterns":["^https://www\\.lenovo\\.com/ca/en/p/.+"],"exclude_patterns":["/accessories/","/services/"],"same_host":true,"max_index_pages":2,"max_candidate_pages":80,"batch_size":24},
+    {"name":"framework-mainboards-public","type":"html_index","source_trust":0.94,"subworkers":2,"seeds":["https://frame.work/marketplace/mainboards?preorder%5B%5D=false","https://frame.work/marketplace/parts?brand%5B%5D=framework&preorder%5B%5D=false"],"include_patterns":["^https://frame\\.work/products/.+"],"exclude_patterns":["/products/laptop","/products/keyboard"],"same_host":true,"max_index_pages":2,"max_candidate_pages":70,"batch_size":24},
+    {"name":"gmktec-mini-pcs-public","type":"html_index","source_trust":0.9,"subworkers":2,"seeds":["https://www.gmktec.com/collections/mini-pc","https://www.gmktec.com/collections/all"],"include_patterns":["^https://www\\.gmktec\\.com/products/.+"],"exclude_patterns":["accessor","keyboard","controller","adapter"],"same_host":true,"max_index_pages":2,"max_candidate_pages":60,"batch_size":24},
+    {"name":"minisforum-public","type":"html_index","source_trust":0.92,"subworkers":2,"seeds":["https://store.minisforum.com/en-ca/collections/all-product","https://store.minisforum.com/en-ca/collections/ai-user-choice"],"include_patterns":["^https://store\\.minisforum\\.com/(?:en-ca/)?products/.+"],"exclude_patterns":["dock","accessor","adapter"],"same_host":true,"max_index_pages":2,"max_candidate_pages":70,"batch_size":24}
   ]
 }
