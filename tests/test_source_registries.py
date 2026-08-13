@@ -24,6 +24,49 @@ def test_default_config_auto_loads_extra_public_registry() -> None:
     assert any(path.endswith("public_sources.extra.json") for path in merged["source_registry_files"])
 
 
+def test_local_config_inherits_full_default_pool_and_overrides_sources(tmp_path: Path) -> None:
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+    default_payload = json.loads(DEFAULT_CONFIG.read_text(encoding="utf-8"))
+    registry_payload = json.loads(EXTRA_REGISTRY.read_text(encoding="utf-8"))
+    (config_dir / "discovery.example.json").write_text(json.dumps(default_payload), encoding="utf-8")
+    (config_dir / "public_sources.extra.json").write_text(json.dumps(registry_payload), encoding="utf-8")
+    local = {
+        "http_concurrency": 3,
+        "sources": [
+            {"name": "manufacturer-pages", "type": "jsonld", "urls": ["https://example.test/product"]},
+            {"name": "local-test-feed", "type": "json", "endpoint": "http://127.0.0.1:8765/catalog.json"},
+        ],
+    }
+    local_path = config_dir / "discovery.local.json"
+    local_path.write_text(json.dumps(local), encoding="utf-8")
+
+    merged = load_discovery_config(local_path)
+    names = [source["name"] for source in merged["sources"]]
+    manufacturer = next(source for source in merged["sources"] if source["name"] == "manufacturer-pages")
+    assert merged["http_concurrency"] == 3
+    assert len(merged["sources"]) >= 70
+    assert "local-test-feed" in names
+    assert manufacturer["urls"] == ["https://example.test/product"]
+    assert len(names) == len(set(names))
+    assert merged["inherited_config_files"]
+    assert not merged["config_warnings"]
+
+
+def test_local_config_can_explicitly_opt_out_of_inheritance(tmp_path: Path) -> None:
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+    (config_dir / "discovery.example.json").write_text(DEFAULT_CONFIG.read_text(encoding="utf-8"), encoding="utf-8")
+    local_path = config_dir / "discovery.local.json"
+    local_path.write_text(json.dumps({
+        "inherit_default_config": False,
+        "sources": [{"name": "local-only", "type": "jsonld", "urls": ["https://example.test/product"]}],
+    }), encoding="utf-8")
+    loaded = load_discovery_config(local_path)
+    assert [source["name"] for source in loaded["sources"]] == ["local-only"]
+    assert loaded["inherited_config_files"] == []
+
+
 def test_extra_registry_is_bounded_https_and_credential_free() -> None:
     registry = json.loads(EXTRA_REGISTRY.read_text(encoding="utf-8"))
     forbidden = ("api_key", "apikey", "credential", "access_token", "client_secret", "password")
