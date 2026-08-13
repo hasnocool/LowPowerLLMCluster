@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
+from .config_loader import load_discovery_config
 from .discovery import ProductObservation
 from .history import CatalogHistory, ListingChange
 from .http_runtime import AdaptiveConcurrency, AsyncHttpClient, DiscoveryCache
@@ -16,10 +17,6 @@ from .resilience_runtime import AdaptiveBatchSizer, CircuitBreaker, peak_rss_mb
 from .runtime import WorkerSettings, map_sync_bounded
 from .source_runtime import build_source_adapter
 from .streaming_discovery import StreamingDiscoveryPipeline
-
-
-def _read_json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def _reset_spool(path: Path) -> None:
@@ -111,7 +108,7 @@ class CatalogRefreshEngine:
     async def start(self) -> None:
         if self._started:
             return
-        self.config = await asyncio.to_thread(_read_json, self.config_path)
+        self.config = await asyncio.to_thread(load_discovery_config, self.config_path)
         self.settings = WorkerSettings.from_mapping(self.config)
         settings = self.settings
         self.cache = await DiscoveryCache.open(
@@ -131,11 +128,12 @@ class CatalogRefreshEngine:
         )
         await self.client.start()
         self._normalize_executor = ThreadPoolExecutor(max_workers=settings.normalize_workers, thread_name_prefix="lpllm-normalize")
+        public_parallel_types = {"jsonld", "sitemap", "feed", "html_index", "announcement_index"}
         for source in list(self.config.get("sources", [])):
             name = str(source["name"])
             source_type = str(source.get("type", "json"))
             self.trusts[name] = float(source.get("source_trust", 0.65))
-            max_subworkers = int(source.get("subworkers", settings.subworkers_per_agent)) if source_type == "jsonld" else 1
+            max_subworkers = int(source.get("subworkers", settings.subworkers_per_agent)) if source_type in public_parallel_types else 1
             adaptive = AdaptiveConcurrency(
                 minimum=min(settings.adaptive_min_subworkers, max_subworkers), maximum=max_subworkers,
                 initial=max_subworkers, success_window=settings.adaptive_success_window,
@@ -222,6 +220,8 @@ class CatalogRefreshEngine:
             "runtime": {
                 "workers": self.settings.to_dict(), "discovery_ms": discovery_ms,
                 "total_ms": round((time.perf_counter() - started) * 1000, 3),
+                "source_count": len(self.adapters),
+                "source_registry_files": list(self.config.get("source_registry_files", [])),
                 "discovery": dict(pipeline.last_metrics), "http": self.client.metrics(),
                 "conditional_cache": self.cache.metrics(),
                 "adaptive_sources": {name: value.metrics() for name, value in self.adaptive.items()},
