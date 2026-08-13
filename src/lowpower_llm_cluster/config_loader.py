@@ -6,6 +6,21 @@ from typing import Any
 
 DEFAULT_PUBLIC_REGISTRY = "public_sources.extra.json"
 DEFAULT_CONFIG_NAME = "discovery.example.json"
+DEFAULT_AUTO_SOURCE_EXPANSION: dict[str, Any] = {
+    "enabled": True,
+    "max_announcements_per_cycle": 16,
+    "max_links_per_announcement": 8,
+    "max_domains_per_cycle": 6,
+    "max_surface_probes_per_domain": 8,
+    "max_verified_products_per_cycle": 24,
+    "max_dynamic_sources": 64,
+    "min_dynamic_source_score": 0.72,
+    "max_candidate_pages_per_dynamic_source": 24,
+    "announcement_workers": 2,
+    "dynamic_subworkers": 2,
+    "probe_concurrency": 2,
+    "verified_product_trust": 0.92,
+}
 
 
 def _read_json(path: Path) -> Any:
@@ -29,8 +44,9 @@ def load_discovery_config(path: Path | str) -> dict[str, Any]:
 
     ``source_files`` entries are resolved relative to the main config. The repository's
     default ``discovery.example.json`` also auto-loads the sibling
-    ``public_sources.extra.json`` when present, while arbitrary custom configs remain
-    explicit and isolated. Duplicate source names are rejected before network activity.
+    ``public_sources.extra.json`` and enables bounded automatic source expansion when
+    present, while arbitrary custom configs remain explicit and isolated. Duplicate
+    source names are rejected before network activity.
     """
 
     config_path = Path(path)
@@ -42,8 +58,10 @@ def load_discovery_config(path: Path | str) -> dict[str, Any]:
 
     source_files = [str(value) for value in config.get("source_files", ())]
     default_registry = config_path.with_name(DEFAULT_PUBLIC_REGISTRY)
-    if config_path.name == DEFAULT_CONFIG_NAME and default_registry.exists() and DEFAULT_PUBLIC_REGISTRY not in source_files:
-        source_files.append(DEFAULT_PUBLIC_REGISTRY)
+    if config_path.name == DEFAULT_CONFIG_NAME:
+        if default_registry.exists() and DEFAULT_PUBLIC_REGISTRY not in source_files:
+            source_files.append(DEFAULT_PUBLIC_REGISTRY)
+        config.setdefault("auto_source_expansion", dict(DEFAULT_AUTO_SOURCE_EXPANSION))
 
     loaded: list[str] = []
     for raw in source_files:
