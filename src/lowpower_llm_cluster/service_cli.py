@@ -10,10 +10,10 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, AsyncIterator
 
-from .catalog_refresh import CatalogRefreshEngine
 from .distributed_security import build_client_ssl_context
 from .distributed_service import SecureDistributedCycleEngine
 from .event_log import EventJournal
+from .learning_refresh import LearningCatalogRefreshEngine
 from .service_runtime import RuntimeMetrics, ServiceHealth, ServiceHealthServer
 from .telemetry_runtime import OtelRuntime
 
@@ -42,7 +42,7 @@ async def _engine(args: argparse.Namespace, telemetry: OtelRuntime) -> AsyncIter
     else:
         telemetry.start()
         try:
-            async with CatalogRefreshEngine(args.config, history_path=args.history, output_path=args.output, cache_path=args.cache) as engine:
+            async with LearningCatalogRefreshEngine(args.config, history_path=args.history, output_path=args.output, cache_path=args.cache, debug_dir=args.debug_dir) as engine:
                 yield engine
         finally:
             telemetry.shutdown()
@@ -61,10 +61,10 @@ async def serve(args: argparse.Namespace) -> int:
     telemetry = OtelRuntime(endpoint=args.otlp_endpoint, service_name="lowpower-llm-cluster-discovery")
     events = EventJournal(args.event_log)
     mode = "scheduled" if args.interval is not None else "continuous"
-    await events.emit("service_starting", mode=mode, config=str(args.config), history=str(args.history))
+    await events.emit("service_starting", mode=mode, config=str(args.config), history=str(args.history), debug_dir=str(args.debug_dir))
     async with _engine(args, telemetry) as engine:
         health.mark_started(); await server.start()
-        await events.emit("service_started", mode=mode, health_port=args.health_port)
+        await events.emit("service_started", mode=mode, health_port=args.health_port, debug_dir=str(args.debug_dir))
         try:
             while not stop.is_set() and (args.cycles is None or cycles < args.cycles):
                 started = time.monotonic()
@@ -77,7 +77,20 @@ async def serve(args: argparse.Namespace) -> int:
                     metrics.update_cycle(summary)
                     telemetry.counter_add("refresh_cycles", 1, {"ok": str(not bool(errors)).lower()})
                     print(await asyncio.to_thread(_summary_json, summary), flush=True)
-                    await events.emit("cycle_completed", cycle=cycles + 1, run_id=summary.get("run_id"), observation_count=summary.get("observation_count", 0), change_count=len(summary.get("changes", [])), errors=errors, duration_ms=round((time.monotonic() - started) * 1000, 3))
+                    runtime = summary.get("runtime", {}) if isinstance(summary.get("runtime"), dict) else {}
+                    quality = runtime.get("source_quality_learning", {}) if isinstance(runtime.get("source_quality_learning"), dict) else {}
+                    scheduler = quality.get("scheduler", {}) if isinstance(quality.get("scheduler"), dict) else {}
+                    await events.emit(
+                        "cycle_completed",
+                        cycle=cycles + 1,
+                        run_id=summary.get("run_id"),
+                        observation_count=summary.get("observation_count", 0),
+                        change_count=len(summary.get("changes", [])),
+                        errors=errors,
+                        selected_sources=scheduler.get("selected_sources"),
+                        skipped_source_count=len(scheduler.get("skipped_sources", [])) if isinstance(scheduler.get("skipped_sources"), list) else 0,
+                        duration_ms=round((time.monotonic() - started) * 1000, 3),
+                    )
                 except Exception as exc:
                     health.mark_cycle(ok=False, error=f"{type(exc).__name__}: {exc}")
                     metrics.inc("refresh_cycle_exceptions_total")
@@ -103,6 +116,7 @@ async def serve(args: argparse.Namespace) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Long-running LowPowerLLMCluster discovery service; continuous scanning is the default")
     parser.add_argument("--config", required=True); parser.add_argument("--history", default="results/catalog-history.sqlite3"); parser.add_argument("--output", default="results/discovery-latest.json"); parser.add_argument("--cache", default="results/catalog-http-cache.json")
+    parser.add_argument("--debug-dir", default="results/debug", help="structured sanitized runtime logs and per-run debug artifacts")
     parser.add_argument("--interval", type=float, default=None, help="optional seconds between scan starts; omit for continuous back-to-back scanning")
     parser.add_argument("--cycles", type=int); parser.add_argument("--event-log", default="results/events.jsonl"); parser.add_argument("--health-host", default="127.0.0.1"); parser.add_argument("--health-port", type=int, default=8787); parser.add_argument("--readiness-max-age", type=float, default=900.0)
     parser.add_argument("--distributed-coordinator", help="use authenticated v2 remote source workers instead of local source execution")

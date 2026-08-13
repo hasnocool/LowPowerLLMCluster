@@ -19,6 +19,7 @@ def render_systemd_unit(
     output: str,
     cache: str,
     event_log: str = "results/events.jsonl",
+    debug_dir: str = "results/debug",
     interval: float | None,
     extra_args: list[str] | None = None,
 ) -> str:
@@ -29,6 +30,7 @@ def render_systemd_unit(
         "--output", output,
         "--cache", cache,
         "--event-log", event_log,
+        "--debug-dir", debug_dir,
     ]
     if interval is not None:
         args.extend(["--interval", str(interval)])
@@ -70,6 +72,7 @@ def main() -> int:
     parser.add_argument("--output", default="results/discovery-latest.json")
     parser.add_argument("--cache", default="results/catalog-http-cache.json")
     parser.add_argument("--event-log", default="results/events.jsonl")
+    parser.add_argument("--debug-dir", default="results/debug", help="structured sanitized scanner diagnostics")
     parser.add_argument("--interval", type=float, default=None, help="optional delay between scan starts; omit for continuous scanning")
     parser.add_argument("--unit-name", default="lowpower-llm-cluster.service")
     parser.add_argument("--system", action="store_true")
@@ -107,10 +110,12 @@ def main() -> int:
     output = str(Path(args.output).expanduser().resolve())
     cache = str(Path(args.cache).expanduser().resolve())
     event_log = str(Path(args.event_log).expanduser().resolve())
+    debug_dir = str(Path(args.debug_dir).expanduser().resolve())
     dashboard_output = str(Path(args.dashboard_output).expanduser().resolve())
 
     for path in (Path(history), Path(output), Path(cache), Path(event_log), Path(dashboard_output)):
         path.parent.mkdir(parents=True, exist_ok=True)
+    Path(debug_dir).mkdir(parents=True, exist_ok=True)
 
     extra: list[str] = []
     if args.distributed_coordinator:
@@ -138,6 +143,7 @@ def main() -> int:
             output=output,
             cache=cache,
             event_log=event_log,
+            debug_dir=debug_dir,
             interval=args.interval,
             extra_args=extra,
         ),

@@ -21,6 +21,21 @@ DEFAULT_AUTO_SOURCE_EXPANSION: dict[str, Any] = {
     "probe_concurrency": 2,
     "verified_product_trust": 0.92,
 }
+DEFAULT_SOURCE_QUALITY_LEARNING: dict[str, Any] = {
+    "enabled": True,
+    "adaptive_scheduling": True,
+    "min_cycles_before_adaptation": 3,
+    "max_scan_every_cycles": 4,
+    "min_budget_multiplier": 0.5,
+    "max_budget_multiplier": 1.5,
+    "max_candidate_pages_cap": 96,
+    "debug_snapshot_limit": 500,
+}
+DEFAULT_DEBUG_ARTIFACTS: dict[str, Any] = {
+    "root": "results/debug",
+    "max_log_bytes": 8388608,
+    "keep_runs": 20,
+}
 
 
 def _read_json(path: Path) -> Any:
@@ -43,10 +58,10 @@ def load_discovery_config(path: Path | str) -> dict[str, Any]:
     """Load a discovery config and merge one or more external source registries.
 
     ``source_files`` entries are resolved relative to the main config. The repository's
-    default ``discovery.example.json`` also auto-loads the sibling
-    ``public_sources.extra.json`` and enables bounded automatic source expansion when
-    present, while arbitrary custom configs remain explicit and isolated. Duplicate
-    source names are rejected before network activity.
+    default ``discovery.example.json`` auto-loads the sibling public registry and enables
+    bounded source expansion, source-quality learning and sanitized debug artifacts.
+    Arbitrary custom configs remain explicit and isolated. Duplicate source names are
+    rejected before network activity.
     """
 
     config_path = Path(path)
@@ -62,6 +77,8 @@ def load_discovery_config(path: Path | str) -> dict[str, Any]:
         if default_registry.exists() and DEFAULT_PUBLIC_REGISTRY not in source_files:
             source_files.append(DEFAULT_PUBLIC_REGISTRY)
         config.setdefault("auto_source_expansion", dict(DEFAULT_AUTO_SOURCE_EXPANSION))
+        config.setdefault("source_quality_learning", dict(DEFAULT_SOURCE_QUALITY_LEARNING))
+        config.setdefault("debug_artifacts", dict(DEFAULT_DEBUG_ARTIFACTS))
 
     loaded: list[str] = []
     for raw in source_files:
