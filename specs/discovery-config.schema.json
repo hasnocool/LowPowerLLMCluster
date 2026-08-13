@@ -5,36 +5,47 @@
   "type": "object",
   "required": ["sources"],
   "properties": {
-    "agent_workers": {"type": "integer", "minimum": 1, "maximum": 64},
-    "subworkers_per_agent": {"type": "integer", "minimum": 1, "maximum": 64},
-    "normalize_workers": {"type": "integer", "minimum": 1, "maximum": 32},
-    "queue_size": {"type": "integer", "minimum": 1, "maximum": 4096},
-    "http_concurrency": {"type": "integer", "minimum": 1, "maximum": 256},
-    "http_per_host": {"type": "integer", "minimum": 1, "maximum": 64},
-    "max_response_bytes": {"type": "integer", "minimum": 1024},
-    "concurrency": {"type": "integer", "minimum": 1, "maximum": 256, "description": "Deprecated alias for http_concurrency."},
-    "timeout_s": {"type": "number", "exclusiveMinimum": 0},
-    "disappearance_after_runs": {"type": "integer", "minimum": 1},
+    "agent_workers": {"type":"integer","minimum":1,"maximum":64},
+    "subworkers_per_agent": {"type":"integer","minimum":1,"maximum":64},
+    "normalize_workers": {"type":"integer","minimum":1,"maximum":32},
+    "queue_size": {"type":"integer","minimum":1,"maximum":4096},
+    "http_concurrency": {"type":"integer","minimum":1,"maximum":256},
+    "http_per_host": {"type":"integer","minimum":1,"maximum":64},
+    "max_response_bytes": {"type":"integer","minimum":1024},
+    "timeout_s": {"type":"number","exclusiveMinimum":0},
+    "retry_attempts": {"type":"integer","minimum":1,"maximum":10},
+    "retry_backoff_base_s": {"type":"number","minimum":0},
+    "retry_backoff_max_s": {"type":"number","minimum":0},
+    "retry_jitter_s": {"type":"number","minimum":0},
+    "adaptive_concurrency": {"type":"boolean"},
+    "adaptive_min_subworkers": {"type":"integer","minimum":1,"maximum":64},
+    "adaptive_success_window": {"type":"integer","minimum":1},
+    "adaptive_latency_target_ms": {"type":"number","exclusiveMinimum":0},
+    "stream_batch_size": {"type":"integer","minimum":1,"maximum":10000},
+    "cache_observation_limit": {"type":"integer","minimum":1},
+    "disappearance_after_runs": {"type":"integer","minimum":1},
+    "concurrency": {"type":"integer","minimum":1,"maximum":256,"description":"Deprecated alias for http_concurrency."},
     "sources": {
-      "type": "array",
+      "type":"array",
       "items": {
-        "type": "object",
-        "required": ["name", "type"],
+        "type":"object",
+        "required":["name","type"],
         "properties": {
-          "name": {"type": "string", "minLength": 1},
-          "type": {"enum": ["json", "jsonld"]},
-          "source_trust": {"type": "number", "minimum": 0, "maximum": 1},
-          "subworkers": {"type": "integer", "minimum": 1, "maximum": 64},
-          "endpoint": {"type": "string", "format": "uri"},
-          "urls": {"type": "array", "items": {"type": "string", "format": "uri"}, "minItems": 1},
-          "items_path": {"type": "string"},
-          "fields": {"type": "object", "additionalProperties": {"type": "string"}},
-          "constants": {"type": "object"},
-          "attribute_fields": {"type": "object", "additionalProperties": {"type": "string"}}
+          "name":{"type":"string","minLength":1},
+          "type":{"enum":["json","jsonld"]},
+          "source_trust":{"type":"number","minimum":0,"maximum":1},
+          "subworkers":{"type":"integer","minimum":1,"maximum":64},
+          "batch_size":{"type":"integer","minimum":1,"maximum":10000},
+          "endpoint":{"type":"string","format":"uri"},
+          "urls":{"type":"array","items":{"type":"string","format":"uri"},"minItems":1},
+          "items_path":{"type":"string"},
+          "fields":{"type":"object","additionalProperties":{"type":"string"}},
+          "constants":{"type":"object"},
+          "attribute_fields":{"type":"object","additionalProperties":{"type":"string"}}
         },
-        "additionalProperties": false
+        "additionalProperties":false
       }
     }
   },
-  "additionalProperties": false
+  "additionalProperties":false
 }
