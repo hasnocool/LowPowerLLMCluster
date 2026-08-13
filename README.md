@@ -62,37 +62,51 @@ v0.5 adds multi-source ranges, but a range is emitted only when at least two ind
 
 ## Fast, bounded end-to-end discovery
 
-The discovery path is designed to run efficiently on laptop/mini-PC class systems while still scaling to many sources:
+The discovery path now runs as a bounded streaming pipeline rather than a catalog-sized fan-out:
 
 ```text
-source queue
-   │
-   ├─ agent worker ─┬─ URL subworker ─┐
-   ├─ agent worker ─┼─ URL subworker ─┼─> pooled aiohttp connections
-   └─ agent worker ─┴─ URL subworker ─┘       │
-                                              ▼
-                                    off-loop parse/normalize
-                                              │
-                                ┌─────────────┴─────────────┐
-                                ▼                           ▼
-                         normalized output          SQLite writer actor
-                                                   WAL + batched writes
+source agents / URL subworkers
+             │
+             ▼
+   adaptive per-source permits
+             │
+             ▼
+ pooled aiohttp + keepalive/DNS
+             │
+      ETag / Last-Modified
+       304 -> cached parse
+             │
+             ▼
+     streamed source batches
+             │
+      ┌──────┴──────┐
+      ▼             ▼
+ off-loop       SQLite writer
+ normalize      incremental WAL
+      │             │
+      └──────┬──────┘
+             ▼
+   normalized JSONL spool
+             │
+             ▼
+      atomic latest JSON
 ```
 
 Important properties:
 
-- native async HTTP through a shared `aiohttp.ClientSession` rather than thread-wrapped `urllib`;
-- bounded source-agent workers and bounded per-source URL subworkers;
-- global and per-host connection limits with keep-alive reuse;
-- bounded queues provide backpressure instead of unbounded task creation;
-- JSON/HTML parse and normalization work stays off the event loop when it can become material;
-- SQLite owns one persistent connection on one dedicated writer thread and batches mutations;
-- normalization and history persistence run concurrently after discovery;
-- atomic JSON output avoids partially-written refresh snapshots;
-- runtime telemetry records stage latency, per-source timing, requests, bytes and max in-flight HTTP work;
-- CI rejects obvious event-loop blocking regressions in the end-to-end path.
+- native async HTTP through a reusable `aiohttp.ClientSession`;
+- bounded source-agent workers, per-source URL subworkers, queues, global HTTP connections and per-host connections;
+- `ETag` / `Last-Modified` conditional requests reuse cached parsed observations on `304 Not Modified`, avoiding body transfer and reparsing;
+- bounded retry/backoff/jitter for `429`, `500`, `502`, `503` and `504`, including `Retry-After` handling and rate-limit telemetry;
+- AIMD-like adaptive per-source concurrency backs off quickly on failures/rate limits and recovers cautiously after healthy low-latency requests;
+- JSON/HTML parsing, normalization, filesystem work and SQLite work stay off the asyncio event loop;
+- SQLite owns one persistent connection on one dedicated writer thread and records refreshes incrementally in batches;
+- failed sources are excluded from disappearance detection rather than being treated as empty successful responses;
+- normalized observations spool to disk, so the complete refresh does not need to remain in RAM before output;
+- runtime telemetry records source timing, requests, attempts, retries, rate limits, bytes, conditional-cache hits, adaptive concurrency state and streaming counts;
+- CI rejects obvious event-loop blocking regressions in the E2E path.
 
-The defaults are conservative. Configure worker levels independently:
+The defaults are conservative. Configure worker and retry levels independently:
 
 ```json
 {
@@ -102,7 +116,9 @@ The defaults are conservative. Configure worker levels independently:
   "queue_size": 64,
   "http_concurrency": 16,
   "http_per_host": 4,
-  "timeout_s": 20
+  "retry_attempts": 3,
+  "adaptive_concurrency": true,
+  "stream_batch_size": 256
 }
 ```
 
@@ -114,7 +130,30 @@ cp config/discovery.example.json config/discovery.local.json
 llm-cluster discover --config config/discovery.local.json
 ```
 
-History defaults to `results/catalog-history.sqlite3` and the latest normalized observations to `results/discovery-latest.json`.
+History defaults to `results/catalog-history.sqlite3`, conditional HTTP state to a sibling cache file, and the latest normalized observations to `results/discovery-latest.json`.
+
+### Long-running service
+
+For continuous discovery, reuse the HTTP/DNS/SQLite/cache pools instead of rebuilding them each cycle:
+
+```bash
+llm-cluster-service \
+  --config config/discovery.local.json \
+  --interval 300
+```
+
+Use `--cycles N` for a finite run. SIGINT/SIGTERM stop the service cleanly.
+
+### Performance harness
+
+The optional synthetic performance job exercises 100, 1,000 and 10,000 observation refreshes:
+
+```bash
+python scripts/benchmark_discovery_pipeline.py --counts 100 1000 10000
+python scripts/profile_jsonld.py --products 100 1000 10000 --repeats 3
+```
+
+On the development runner, the 10k E2E path was roughly 4k observations/sec with about 140 MB peak RSS and low single-digit-millisecond p95 event-loop lag. Synthetic 10k-product JSON-LD parsing was roughly 167k products/sec, so a process pool is not currently justified as the default parser path. `.github/workflows/perf.yml` exposes the load harness as a manual Actions job.
 
 ## Memory semantics matter
 
@@ -232,7 +271,7 @@ See [docs/BENCHMARK_HARNESS.md](docs/BENCHMARK_HARNESS.md).
 
 ```text
 LowPowerLLMCluster/
-├── config/discovery.example.json    discovery + worker configuration
+├── config/discovery.example.json    discovery + worker/retry configuration
 ├── data/parts.json                  canonical catalog manifest
 ├── data/catalog/                    reviewed product records by family
 ├── data/discovery/                  researched promotion/watch targets
@@ -243,15 +282,17 @@ LowPowerLLMCluster/
 ├── specs/discovery-config.schema.json
 ├── specs/performance-record.schema.json
 ├── docs/SOURCING.md                 source/history/promotion workflow
-├── docs/CONCURRENCY.md              async worker/backpressure architecture
-├── src/lowpower_llm_cluster/        discovery, runtime, history, planner, reports, UI
+├── docs/CONCURRENCY.md              async/cache/retry/streaming architecture
+├── src/lowpower_llm_cluster/        discovery, HTTP runtime, service, history, planner, UI
+├── scripts/benchmark_discovery_pipeline.py
+├── scripts/profile_jsonld.py
 ├── benchmarks/                      optional benchmark profiles
 └── results/                         generated local outputs
 ```
 
 ## Next priorities
 
-See **[TODO.md](TODO.md)**. The next speed/efficiency work is conditional HTTP caching, retry/backoff and rate-limit handling, adaptive concurrency, long-running pool reuse, load benchmarks, and streaming persistence. Accuracy work continues with source-specific marketplace adapters, promotion diffs, board-memory/spec backfilling, and independent performance evidence.
+See **[TODO.md](TODO.md)**. The completed E2E optimization layer now hands off to **distributed/runtime resilience**: per-source circuit breakers, cache lifecycle management, adaptive batch sizing, health/metrics endpoints, service installation, distributed source workers with leases/heartbeats/idempotent batches, and eventually streaming raw JSON for exceptionally large feeds. Catalog work continues with marketplace-specific adapters, reviewed promotion diffs, live-FX as an optional provider, exact-SKU enrichment, and additional independent performance evidence.
 
 ## Data quality rule
 
