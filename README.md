@@ -184,7 +184,7 @@ Machine-readable output is available with `--json`.
 
 ### Why this is different from TOPS/TFLOPS ranking
 
-TOPS/TFLOPS are retained as **theoretical compute evidence**. They can contribute to the AI-compute dimension but are never converted into fake LLM throughput. Practical LLM speed requires measured/sourced decode/prefill evidence.
+TOPS/TFLOPS are retained as **theoretical compute evidence**. They can contribute to the AI-compute dimension but are never converted into fake LLM throughput. Practical LLM speed requires decode and prefill evidence from measurements or documented sources.
 
 When measured complete-node power and throughput exist, the optimizer may calculate arithmetic derivatives:
 
