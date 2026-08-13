@@ -1,6 +1,6 @@
 # Continuous scanning and live dashboard
 
-`llm-cluster-service` now treats continuous operation as the default. When `--interval` is omitted, a new discovery cycle starts immediately after the previous cycle finishes. This keeps the crawler processing as fast as the configured source limits, adaptive concurrency, circuit breakers and HTTP backoff allow.
+`llm-cluster-service` treats continuous operation as the default. When `--interval` is omitted, a new discovery cycle starts immediately after the previous cycle finishes. This keeps the crawler processing as fast as the configured source limits, adaptive concurrency, circuit breakers and HTTP backoff allow.
 
 Use an explicit interval only when you want scheduled/throttled operation:
 
@@ -43,4 +43,21 @@ Static dashboard regeneration remains supported. `--refresh-interval N` optional
 
 ## systemd
 
-`llm-cluster-install-service` no longer inserts an interval by default, so newly rendered service units scan continuously. Supply `--interval` to intentionally create a scheduled service.
+`llm-cluster-install-service` does not insert an interval by default, so newly rendered service units scan continuously. Supply `--interval` only to intentionally create a scheduled service.
+
+For a matched scanner + dashboard deployment, install both units together so they are guaranteed to use the same absolute history and event-log paths:
+
+```bash
+llm-cluster-install-service \
+  --config config/discovery.example.json \
+  --with-dashboard \
+  --enable-now
+```
+
+This writes the discovery unit plus `llm-cluster-dashboard.service`. The installer resolves `--history`, `--event-log`, discovery output/cache and dashboard output to absolute paths before writing either unit.
+
+### Upgrading an older install
+
+Older deployments may have a dashboard unit pointed at `data/ingest/catalog.sqlite3`. That database uses the pre-live ingest schema and does not contain `observations`, `listing_state` and `refresh_runs`. The current dashboard detects that mismatch instead of reporting a misleading `0 observations · 0 active · idle` state. It also searches the nearby project `results/catalog-history.sqlite3` location and automatically uses it when a compatible live-history database already exists.
+
+If no compatible history database exists, the dashboard reports `misconfigured` or `disconnected`; start/reinstall `llm-cluster-service` so the continuous scanner can create and populate the live history database.
