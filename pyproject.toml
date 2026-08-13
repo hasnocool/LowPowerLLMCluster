@@ -26,6 +26,7 @@ llm-cluster-refresh = "lowpower_llm_cluster.refresh_cli:main"
 llm-cluster-bench = "lowpower_llm_cluster.benchmarking.cli:main"
 llm-cluster-optimize = "lowpower_llm_cluster.optimizer_cli:main"
 llm-cluster-service = "lowpower_llm_cluster.service_cli:main"
+llm-cluster-dashboard = "lowpower_llm_cluster.dashboard_service:main"
 llm-cluster-distributed = "lowpower_llm_cluster.distributed_cli:main"
 llm-cluster-install-service = "lowpower_llm_cluster.service_install:main"
 
