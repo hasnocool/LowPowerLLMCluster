@@ -26,7 +26,16 @@ def _normalized_records(path: Path) -> list[dict[str, Any]]:
     except (OSError, json.JSONDecodeError):
         return []
     records = payload.get("observations", []) if isinstance(payload, dict) else []
-    return [dict(item) for item in records if isinstance(item, dict)]
+    values: list[dict[str, Any]] = []
+    for item in records:
+        if not isinstance(item, dict):
+            continue
+        record = dict(item)
+        raw = record.get("raw_attributes")
+        if isinstance(raw, dict) and "attributes" not in record:
+            record["attributes"] = raw
+        values.append(record)
+    return values
 
 
 def _adapter_inner(adapter: Any) -> Any:
@@ -38,6 +47,7 @@ class LearningCatalogRefreshEngine(CatalogRefreshEngine):
 
     def __init__(self, *args: Any, debug_dir: str | Path | None = None, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+        self._debug_dir_explicit = debug_dir is not None
         self.debug_dir = Path(debug_dir).expanduser().resolve() if debug_dir else self.output_path.parent / "debug"
         self.debug_writer: DebugArtifactWriter | None = None
         self.quality_store: SourceQualityStore | None = None
@@ -67,9 +77,12 @@ class LearningCatalogRefreshEngine(CatalogRefreshEngine):
         )
         await self.quality_store.initialize()
         debug = self._debug_config()
-        root = Path(str(debug.get("root", self.debug_dir))).expanduser()
-        if not root.is_absolute():
-            root = self.debug_dir if "root" not in debug else Path.cwd() / root
+        if self._debug_dir_explicit:
+            root = self.debug_dir
+        else:
+            root = Path(str(debug.get("root", self.debug_dir))).expanduser()
+            if not root.is_absolute():
+                root = Path.cwd() / root
         self.debug_writer = DebugArtifactWriter(
             root,
             max_log_bytes=int(debug.get("max_log_bytes", 8 * 1024 * 1024)),
