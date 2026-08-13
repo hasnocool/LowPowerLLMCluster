@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 DEFAULT_PUBLIC_REGISTRY = "public_sources.extra.json"
+DEFAULT_CONFIG_NAME = "discovery.example.json"
 
 
 def _read_json(path: Path) -> Any:
@@ -26,10 +27,10 @@ def _registry_sources(payload: Any, *, path: Path) -> list[dict[str, Any]]:
 def load_discovery_config(path: Path | str) -> dict[str, Any]:
     """Load a discovery config and merge one or more external source registries.
 
-    ``source_files`` entries are resolved relative to the main config. The standard
-    sibling ``public_sources.extra.json`` is auto-loaded when present so the default
-    installation can grow its public source pool without bloating the core config.
-    Duplicate source names are rejected before any network activity begins.
+    ``source_files`` entries are resolved relative to the main config. The repository's
+    default ``discovery.example.json`` also auto-loads the sibling
+    ``public_sources.extra.json`` when present, while arbitrary custom configs remain
+    explicit and isolated. Duplicate source names are rejected before network activity.
     """
 
     config_path = Path(path)
@@ -41,7 +42,7 @@ def load_discovery_config(path: Path | str) -> dict[str, Any]:
 
     source_files = [str(value) for value in config.get("source_files", ())]
     default_registry = config_path.with_name(DEFAULT_PUBLIC_REGISTRY)
-    if default_registry.exists() and DEFAULT_PUBLIC_REGISTRY not in source_files:
+    if config_path.name == DEFAULT_CONFIG_NAME and default_registry.exists() and DEFAULT_PUBLIC_REGISTRY not in source_files:
         source_files.append(DEFAULT_PUBLIC_REGISTRY)
 
     loaded: list[str] = []
