@@ -1,6 +1,6 @@
 # TODO
 
-## Completed in v0.5.0 — automated catalog intelligence, E2E efficiency and runtime resilience
+## Completed in v0.5.0 — automated catalog intelligence, E2E efficiency, runtime resilience and dashboard UX
 
 - [x] Build bounded asynchronous JSON/JSON-LD product discovery with hierarchical source workers and backpressure.
 - [x] Use pooled native `aiohttp`, keep-alive/DNS reuse, per-host limits, conditional `ETag`/`Last-Modified` requests and bounded retry/backoff/`Retry-After` handling.
@@ -19,7 +19,22 @@
 - [x] Keep failed local or remote sources out of disappearance detection for that cycle.
 - [x] Add synthetic 1k/10k performance regression gates with deliberately broad shared-runner throughput/RSS/event-loop-lag thresholds.
 - [x] Retain the JSON-LD parser profiler; current measurements still do not justify making process pools the default parsing path.
-- [x] Add historical pricing/change tracking, seller/source/SKU confidence, board-memory evidence, CAD landed-cost planning, catalog reports/dashboard and sourced performance evidence.
+- [x] Add historical pricing/change tracking, seller/source/SKU confidence, board-memory evidence, CAD landed-cost planning and sourced performance evidence.
+- [x] Replace the original flat dashboard from the ground up with an Overview → Browse → Inspect → Compare information hierarchy.
+- [x] Keep Browse focused on decision-critical columns while exposing deployment, evidence, source and memory-boundary details in a structured product inspector.
+- [x] Add a dedicated four-product comparison matrix, catalog/data-coverage overview, responsive mobile navigation/filtering, persisted filters/comparison state and safe embedded catalog data.
+- [x] Document dashboard UX/data-boundary rules in `docs/DASHBOARD.md` and add dashboard regression tests.
+
+## Highest priority — dashboard/data UX next
+
+- [ ] Add a live/staging dashboard mode that reads service `/v1/status` plus discovery output without mixing staging observations into canonical catalog truth.
+- [ ] Add a Discovery/History view for current runs, source failures/circuit state, listing changes, disappear/reappear events and observation counts.
+- [ ] Add per-product price-history timelines from `CatalogHistory` with explicit source/listing identity.
+- [ ] Add distributed cycle/worker status to the dashboard using coordinator read endpoints once authenticated transport is implemented.
+- [ ] Add model-fit and CAD landed-cost actions directly from the selected product inspector while preserving their existing evidence/assumption warnings.
+- [ ] Add exportable/importable named filter and comparison sets as JSON so research views can move between machines.
+- [ ] Add optional measured-performance/range visualizations only when compatible sourced records exist; never graph spec arithmetic as measured throughput.
+- [ ] Add user notes/tags and shortlist collections without modifying canonical product evidence fields.
 
 ## Highest priority — next secure/distributed operations work
 
@@ -44,7 +59,6 @@
 - [ ] Promote the highest-confidence discovery-watchlist targets into `data/catalog/` after exact SKU, price and availability verification.
 - [ ] Expand exact-SKU coverage for Ryzen 7840HS/8845HS/8945HS/HX370 systems, especially 64–128GB-capable bargains.
 - [ ] Add more direct-China and used-market mobile boards, mini PCs, RK3588/RK3576 systems and unusual accelerators.
-- [ ] Add exportable named dashboard filter sets (JSON) so saved views can be shared between machines.
 
 ## Evidence & estimates — next
 
