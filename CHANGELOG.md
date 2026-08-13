@@ -49,6 +49,7 @@ All notable changes to this project will be documented here.
 - `llm-cluster-service` can switch from local execution to authenticated v2 remote execution through `--distributed-coordinator` without changing canonical output semantics.
 - `llm-cluster-install-service` accepts distributed coordinator, token-file, TLS and OTLP options so secure automatic cycles can run under systemd.
 - Source configuration can express worker capability/label/resource requirements and affinity.
+- Explicit CPU, thermal, available-memory and power scheduling constraints now reject workers that cannot report the required measurement; unknown telemetry is not treated as satisfying a hard limit.
 - The coordinator can run active/standby with epoch fencing; documentation explicitly distinguishes this from quorum consensus or SQLite multi-master replication.
 - Source snapshots and result payloads can share immutable content-addressed storage while preserving explicit source freshness semantics.
 - The catalog dashboard is a structured research console instead of one dense table/filter bar; unknown/evidence boundaries stay explicit.
