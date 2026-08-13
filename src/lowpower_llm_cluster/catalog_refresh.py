@@ -237,3 +237,30 @@ class CatalogRefreshEngine:
 async def run_discovery_config(config_path: Path | str, *, history_path: Path | str, output_path: Path | str, cache_path: Path | str | None = None) -> dict[str, Any]:
     async with CatalogRefreshEngine(config_path, history_path=history_path, output_path=output_path, cache_path=cache_path) as engine:
         return await engine.run_once()
+
+
+async def run_discovery_service(
+    config_path: Path | str,
+    *,
+    history_path: Path | str,
+    output_path: Path | str,
+    cache_path: Path | str | None = None,
+    interval_s: float = 300.0,
+    cycles: int | None = None,
+) -> list[dict[str, Any]]:
+    """Compatibility helper for finite/repeated service cycles over the persistent engine."""
+    if interval_s < 0:
+        raise ValueError("interval_s must be >= 0")
+    if cycles is not None and cycles < 1:
+        raise ValueError("cycles must be >= 1 when supplied")
+    summaries: list[dict[str, Any]] = []
+    async with CatalogRefreshEngine(config_path, history_path=history_path, output_path=output_path, cache_path=cache_path) as engine:
+        while cycles is None or len(summaries) < cycles:
+            started = time.monotonic()
+            summaries.append(await engine.run_once())
+            if cycles is not None and len(summaries) >= cycles:
+                break
+            delay = max(0.0, interval_s - (time.monotonic() - started))
+            if delay:
+                await asyncio.sleep(delay)
+    return summaries
