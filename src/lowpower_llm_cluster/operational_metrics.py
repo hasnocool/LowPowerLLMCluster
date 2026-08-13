@@ -1,6 +1,7 @@
 # src/lowpower_llm_cluster/operational_metrics.py
 from __future__ import annotations
 
+from math import isfinite
 from typing import Any, Mapping
 
 
@@ -12,6 +13,8 @@ def _score(value: Any, default: float | None = None) -> float | None:
     try:
         number = float(value)
     except (TypeError, ValueError):
+        return default
+    if not isfinite(number):
         return default
     return max(0.0, min(100.0, number))
 
@@ -29,7 +32,6 @@ def _weighted(values: Mapping[str, Any], weights: Mapping[str, float]) -> float 
 
 
 def software_support_score(device: Mapping[str, Any]) -> float | None:
-    """Score explicit runtime/OS/deployment support; absent claims remain unknown."""
     support = device.get("software", {})
     if not isinstance(support, Mapping):
         return None
@@ -42,21 +44,13 @@ def software_support_score(device: Mapping[str, Any]) -> float | None:
         "multi_device_support": ("tensor_parallel", "multi_gpu", "distributed"),
         "deployment_support": ("docker", "container", "server_api"),
     }
-    group_weights = {
-        "major_runtime_support": 0.25,
-        "llm_runtime_support": 0.20,
-        "quantization_support": 0.15,
-        "os_support": 0.15,
-        "driver_maturity": 0.10,
-        "multi_device_support": 0.10,
-        "deployment_support": 0.05,
-    }
+    group_weights = {"major_runtime_support": .25, "llm_runtime_support": .20, "quantization_support": .15, "os_support": .15, "driver_maturity": .10, "multi_device_support": .10, "deployment_support": .05}
     group_scores: dict[str, float] = {}
     for group, keys in groups.items():
-        known = [_score(support.get(key)) for key in keys if key in support]
-        values = [value for value in known if value is not None]
-        if values:
-            group_scores[group] = sum(values) / len(values)
+        values = [_score(support.get(key)) for key in keys if key in support]
+        known = [value for value in values if value is not None]
+        if known:
+            group_scores[group] = sum(known) / len(known)
     return _weighted(group_scores, group_weights)
 
 
@@ -64,37 +58,43 @@ def deployability_score(device: Mapping[str, Any]) -> float | None:
     deployment = device.get("deployability", {})
     if not isinstance(deployment, Mapping):
         return None
-    return _weighted(
-        deployment,
-        {
-            "installation": 0.15,
-            "driver_setup": 0.15,
-            "firmware_setup": 0.08,
-            "power_integration": 0.12,
-            "cooling_integration": 0.10,
-            "host_compatibility": 0.15,
-            "runtime_setup": 0.15,
-            "model_conversion": 0.10,
-        },
-    )
+    return _weighted(deployment, {"installation": .15, "driver_setup": .15, "firmware_setup": .08, "power_integration": .12, "cooling_integration": .10, "host_compatibility": .15, "runtime_setup": .15, "model_conversion": .10})
+
+
+def _nonnegative_number(value: Any, *, integer: bool = False) -> float | int | None:
+    if isinstance(value, bool):
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    if not isfinite(number) or number < 0:
+        return None
+    if integer:
+        if not number.is_integer():
+            return None
+        return int(number)
+    return number
 
 
 def reliability_score(device: Mapping[str, Any]) -> float | None:
-    """Translate reproducible soak-test observations into a transparent 0-100 score."""
+    """Score only complete, valid soak observations; partial evidence remains unknown."""
     soak = device.get("soak", {})
-    if not isinstance(soak, Mapping) or not soak:
+    required = ("hours", "crashes", "resets", "inference_errors", "thermal_throttle_events", "throughput_cv")
+    if not isinstance(soak, Mapping) or any(key not in soak for key in required):
         return None
-    hours = float(soak.get("hours", 0.0) or 0.0)
-    crashes = int(soak.get("crashes", 0) or 0)
-    resets = int(soak.get("resets", 0) or 0)
-    inference_errors = int(soak.get("inference_errors", 0) or 0)
-    throttle_events = int(soak.get("thermal_throttle_events", 0) or 0)
-    cv = float(soak.get("throughput_cv", 1.0) or 1.0)
-
-    duration = min(1.0, hours / 24.0) * 20.0
-    stability = max(0.0, 40.0 - 12.0 * crashes - 8.0 * resets - 4.0 * inference_errors)
-    consistency = max(0.0, 15.0 * (1.0 - min(cv, 1.0)))
-    thermal = 10.0 if throttle_events == 0 else max(0.0, 10.0 - 2.0 * throttle_events)
+    hours = _nonnegative_number(soak["hours"])
+    crashes = _nonnegative_number(soak["crashes"], integer=True)
+    resets = _nonnegative_number(soak["resets"], integer=True)
+    inference_errors = _nonnegative_number(soak["inference_errors"], integer=True)
+    throttle_events = _nonnegative_number(soak["thermal_throttle_events"], integer=True)
+    cv = _nonnegative_number(soak["throughput_cv"])
+    if any(value is None for value in (hours, crashes, resets, inference_errors, throttle_events, cv)):
+        return None
+    duration = min(1.0, float(hours) / 24.0) * 20.0
+    stability = max(0.0, 40.0 - 12.0 * int(crashes) - 8.0 * int(resets) - 4.0 * int(inference_errors))
+    consistency = max(0.0, 15.0 * (1.0 - min(float(cv), 1.0)))
+    thermal = 10.0 if int(throttle_events) == 0 else max(0.0, 10.0 - 2.0 * int(throttle_events))
     recovery = 5.0 if bool(soak.get("automatic_recovery")) else 0.0
     watchdog = 5.0 if bool(soak.get("watchdog")) else 0.0
     ecc = 5.0 if bool(soak.get("ecc")) else 0.0
@@ -126,12 +126,4 @@ def energy_proportionality(device: Mapping[str, Any]) -> float | None:
 
 
 def operational_dimensions(device: Mapping[str, Any]) -> dict[str, float | None]:
-    """Return secondary dimensions kept separate from workload performance scores."""
-    return {
-        "software_support": software_support_score(device),
-        "deployability": deployability_score(device),
-        "reliability": reliability_score(device),
-        "sustained_ratio": sustained_ratio(device),
-        "thermal_headroom_c": thermal_headroom_c(device),
-        "energy_proportionality": energy_proportionality(device),
-    }
+    return {"software_support": software_support_score(device), "deployability": deployability_score(device), "reliability": reliability_score(device), "sustained_ratio": sustained_ratio(device), "thermal_headroom_c": thermal_headroom_c(device), "energy_proportionality": energy_proportionality(device)}
