@@ -1,0 +1,20 @@
+name: Performance smoke benchmark
+
+on:
+  workflow_dispatch:
+
+jobs:
+  perf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -e .
+      - run: python scripts/benchmark_discovery_pipeline.py --counts 100 1000 10000 --output results/discovery-perf.json
+      - run: python scripts/profile_jsonld.py --products 100 1000 10000 --repeats 3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: discovery-perf
+          path: results/discovery-perf.json
