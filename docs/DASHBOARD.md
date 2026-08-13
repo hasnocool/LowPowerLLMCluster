@@ -2,6 +2,20 @@
 
 The catalog dashboard is a **research console**, not a raw-data dump. Its job is to help a person move from “what is in this catalog?” to “which few products should I inspect?” without hiding evidence boundaries.
 
+## Running dashboard
+
+The dashboard supports both static generation and a persistent web service.
+
+```bash
+# Persistent service; refreshes the generated HTML snapshot every 60 seconds.
+llm-cluster-dashboard --host 127.0.0.1 --port 8787
+
+# Preserve a standalone static artifact when needed.
+llm-cluster dashboard --output results/catalog-dashboard.html
+```
+
+The persistent service serves `/` and `/index.html`, exposes `/healthz`, and keeps `results/catalog-dashboard.html` current. A refresh failure does not discard the last known-good HTML snapshot, so a temporary catalog/render problem does not unnecessarily take down the dashboard.
+
 ## Design rule
 
 ```text
