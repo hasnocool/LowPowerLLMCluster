@@ -18,30 +18,37 @@ TARGETS = tuple(
         "process_adapter.py",
         "service_cli.py",
         "service_runtime.py",
+        "service_install.py",
         "distributed_runtime.py",
         "distributed_cli.py",
+        "distributed_cli_secure.py",
+        "distributed_cli_common.py",
+        "distributed_security.py",
+        "secure_distributed.py",
+        "secure_store.py",
+        "secure_store_results.py",
+        "secure_store_tasks.py",
+        "secure_store_base.py",
+        "secure_server.py",
+        "secure_client.py",
+        "distributed_service.py",
+        "content_store.py",
+        "snapshot_http.py",
+        "resource_runtime.py",
+        "telemetry_runtime.py",
+        "fault_injection.py",
     )
 )
 BLOCKING_CALLS = {
-    "open",
-    "time.sleep",
-    "sqlite3.connect",
-    "urllib.request.urlopen",
-    "subprocess.run",
-    "subprocess.call",
-    "subprocess.Popen",
-    "requests.get",
-    "requests.post",
-    "requests.request",
-    "Path.read_text",
-    "Path.write_text",
+    "open", "time.sleep", "sqlite3.connect", "urllib.request.urlopen",
+    "subprocess.run", "subprocess.call", "subprocess.Popen",
+    "requests.get", "requests.post", "requests.request", "Path.read_text", "Path.write_text",
 }
 CPU_HEAVY_CALLS = {"json.loads", "json.dumps"}
 
 
 def dotted_name(node: ast.AST) -> str:
-    if isinstance(node, ast.Name):
-        return node.id
+    if isinstance(node, ast.Name): return node.id
     if isinstance(node, ast.Attribute):
         parent = dotted_name(node.value)
         return f"{parent}.{node.attr}" if parent else node.attr
@@ -56,15 +63,9 @@ def scan(path: Path) -> list[str]:
             name = dotted_name(call.func)
             leaf = name.rsplit(".", 1)[-1]
             if name in BLOCKING_CALLS or leaf in {"read_text", "write_text", "urlopen"}:
-                errors.append(
-                    f"{path.relative_to(ROOT)}:{call.lineno}: blocking call {name!r} "
-                    f"inside async {function.name}()"
-                )
+                errors.append(f"{path.relative_to(ROOT)}:{call.lineno}: blocking call {name!r} inside async {function.name}()")
             if name in CPU_HEAVY_CALLS:
-                errors.append(
-                    f"{path.relative_to(ROOT)}:{call.lineno}: CPU-heavy {name!r} runs directly "
-                    f"inside async {function.name}()"
-                )
+                errors.append(f"{path.relative_to(ROOT)}:{call.lineno}: CPU-heavy {name!r} runs directly inside async {function.name}()")
     return errors
 
 
@@ -72,12 +73,10 @@ def main() -> int:
     errors = [error for path in TARGETS for error in scan(path)]
     if errors:
         print("Async blocking guard failed:", file=sys.stderr)
-        for error in errors:
-            print(f"- {error}", file=sys.stderr)
+        for error in errors: print(f"- {error}", file=sys.stderr)
         return 1
-    print("Async blocking guard passed for local, resilient and distributed runtime paths.")
+    print("Async blocking guard passed for local, resilient, secure-distributed and daemon runtime paths.")
     return 0
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+if __name__ == "__main__": raise SystemExit(main())

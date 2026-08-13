@@ -60,7 +60,21 @@
           "attribute_fields":{"type":"object","additionalProperties":{"type":"string"}},
           "command":{"type":"array","items":{"type":"string"},"minItems":1},
           "process_timeout_s":{"type":"number","exclusiveMinimum":0},
-          "process_max_line_bytes":{"type":"integer","minimum":1024}
+          "process_max_line_bytes":{"type":"integer","minimum":1024},
+          "worker_affinity":{"type":"array","items":{"type":"string","minLength":1},"uniqueItems":true},
+          "worker_requirements": {
+            "type":"object",
+            "properties": {
+              "capabilities":{"type":"array","items":{"type":"string","minLength":1},"uniqueItems":true},
+              "labels":{"type":"object","additionalProperties":{"type":"string"}},
+              "affinity":{"type":"array","items":{"type":"string","minLength":1},"uniqueItems":true},
+              "max_cpu_load":{"type":"number","minimum":0},
+              "max_thermal_c":{"type":"number","minimum":0,"maximum":150},
+              "min_available_memory_mb":{"type":"number","minimum":0},
+              "min_power_budget_w":{"type":"number","exclusiveMinimum":0}
+            },
+            "additionalProperties":false
+          }
         },
         "additionalProperties":false,
         "allOf": [

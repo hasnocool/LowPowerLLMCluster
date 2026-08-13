@@ -1,62 +1,66 @@
 # TODO
 
-## Completed in v0.5.0 — automated catalog intelligence, E2E efficiency, runtime resilience and dashboard UX
+## Completed in v0.5.0 — catalog intelligence, resilient discovery, dashboard UX and secure automatic distributed operation
 
-- [x] Build bounded asynchronous JSON/JSON-LD product discovery with hierarchical source workers and backpressure.
-- [x] Use pooled native `aiohttp`, keep-alive/DNS reuse, per-host limits, conditional `ETag`/`Last-Modified` requests and bounded retry/backoff/`Retry-After` handling.
+- [x] Build bounded asynchronous JSON/JSON-LD/process discovery with hierarchical workers and backpressure.
+- [x] Use pooled native `aiohttp`, conditional requests, retries/`Retry-After`, adaptive concurrency and per-source circuit breakers.
 - [x] Keep meaningful network/filesystem/database/parse work off the asyncio event loop and enforce it in CI.
-- [x] Add adaptive per-source concurrency and per-source circuit breakers with cooldown/half-open recovery.
-- [x] Add conditional-cache TTL expiration, LRU-style pruning, maximum-entry bounds and optional gzip persistence.
-- [x] Add adaptive observation batch sizing from batch latency and RSS pressure rather than one fixed streaming batch size.
-- [x] Add persistent `llm-cluster-service` operation reusing HTTP/DNS/cache/SQLite/worker resources across cycles.
-- [x] Add `/healthz`, `/readyz`, `/metrics` and `/v1/status`; metrics use Prometheus exposition and are directly scrapeable by an OpenTelemetry Collector Prometheus receiver.
-- [x] Add `llm-cluster-install-service` systemd user/system installer with absolute paths, restart policy, conservative scheduling priority and service hardening.
-- [x] Add incremental SQLite refresh writes, normalized JSONL spooling and bounded streaming transforms so complete refreshes need not stay in RAM.
-- [x] Add true streaming JSON-feed parsing through `ijson` so very large JSON arrays can be processed without first materializing the entire decoded document.
-- [x] Add optional `process` source adapters for isolating unstable third-party parsers behind a bounded JSON-in/JSONL-out subprocess contract.
-- [x] Add a durable distributed source-worker backend with coordinator cycles, leases, heartbeats, lease reclamation, retry attempts and one canonical history collector.
-- [x] Add deterministic task/batch IDs and idempotent remote result insertion so worker retries/resumption do not duplicate accepted batches.
-- [x] Keep failed local or remote sources out of disappearance detection for that cycle.
-- [x] Add synthetic 1k/10k performance regression gates with deliberately broad shared-runner throughput/RSS/event-loop-lag thresholds.
-- [x] Retain the JSON-LD parser profiler; current measurements still do not justify making process pools the default parsing path.
-- [x] Add historical pricing/change tracking, seller/source/SKU confidence, board-memory evidence, CAD landed-cost planning and sourced performance evidence.
-- [x] Replace the original flat dashboard from the ground up with an Overview → Browse → Inspect → Compare information hierarchy.
-- [x] Keep Browse focused on decision-critical columns while exposing deployment, evidence, source and memory-boundary details in a structured product inspector.
-- [x] Add a dedicated four-product comparison matrix, catalog/data-coverage overview, responsive mobile navigation/filtering, persisted filters/comparison state and safe embedded catalog data.
-- [x] Document dashboard UX/data-boundary rules in `docs/DASHBOARD.md` and add dashboard regression tests.
+- [x] Bound/persist cache state with TTL/LRU/entry limits and optional gzip persistence.
+- [x] Adapt observation batch sizes from latency/RSS and stream very large JSON arrays with `ijson`.
+- [x] Keep one persistent SQLite history writer, incremental refresh transactions and disk-backed normalized spooling.
+- [x] Run the discovery service persistently with health/readiness/Prometheus endpoints and hardened systemd installation.
+- [x] Add the original durable v1 distributed source-worker backend with leases, heartbeats, retry-safe task/batch IDs and one canonical history collector.
+- [x] Replace the catalog dashboard from the ground up with Overview → Browse → Inspect → Compare, richer evidence context and responsive/safe rendering.
+
+### Secure/automatic distributed phase
+
+- [x] Integrate distributed submit/wait/streamed-collect directly into `llm-cluster-service` so recurring multi-node cycles are automatic.
+- [x] Add generated worker/admin credentials, replay-protected HMAC worker identities, separate admin authorization, TLS and optional mTLS.
+- [x] Add leader epochs so stale coordinators/leases cannot mutate task state after failover.
+- [x] Store remote result batches as SHA-256 content-addressed artifacts and stream collection as NDJSON instead of materializing a complete cycle response.
+- [x] Add worker capability advertisements, key/value locality labels, source affinity and bounded work stealing.
+- [x] Feed CPU load, available RAM, Linux thermal readings and optional operator-supplied power/energy budgets into lease eligibility.
+- [x] Add explicit worker drain/self-drain, cycle cancellation, failure quarantine and documented rolling-restart semantics.
+- [x] Add live coordinator SQLite backup, offline atomic restore and active/standby leader-lease failover with epoch fencing while preserving one canonical history writer.
+- [x] Add optional native OTLP/HTTP traces/counters through a `telemetry` extra while retaining Prometheus as the default dependency-light metrics path.
+- [x] Add deterministic worker-crash/coordinator-restart/stale-epoch/backup fault tests plus authentication, capability, cancellation and duplicate-batch integration tests.
+- [x] Add hardware-class synthetic runtime baselines alongside the broad generic CI performance gate; do not treat these as product LLM performance evidence.
+- [x] Add shared SHA-256 source snapshots for normal full-body HTTP responses with explicit freshness-bounded replay; preserve low-memory streaming feeds without re-materialization.
+- [x] Extend the systemd installer, discovery schema, docs and governance rules for secure distributed daemon operation.
+
+## Highest priority — next distributed production-hardening phase
+
+- [ ] Add external secret-manager integrations and zero-downtime worker/admin secret rotation; avoid long-lived static credentials where infrastructure supports stronger identity.
+- [ ] Add automatic certificate enrollment/renewal/rotation and optional SPIFFE/SPIRE-style workload identity for mTLS deployments.
+- [ ] Add an S3-compatible/object-store CAS backend with signed integrity manifests, retention policies and garbage collection independent of one shared filesystem.
+- [ ] Add remote batch upload streaming/chunking for exceptionally large single batches; current v2 transport streams by bounded batch rather than one complete cycle.
+- [ ] Add scheduler history/learning from source duration, failure rate, cache locality and worker energy cost rather than only current hard requirements + affinity.
+- [ ] Add explicit worker maintenance windows, graceful coordinator handoff and rolling-upgrade compatibility negotiation by protocol/schema version.
+- [ ] Add an external consensus/state backend option for deployments that need coordinators in separate storage/failure domains; do not fake quorum with SQLite replication.
+- [ ] Add artifact integrity audit/scrub jobs, snapshot retention tiers and coordinator/CAS disaster-recovery drills.
+- [ ] Add multi-hour/day chaos soak tests with repeated partitions, leader loss, clock skew, worker churn, disk pressure and duplicate/reordered delivery.
+- [ ] Add cluster bootstrap/enrollment tooling that installs services, distributes CA material/worker credentials safely and verifies readiness across nodes.
+- [ ] Collect real stable hardware-class runtime baselines from ThinkPads, mini PCs, SBCs and other actual workers before tightening class-specific regression floors.
+- [ ] Correlate OTLP traces across daemon → coordinator → worker → source request → collector and surface trace IDs in operational diagnostics.
 
 ## Highest priority — dashboard/data UX next
 
-- [ ] Add a live/staging dashboard mode that reads service `/v1/status` plus discovery output without mixing staging observations into canonical catalog truth.
+- [ ] Add a live/staging dashboard mode that reads service status plus discovery output without mixing staging observations into canonical catalog truth.
 - [ ] Add a Discovery/History view for current runs, source failures/circuit state, listing changes, disappear/reappear events and observation counts.
 - [ ] Add per-product price-history timelines from `CatalogHistory` with explicit source/listing identity.
-- [ ] Add distributed cycle/worker status to the dashboard using coordinator read endpoints once authenticated transport is implemented.
-- [ ] Add model-fit and CAD landed-cost actions directly from the selected product inspector while preserving their existing evidence/assumption warnings.
+- [ ] Add authenticated distributed cycle/worker/drain/quarantine/leader-epoch status to the dashboard using secure read endpoints.
+- [ ] Add model-fit and CAD landed-cost actions directly from the product inspector while preserving evidence/assumption warnings.
 - [ ] Add exportable/importable named filter and comparison sets as JSON so research views can move between machines.
-- [ ] Add optional measured-performance/range visualizations only when compatible sourced records exist; never graph spec arithmetic as measured throughput.
+- [ ] Add measured-performance/range visualizations only when compatible sourced records exist; never graph spec arithmetic as measured throughput.
 - [ ] Add user notes/tags and shortlist collections without modifying canonical product evidence fields.
 
-## Highest priority — next secure/distributed operations work
-
-- [ ] Integrate distributed submit/wait/collect directly into `llm-cluster-service` so recurring multi-node cycles are automatic rather than separate CLI phases.
-- [ ] Add authenticated worker identities plus coordinator authorization and TLS/mTLS support; keep the current coordinator private-network-only until then.
-- [ ] Stream/chunk coordinator result batches or use content-addressed/object storage so collection does not materialize a complete distributed cycle response in memory.
-- [ ] Add worker capability advertisements, source affinity/locality hints and work stealing so tasks land on nodes best suited to each adapter/source.
-- [ ] Add explicit drain/cancel semantics, dead-worker quarantine and graceful rolling restart behavior.
-- [ ] Add coordinator backup/restore and optional HA/failover for lease/task state without turning canonical catalog history into multi-master state.
-- [ ] Add native OTLP traces/metrics export as an optional dependency while retaining the dependency-light Prometheus endpoint.
-- [ ] Feed CPU load, thermal state and optional energy/power budgets into concurrency/batch controllers in addition to latency/RSS.
-- [ ] Add network-partition, coordinator-restart, worker-crash and duplicate-delivery fault-injection tests.
-- [ ] Replace the broad generic performance floor with hardware-class baselines after enough stable CI/real-node runs are collected.
-- [ ] Add cache compaction/content-addressed raw-source snapshots so multiple workers can safely share immutable source payload evidence.
-
-## Highest priority — next catalog/source work
+## Highest priority — catalog/source work
 
 - [ ] Add source-specific marketplace/API adapters where generic JSON/JSON-LD is insufficient (eBay, AliExpress/Alibaba exports, used-market feeds and retailer APIs).
-- [ ] Add automatic promotion proposals from high-confidence discovery observations into reviewed catalog fragments with human-readable diffs; never auto-promote unreviewed remote worker output.
+- [ ] Add reviewed automatic promotion proposals from high-confidence discovery observations with human-readable diffs; never auto-promote unreviewed worker output.
 - [ ] Add a pluggable live FX-rate provider while preserving explicit-rate/offline reproducibility.
 - [ ] Backfill `max_memory_source_url`, dimensions, DC input and exact configuration evidence across legacy catalog records.
-- [ ] Promote the highest-confidence discovery-watchlist targets into `data/catalog/` after exact SKU, price and availability verification.
+- [ ] Promote the highest-confidence discovery-watchlist targets after exact SKU, price and availability verification.
 - [ ] Expand exact-SKU coverage for Ryzen 7840HS/8845HS/8945HS/HX370 systems, especially 64–128GB-capable bargains.
 - [ ] Add more direct-China and used-market mobile boards, mini PCs, RK3588/RK3576 systems and unusual accelerators.
 

@@ -12,6 +12,13 @@ license = {text = "MIT"}
 authors = [{name = "LowPowerLLMCluster contributors"}]
 dependencies = ["aiohttp>=3.14.3,<4", "ijson>=3.3,<4"]
 
+[project.optional-dependencies]
+telemetry = [
+  "opentelemetry-api>=1.30,<2",
+  "opentelemetry-sdk>=1.30,<2",
+  "opentelemetry-exporter-otlp-proto-http>=1.30,<2"
+]
+
 [project.scripts]
 llm-cluster = "lowpower_llm_cluster.cli:main"
 llm-cluster-service = "lowpower_llm_cluster.service_cli:main"

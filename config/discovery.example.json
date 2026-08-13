@@ -37,7 +37,12 @@
       "type": "jsonld",
       "source_trust": 0.95,
       "subworkers": 4,
-      "urls": ["https://store.minisforum.com/en-os/products/minisforum-um890pro-mini-pc"]
+      "urls": ["https://store.minisforum.com/en-os/products/minisforum-um890pro-mini-pc"],
+      "worker_requirements": {
+        "capabilities": ["jsonld"],
+        "max_cpu_load": 0.9,
+        "min_available_memory_mb": 512
+      }
     },
     {
       "name": "example-json-feed",
@@ -46,6 +51,12 @@
       "endpoint": "https://example.invalid/catalog.json",
       "streaming_json": true,
       "items_path": "products",
+      "worker_affinity": ["thinkpad-l14"],
+      "worker_requirements": {
+        "capabilities": ["json"],
+        "labels": {"region": "trailer"},
+        "max_thermal_c": 90
+      },
       "fields": {"source_id":"id","listing_url":"url","title":"name","price":"price","currency":"currency","seller":"seller.name","seller_rating":"seller.rating","seller_review_count":"seller.review_count","seller_verified":"seller.verified","manufacturer":"manufacturer","sku":"sku","mpn":"mpn","in_stock":"in_stock"},
       "attribute_fields": {"cpu":"specs.cpu","memory_capacity_gb":"specs.memory_gb","board_max_memory_gb":"specs.max_memory_gb","board_max_memory_source_url":"specs.max_memory_source_url","dimensions":"specs.dimensions","dc_input_v":"specs.dc_input_v","power_adapter":"specs.power_adapter","cooling":"specs.cooling","host_requirements":"specs.host_requirements"}
     }

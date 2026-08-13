@@ -7,7 +7,9 @@ on:
       - "src/lowpower_llm_cluster/**"
       - "scripts/benchmark_discovery_pipeline.py"
       - "scripts/check_perf_regression.py"
+      - "scripts/check_hardware_class_baseline.py"
       - "benchmarks/perf-baseline.json"
+      - "benchmarks/hardware-class-baselines.json"
       - ".github/workflows/perf.yml"
 
 jobs:
@@ -21,6 +23,7 @@ jobs:
       - run: python -m pip install -e .
       - run: python scripts/benchmark_discovery_pipeline.py --counts 1000 10000 --output results/discovery-perf.json
       - run: python scripts/check_perf_regression.py --baseline benchmarks/perf-baseline.json --current results/discovery-perf.json
+      - run: python scripts/check_hardware_class_baseline.py --current results/discovery-perf.json
       - run: python scripts/profile_jsonld.py --products 1000 10000 --repeats 2
       - uses: actions/upload-artifact@v4
         if: always()

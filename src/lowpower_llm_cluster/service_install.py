@@ -24,6 +24,14 @@ def main() -> int:
     parser.add_argument("--system", action="store_true")
     parser.add_argument("--destination")
     parser.add_argument("--enable-now", action="store_true")
+    parser.add_argument("--distributed-coordinator")
+    parser.add_argument("--distributed-admin-token-file", help="preferred over embedding a token in the unit")
+    parser.add_argument("--distributed-tls-ca")
+    parser.add_argument("--distributed-tls-cert")
+    parser.add_argument("--distributed-tls-key")
+    parser.add_argument("--distributed-poll-s", type=float)
+    parser.add_argument("--distributed-timeout-s", type=float)
+    parser.add_argument("--otlp-endpoint")
     args = parser.parse_args()
     service = shutil.which("llm-cluster-service") or "llm-cluster-service"
     destination = Path(args.destination) if args.destination else (Path("/etc/systemd/system") / args.unit_name if args.system else Path.home() / ".config/systemd/user" / args.unit_name)
@@ -31,8 +39,24 @@ def main() -> int:
     history = str(Path(args.history).expanduser().resolve())
     output = str(Path(args.output).expanduser().resolve())
     cache = str(Path(args.cache).expanduser().resolve())
+    extra: list[str] = []
+    if args.distributed_coordinator:
+        extra.extend(["--distributed-coordinator", args.distributed_coordinator])
+    for flag, value in (
+        ("--distributed-admin-token-file", args.distributed_admin_token_file),
+        ("--distributed-tls-ca", args.distributed_tls_ca),
+        ("--distributed-tls-cert", args.distributed_tls_cert),
+        ("--distributed-tls-key", args.distributed_tls_key),
+        ("--otlp-endpoint", args.otlp_endpoint),
+    ):
+        if value:
+            extra.extend([flag, str(Path(value).expanduser().resolve()) if flag != "--otlp-endpoint" else str(value)])
+    if args.distributed_poll_s is not None:
+        extra.extend(["--distributed-poll-s", str(args.distributed_poll_s)])
+    if args.distributed_timeout_s is not None:
+        extra.extend(["--distributed-timeout-s", str(args.distributed_timeout_s)])
     destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(render_systemd_unit(service_command=service, config=config, history=history, output=output, cache=cache, interval=args.interval), encoding="utf-8")
+    destination.write_text(render_systemd_unit(service_command=service, config=config, history=history, output=output, cache=cache, interval=args.interval, extra_args=extra), encoding="utf-8")
     print(destination)
     if args.enable_now:
         systemctl = ["systemctl", *([] if args.system else ["--user"])]
@@ -41,5 +65,4 @@ def main() -> int:
     return 0
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+if __name__ == "__main__": raise SystemExit(main())

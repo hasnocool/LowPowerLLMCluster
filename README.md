@@ -1,6 +1,6 @@
 # LowPowerLLMCluster
 
-**A catalog-first research and buying planner for cheap, efficient and unusual local-LLM hardware, with a bounded multi-node discovery runtime.**
+**A catalog-first research and buying planner for cheap, efficient and unusual local-LLM hardware, with a bounded, authenticated multi-node discovery runtime.**
 
 The project tracks mini PCs, laptop/mobile-CPU boards, SBCs, embedded systems, NPUs, TPUs, AI ASICs, FPGAs, specialty APUs and useful decommissioned accelerators. Hardware can be cataloged without being physically owned; performance claims remain separate from product/source evidence.
 
@@ -8,64 +8,71 @@ The project tracks mini PCs, laptop/mobile-CPU boards, SBCs, embedded systems, N
 
 ## Runtime architecture
 
-The discovery path now scales from one low-power node to multiple workers without making canonical history multi-master:
+The discovery path scales from one low-power node to multiple authenticated workers without making canonical history multi-master:
 
 ```text
-                      DISCOVERY COORDINATOR
+                       llm-cluster-service
                               │
-                   bounded source/task queue
+                  automatic secure cycle submit
+                              ▼
+                   ACTIVE COORDINATOR (epoch N)
+                    TLS + optional mTLS
+                 admin bearer / worker HMAC
                               │
              ┌────────────────┼────────────────┐
              ▼                ▼                ▼
           worker A         worker B         worker C
+        capabilities      capabilities      capabilities
+       locality labels   locality labels   locality labels
+       CPU/RAM/thermal   CPU/RAM/thermal   CPU/RAM/thermal
+        power budget      power budget      power budget
              │                │                │
-       circuit breaker   circuit breaker  circuit breaker
-       adaptive permits  adaptive permits adaptive permits
-             │                │                │
-             └──────── pooled/streamed source I/O ────────┐
-                                                          ▼
-                                           observation batches
-                                                          │
-                              ┌───────────────────────────┴──────┐
-                              ▼                                  ▼
-                      off-loop normalize                canonical history
-                      adaptive batches                  single SQLite writer
-                              │                                  │
-                              └──────────────┬───────────────────┘
-                                             ▼
-                                  normalized JSONL spool
-                                             │
-                                             ▼
-                                     atomic latest JSON
+             └──── bounded source observation batches ────┐
+                                                         ▼
+                                         SHA-256 content-addressed
+                                              result artifacts
+                                                         │
+                                               streamed NDJSON
+                                                         ▼
+                                             canonical collector
+                                             one SQLite writer
 ```
 
-The core invariants are:
+An optional standby coordinator shares durable task state and claims a new **leader epoch** after the old leader lease expires. Every secure task lease is epoch-fenced, so a stale leader/worker cannot complete or append batches after failover.
+
+Core invariants:
 
 - native async HTTP through reusable `aiohttp` pools;
 - bounded source workers, URL workers, queues, HTTP connections and transform workers;
 - `ETag` / `Last-Modified` conditional requests with parsed-observation reuse on `304`;
 - retry/backoff/jitter and `Retry-After` handling;
-- adaptive per-source concurrency plus circuit breakers that cool down repeatedly failing sources;
+- adaptive source concurrency, circuit breakers and adaptive observation batches;
 - cache TTL, bounded entry count, LRU-style pruning and optional gzip persistence;
-- adaptive observation batch sizes based on batch latency and RSS pressure;
-- true streaming large-JSON ingestion through `ijson` when `streaming_json` is enabled;
-- optional `process` adapters for isolating unstable third-party parsers;
+- true streaming large-JSON ingestion through `ijson`;
+- optional process-isolated source adapters;
 - incremental SQLite writes and disk-backed normalized spooling;
-- failed sources are excluded from disappearance detection;
-- a persistent service can reuse HTTP/DNS/cache/SQLite state across cycles;
-- distributed source workers use leases, heartbeats and idempotent batch IDs while one collector retains canonical history ownership.
+- failed/canceled sources are excluded from disappearance detection;
+- authenticated v2 workers use leases, heartbeats, replay-protected HMAC requests and leader epochs;
+- result batches and reusable source snapshots can live in immutable SHA-256-addressed storage;
+- canonical history/promotion remains single-writer on the collector side.
 
-See [docs/CONCURRENCY.md](docs/CONCURRENCY.md) and [docs/DISTRIBUTED_RUNTIME.md](docs/DISTRIBUTED_RUNTIME.md).
+See [docs/CONCURRENCY.md](docs/CONCURRENCY.md), [docs/DISTRIBUTED_RUNTIME.md](docs/DISTRIBUTED_RUNTIME.md), [docs/DISTRIBUTED_SECURITY.md](docs/DISTRIBUTED_SECURITY.md) and [docs/DASHBOARD.md](docs/DASHBOARD.md).
 
 ## Install and configure
 
 ```bash
 python -m pip install -e .
 cp config/discovery.example.json config/discovery.local.json
-# Edit the sources and remove example.invalid before live use.
+# Edit sources; remove example.invalid before live use.
 ```
 
-A representative runtime configuration looks like:
+Optional native OTLP/HTTP telemetry:
+
+```bash
+python -m pip install -e '.[telemetry]'
+```
+
+A representative local discovery configuration remains conservative:
 
 ```json
 {
@@ -86,7 +93,7 @@ A representative runtime configuration looks like:
 }
 ```
 
-## One-shot discovery
+## One-shot local discovery
 
 ```bash
 llm-cluster discover \
@@ -97,7 +104,7 @@ llm-cluster discover \
 
 Discovery/history output is **staging evidence**. It is not automatically canonical product truth.
 
-## Persistent service, health and metrics
+## Persistent local service, health and metrics
 
 ```bash
 llm-cluster-service \
@@ -116,63 +123,150 @@ GET /metrics     Prometheus text exposition
 GET /v1/status   JSON health + runtime metrics snapshot
 ```
 
-The Prometheus endpoint is directly scrapeable by Prometheus and by an OpenTelemetry Collector using its Prometheus receiver. A native optional OTLP exporter remains future work rather than a mandatory dependency on small nodes.
+Prometheus remains the dependency-light default. `--otlp-endpoint http://otel-collector:4318` additionally exports native OTLP/HTTP traces/counters when the `telemetry` extra is installed.
 
-Install a hardened systemd user unit:
+## Secure distributed quick start
+
+### 1. Create worker/admin credentials
+
+```bash
+llm-cluster-distributed init-auth \
+  --output config/distributed-auth.json \
+  --worker thinkpad-l14 \
+  --worker thinkpad-t480
+```
+
+The generated file is mode `0600`; secrets are not printed. Keep it out of Git.
+
+### 2. Start the active coordinator
+
+```bash
+llm-cluster-distributed coordinator \
+  --auth-file config/distributed-auth.json \
+  --state results/distributed-tasks.sqlite3 \
+  --artifacts results/distributed-artifacts \
+  --node-id coordinator-a \
+  --host 0.0.0.0 --port 8788 \
+  --tls-cert /etc/lpllm/coordinator.crt \
+  --tls-key /etc/lpllm/coordinator.key \
+  --tls-client-ca /etc/lpllm/ca.crt \
+  --require-client-cert
+```
+
+The old unauthenticated `/v1` coordinator remains available only when `--auth-file` is omitted for compatibility. New deployments should use secure v2.
+
+### 3. Start workers
+
+```bash
+llm-cluster-distributed worker \
+  --coordinator https://coordinator.internal:8788 \
+  --config config/discovery.local.json \
+  --worker-id thinkpad-l14 \
+  --worker-secret-file /run/secrets/lpllm-worker-secret \
+  --capability json --capability jsonld --capability process \
+  --label region=trailer \
+  --power-budget-w 35 \
+  --shared-snapshot-dir /shared/lpllm/source-snapshots \
+  --tls-ca /etc/lpllm/ca.crt \
+  --tls-cert /etc/lpllm/thinkpad-l14.crt \
+  --tls-key /etc/lpllm/thinkpad-l14.key
+```
+
+Workers advertise capabilities, labels and current CPU/RAM/thermal state. Optional power/energy budgets are operator-supplied boundaries. Sources may request capabilities/labels, resource ceilings and preferred worker affinity.
+
+### 4. Let the daemon own recurring distributed cycles
+
+```bash
+llm-cluster-service \
+  --config config/discovery.local.json \
+  --distributed-coordinator https://coordinator.internal:8788 \
+  --distributed-admin-token-file /run/secrets/lpllm-admin-token \
+  --distributed-tls-ca /etc/lpllm/ca.crt \
+  --interval 300
+```
+
+The daemon now performs **submit → wait → streamed collect → canonical history write** automatically on every interval. No separate operator collection phase is required.
+
+The hardened systemd installer accepts the same distributed coordinator/token-file/TLS/OTLP options:
 
 ```bash
 llm-cluster-install-service \
   --config config/discovery.local.json \
+  --distributed-coordinator https://coordinator.internal:8788 \
+  --distributed-admin-token-file /run/secrets/lpllm-admin-token \
+  --distributed-tls-ca /etc/lpllm/ca.crt \
   --enable-now
 ```
 
-Use `--system` for `/etc/systemd/system`. The installer resolves configured paths to absolute paths and emits `Restart=on-failure`, restart backoff, conservative scheduling priority, `NoNewPrivileges`, `PrivateTmp` and a restrictive umask.
+## Capability/locality-aware source scheduling
 
-## Distributed source workers
+A source may express worker requirements:
 
-Start the durable coordinator on the canonical node:
-
-```bash
-llm-cluster-distributed coordinator \
-  --state results/distributed-tasks.sqlite3 \
-  --host 0.0.0.0 --port 8788
+```json
+{
+  "name": "special-source",
+  "type": "process",
+  "command": ["python", "plugins/special_source.py"],
+  "worker_affinity": ["thinkpad-l14"],
+  "worker_requirements": {
+    "capabilities": ["process"],
+    "labels": {"region": "trailer"},
+    "max_cpu_load": 0.8,
+    "max_thermal_c": 85,
+    "min_available_memory_mb": 2048,
+    "min_power_budget_w": 25
+  }
+}
 ```
 
-Submit a source cycle:
+Hard requirements must match. Affinity is preferred, then compatible workers may steal the task after the configured wait period so an offline preferred node does not stall a whole cycle forever.
+
+## Result streaming and immutable artifacts
+
+Secure result batches are persisted independently by SHA-256. The coordinator stores only artifact digest/count metadata in task state, making retried `(task_id,batch_id)` insertion idempotent.
+
+Collectors consume `/v2/cycles/<id>/results.ndjson` one batch at a time. A complete remote cycle is never returned as one giant JSON document.
+
+Shared source snapshots use the same content-addressed idea for normal full-body HTTP fetches. Snapshot replay is explicit (`--prefer-snapshot`) and freshness-bounded; stale data never silently becomes live truth. Streaming `ijson` feeds are not re-materialized merely to snapshot them.
+
+## Drain, cancel and rolling restart
 
 ```bash
-llm-cluster-distributed submit \
-  --coordinator http://coordinator:8788 \
-  --config config/discovery.local.json \
-  --cycle-id refresh-001
+llm-cluster-distributed workers --coordinator ... --admin-token-file ...
+llm-cluster-distributed drain --coordinator ... --worker-id thinkpad-l14 --admin-token-file ...
+# restart worker
+llm-cluster-distributed undrain --coordinator ... --worker-id thinkpad-l14 --admin-token-file ...
+llm-cluster-distributed cancel --coordinator ... --cycle-id service-... --admin-token-file ...
 ```
 
-Run workers on one or more machines:
+A secure worker self-drains on SIGINT/SIGTERM without possessing admin authority, takes no new lease, finishes/losses its current lease, then exits. Repeated failing workers are temporarily quarantined.
+
+Rolling restart sequence: **drain → wait idle/current lease → restart → undrain → next worker**.
+
+## Coordinator backup and active/standby failover
+
+Live backup:
 
 ```bash
-llm-cluster-distributed worker \
-  --coordinator http://coordinator:8788 \
-  --config config/discovery.local.json \
-  --worker-id node-a
+llm-cluster-distributed backup \
+  --coordinator https://coordinator.internal:8788 \
+  --admin-token-file /run/secrets/lpllm-admin-token \
+  --destination /backups/lpllm-coordinator.sqlite3
 ```
 
-Then collect the completed remote cycle into canonical history:
+Offline restore:
 
 ```bash
-llm-cluster-distributed collect \
-  --coordinator http://coordinator:8788 \
-  --cycle-id refresh-001 \
-  --config config/discovery.local.json \
-  --wait
+llm-cluster-distributed restore-state \
+  --backup /backups/lpllm-coordinator.sqlite3 \
+  --state results/distributed-tasks.sqlite3
 ```
 
-Workers have durable leases and heartbeats. Expired work is reclaimed, attempts survive worker changes, task/batch IDs are deterministic, and duplicate result batches are ignored. Only completed source tasks participate in disappearance detection.
+A standby coordinator can share the durable task DB/artifact store and run with `--standby`. When the active leadership lease expires, the standby increments the epoch and becomes active. Old-epoch lease mutations are rejected.
 
-**Security note:** the initial coordinator API does not yet provide built-in authentication or TLS/mTLS. Keep it on a trusted/private network, VPN, or protected reverse proxy; do not expose it directly to the public Internet. The next runtime phase adds authenticated worker identities and transport security.
+This is **fenced active/standby failover**, not quorum consensus and not SQLite multi-master replication. Canonical catalog history remains one active collector/writer.
 
 ## Very large JSON feeds
-
-For a JSON feed whose product array is too large to decode as one document, enable streaming:
 
 ```json
 {
@@ -184,23 +278,23 @@ For a JSON feed whose product array is too large to decode as one document, enab
 }
 ```
 
-`ijson` consumes array items directly from the `aiohttp` response stream. The item mapping remains the same as normal JSON adapters, but the complete decoded document is never required in memory.
+`ijson` consumes array items directly from the `aiohttp` response stream, so the complete decoded source document is not required in memory.
 
 ## Process-isolated adapters
 
-A source may use `type: "process"` with a command array. The child receives the source configuration as one JSON line on stdin and returns either one observation per JSONL line or `{"observations": [...]}`. The command is executed without a shell, line size and runtime are bounded, and the rest of the discovery pipeline remains unchanged. This is for unstable/special third-party parsers—not a reason to move every parser into a process.
+A source may use `type: "process"` with a command array. The child receives source configuration as one JSON line on stdin and returns one observation per JSONL line or `{"observations": [...]}`. The command runs without a shell, with bounded line size/runtime.
 
-## Performance regression tooling
+## Fault injection and performance regression tooling
 
 ```bash
+python scripts/run_distributed_faults.py
 python scripts/benchmark_discovery_pipeline.py --counts 1000 10000 --output results/discovery-perf.json
-python scripts/check_perf_regression.py \
-  --baseline benchmarks/perf-baseline.json \
-  --current results/discovery-perf.json
+python scripts/check_perf_regression.py --baseline benchmarks/perf-baseline.json --current results/discovery-perf.json
+python scripts/check_hardware_class_baseline.py --current results/discovery-perf.json
 python scripts/profile_jsonld.py --products 1000 10000 --repeats 2
 ```
 
-The PR performance workflow uses deliberately broad thresholds to catch catastrophic throughput/RSS/event-loop regressions without treating ordinary shared-runner noise as a failure. JSON-LD parsing remains fast enough in current measurements that a process pool is not justified as the default path.
+The fault suite covers worker-crash lease reclamation, coordinator restart persistence, stale-epoch fencing and backup. The performance workflow retains the broad generic floor and now additionally checks a hardware-class synthetic baseline when one exists. Hardware-class runtime baselines are **not** LLM product throughput claims.
 
 ## Evidence, not pretend precision
 
@@ -235,35 +329,26 @@ llm-cluster list --llm-only --max-price 250
 llm-cluster list --llm-only --min-sku-confidence 0.70 --sort price
 llm-cluster report best_under_200
 llm-cluster report high_memory_bargains
-llm-cluster report low_power_nodes
-llm-cluster report weird_hardware
-llm-cluster report eol_bargains
 llm-cluster dashboard --output results/catalog-dashboard.html
 ```
 
-The dashboard has been rebuilt around a four-step research flow rather than a raw catalog table:
+The dashboard is organized as:
 
 ```text
 OVERVIEW  →  BROWSE  →  INSPECT  →  COMPARE
 coverage     filter      one item     up to four
 ```
 
-- **Overview** shows catalog size, LLM-candidate count, data completeness, catalog mix and top research candidates.
-- **Browse** keeps only decision-critical columns visible: product, price, memory/evidence basis, power boundary/scope, risk, evidence source and research score.
-- Selecting a row opens a structured **product inspector** for buying status, memory evidence, power/deployment requirements, software/workload support and source provenance.
-- **Compare** uses a dedicated matrix for up to four products instead of compressing comparisons into prose.
-- Filters and comparison state persist locally, global search supports `Ctrl/Cmd+K`, and the self-contained dashboard adapts its navigation/filter layout for smaller screens.
-
-Unknown values remain unknown, CPU-theoretical memory does not masquerade as board verification, and the shopping/catalog score remains separate from measured performance. See [docs/DASHBOARD.md](docs/DASHBOARD.md) for the dashboard information architecture and data-boundary rules.
+Unknown values remain unknown, CPU-theoretical memory does not masquerade as board verification, and the shopping/catalog score remains separate from measured performance. See [docs/DASHBOARD.md](docs/DASHBOARD.md).
 
 ## Safe model-fit presets
-
-Model fit is a memory-capacity screen, not a speed predictor:
 
 ```bash
 llm-cluster fit special-amd-bc250-16g --preset 14b-q4
 llm-cluster fit special-amd-bc250-16g --params-b 14 --bits 4
 ```
+
+Model fit is a memory-capacity screen, not a speed predictor.
 
 ## CAD / Canada landed-cost planning
 
@@ -276,41 +361,32 @@ llm-cluster landed-cost \
 
 The FX snapshot is explicit for reproducibility. The result is a planning estimate, not a customs/tax guarantee.
 
-## Sourced performance records
-
-```bash
-llm-cluster performance-range data/performance/my-records.json \
-  --hardware-id node-example \
-  --model Example-7B \
-  --runtime llama.cpp \
-  --workload-class llm_decode \
-  --metric tokens_per_second
-```
-
-Specialist vision/audio/embedding/reranking records remain separate from LLM throughput.
-
 ## Repository layout
 
 ```text
 LowPowerLLMCluster/
-├── config/discovery.example.json       discovery/runtime configuration
+├── config/discovery.example.json       discovery/runtime + worker requirements
 ├── data/catalog/                       reviewed canonical catalog fragments
 ├── data/discovery/                     staging/watch targets
 ├── data/performance/                   sourced performance evidence
 ├── docs/CONCURRENCY.md                 local runtime/backpressure design
-├── docs/DISTRIBUTED_RUNTIME.md         lease/worker/coordinator design
-├── docs/DASHBOARD.md                   dashboard UX + data-boundary design
-├── specs/discovery-config.schema.json  source/runtime configuration contract
-├── src/lowpower_llm_cluster/           planner + local/distributed runtime
-├── benchmarks/perf-baseline.json       broad synthetic regression reference
-├── scripts/benchmark_discovery_pipeline.py
-├── scripts/check_perf_regression.py
+├── docs/DISTRIBUTED_RUNTIME.md         secure worker/coordinator/HA design
+├── docs/DISTRIBUTED_SECURITY.md        auth/TLS/epoch trust boundaries
+├── docs/DASHBOARD.md                   dashboard UX + data boundaries
+├── src/lowpower_llm_cluster/secure_distributed.py
+├── src/lowpower_llm_cluster/content_store.py
+├── benchmarks/perf-baseline.json
+├── benchmarks/hardware-class-baselines.json
+├── scripts/run_distributed_faults.py
+├── scripts/check_hardware_class_baseline.py
 └── PARTS.md                            generated canonical catalog
 ```
 
 ## Next priorities
 
-See [TODO.md](TODO.md). The next dashboard/data-UX phase is a **live but evidence-separated operations view**: service/source health, discovery history/change events, price-history timelines, distributed cycle state, model-fit/landed-cost actions, portable saved research views and compatible measured-performance visualizations. Secure/automatic distributed operation remains the parallel runtime priority: service-integrated remote cycles, authenticated workers and TLS/mTLS, streamed remote result transport, capability-aware scheduling, coordinator recovery/HA, resource-aware controls and fault-injection tests.
+See [TODO.md](TODO.md). With secure automatic distributed operation implemented, the next runtime-hardening layer is **credential/certificate rotation and external secret management, external object storage/CAS backends, stronger multi-failure-domain coordination where required, scheduler learning from historical source cost/failure data, artifact retention/integrity policy, long-running chaos/soak tests, deployment/bootstrap automation and real-node hardware-class baseline collection**.
+
+The dashboard/data-UX track remains: live service/source health, discovery/history and price timelines, secure distributed worker/cycle status, model-fit/landed-cost actions, portable research views and compatible measured-performance visualizations.
 
 ## Data quality rule
 

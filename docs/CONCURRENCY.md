@@ -13,8 +13,7 @@ The catalog refresh path is designed so network, filesystem, parsing and databas
                    aiohttp connection/DNS pool
                          retry + Retry-After
                                  │
-                    conditional HTTP cache
-                    TTL + prune + optional gzip
+              conditional cache / shared CAS snapshot
                                  │
                   streamed observation batches
                                  │
@@ -37,76 +36,107 @@ The catalog refresh path is designed so network, filesystem, parsing and databas
 
 Every source adapter can be wrapped in `CircuitProtectedAdapter`. Repeated failed cycles open that source's circuit. While open, later refresh cycles reject the source before it consumes HTTP/subworker capacity. After `circuit_recovery_timeout_s`, a bounded half-open probe is allowed. A successful probe closes the circuit; a failed probe immediately reopens it.
 
-Circuit state is source-level rather than request-level so one source that repeatedly fails does not consume workers on every service cycle.
-
 ## Conditional cache lifecycle
 
-The parsed-observation cache stores HTTP validators and small-enough parsed results. It now has:
+The parsed-observation cache stores HTTP validators and small-enough parsed results with TTL expiration, bounded entry count, LRU-style pruning and optional gzip persistence. A `304 Not Modified` can skip body transfer/parsing while stale records disappear over time.
 
-- `cache_ttl_s` expiration;
-- `cache_max_entries` bounds;
-- LRU-style pruning using last-access time;
-- optional `cache_compress` gzip persistence;
-- metrics for hits, saved bytes, expiry, eviction and pruning.
-
-A `304 Not Modified` can therefore skip body transfer and parsing while stale cache records eventually disappear from long-running services.
+Secure distributed workers can additionally use a shared SHA-256 source snapshot directory. Snapshot reuse is explicit and freshness-bounded; streaming `ijson` feeds are not re-materialized merely to create snapshots.
 
 ## Retry and adaptive source concurrency
 
-Retryable `429`, `500`, `502`, `503` and `504` responses use bounded exponential backoff/jitter. `Retry-After` is honored when present. Adaptive source permits use AIMD-like behavior: failures/rate limits reduce concurrency quickly; sustained healthy low-latency requests recover permits slowly.
+Retryable `429`, `500`, `502`, `503` and `504` responses use bounded exponential backoff/jitter. `Retry-After` is honored. Adaptive permits back off quickly after failure/rate limiting and recover slowly after sustained healthy requests.
 
 ## Adaptive batch sizing
 
-`AdaptiveBatchSizer` replaces one globally fixed observation batch size for large sources. Each source starts at `adaptive_batch_initial`, bounded by `adaptive_batch_min`/`adaptive_batch_max`. High batch wall latency or RSS above `adaptive_batch_rss_soft_limit_mb` halves the target. Sustained healthy low-latency batches increase it gradually. Current target/latency/RSS/increase/decrease counters are included in runtime telemetry.
-
-This adapts memory and transaction size without changing source identity or history semantics.
+`AdaptiveBatchSizer` bounds per-source observation batch size between configured limits and reacts to batch wall latency/RSS pressure. This adjusts memory/transaction size without changing source identity or history semantics.
 
 ## True streaming JSON
 
-Normal JSON adapters may still decode a modest feed as one document. Sources with `streaming_json: true` use `ijson` over the `aiohttp` stream and emit mapped product records incrementally. This avoids retaining the decoded source document in RAM.
-
-Because a partially yielded HTTP stream cannot be safely retried without duplicates, streaming HTTP retries are permitted only before the first yielded item. Once data has escaped the adapter, a network failure fails the source task and relies on source-level retry/lease behavior.
+Sources with `streaming_json: true` use `ijson` over the `aiohttp` response stream. Once a streaming adapter has emitted an item, request-level retry is no longer safe; later failures fail the source task and rely on source/task retry semantics instead.
 
 ## Process isolation
 
-`type: process` sources use an explicit command array with no shell. The child receives source configuration on stdin and emits bounded JSONL observations on stdout. Runtime and line size are limited. This is an escape hatch for unstable third-party parsers; ordinary built-ins remain in the cheaper thread/off-loop path unless profiling proves otherwise.
+`type: process` sources use a command array without a shell. Runtime/line size are bounded. This is an isolation escape hatch for unstable third-party adapters, not the default for every parser.
 
 ## Persistent service health
 
-`llm-cluster-service` keeps HTTP/DNS/cache/SQLite/normalization resources alive across cycles and exposes:
+`llm-cluster-service` reuses HTTP/DNS/cache/SQLite/normalization resources and exposes `/healthz`, `/readyz`, `/metrics` and `/v1/status`.
 
-- `/healthz` — liveness;
-- `/readyz` — readiness based on last cycle status/freshness;
-- `/metrics` — Prometheus exposition;
-- `/v1/status` — JSON health + metrics.
+Prometheus remains dependency-light. Optional `.[telemetry]` dependencies enable native OTLP/HTTP traces/counters without making them mandatory on small nodes.
 
-An OpenTelemetry Collector can ingest `/metrics` with its Prometheus receiver without adding a large telemetry SDK to every low-power node.
+## Automatic secure distributed service mode
 
-## systemd deployment
+When `--distributed-coordinator` is configured, each service cycle becomes:
 
-`llm-cluster-install-service` renders or installs a user/system systemd unit with absolute data/config paths, `Restart=on-failure`, restart delay, conservative CPU/I/O scheduling, `NoNewPrivileges`, `PrivateTmp`, restrictive umask and a clean SIGTERM stop path.
+```text
+submit sources → wait terminal → stream NDJSON batches → incremental history → final spool
+```
 
-## Distributed source execution
+The daemon reuses one secure coordinator client between cycles. It never loads an entire remote cycle result into memory.
 
-Distributed workers move only **source discovery** away from the canonical node. The coordinator's durable task store provides leases, heartbeats, lease reclamation, attempts and idempotent batch IDs. After the remote cycle is terminal, one collector writes canonical history and runs disappearance detection only for successfully completed sources.
+## Distributed scheduling hierarchy
 
-See [DISTRIBUTED_RUNTIME.md](DISTRIBUTED_RUNTIME.md).
+Secure v2 adds another bounded scheduling layer before source execution:
 
-## Performance guard
+```text
+queued source task
+      │
+      ├─ required capabilities
+      ├─ required locality labels
+      ├─ CPU / RAM / thermal gates
+      ├─ operator power-budget gate
+      ├─ preferred worker affinity
+      └─ bounded work-steal timeout
+      ▼
+one leased worker
+      │
+leader epoch + heartbeat
+      ▼
+source's existing bounded subworkers / HTTP pool
+```
 
-`scripts/benchmark_discovery_pipeline.py` measures 1k/10k synthetic refresh throughput, peak RSS and event-loop lag. `scripts/check_perf_regression.py` compares results with `benchmarks/perf-baseline.json`. Thresholds are intentionally wide enough for shared GitHub runners: this check is for catastrophic regression detection, not microbenchmark enforcement.
+A worker owns at most the lease it was granted; draining/quarantined workers receive no new leases. Hard capability/resource requirements are never relaxed by work stealing—only affinity preference is.
+
+## Epoch-fenced active/standby
+
+Coordinator leadership uses one short lease plus monotonically increasing epoch in durable task state. Every secure lease records that epoch. Heartbeat/batch/fail/complete operations require the current epoch, preventing an old coordinator/lease from mutating work after standby promotion.
+
+This is active/standby fencing, not a quorum protocol. Canonical history is still single-writer.
+
+## Content-addressed result transport
+
+Each result batch is an immutable SHA-256 artifact. Task state stores digest/count metadata; duplicate task/batch IDs are ignored. Collection streams one NDJSON batch at a time. The secure API therefore has bounded batch memory rather than complete-cycle memory.
+
+## Resource-aware workers
+
+Linux workers sample load average normalized by CPU count, `/proc/meminfo` availability and thermal-zone temperatures off the event loop. Power/energy budgets are optional operator inputs; they are not inferred from TDP or treated as measured node watts.
+
+## systemd deployment and rolling restart
+
+`llm-cluster-install-service` can render local or secure-distributed daemon units. Secure workers self-drain on termination, while admin drain/undrain supports rolling restart:
+
+**drain → finish/expire current lease → restart → undrain → next node**.
+
+## Performance guards
+
+- `scripts/check_perf_regression.py` keeps the broad cross-runner catastrophic-regression floor.
+- `scripts/check_hardware_class_baseline.py` applies a class-specific synthetic runtime baseline when one is committed.
+- Hardware-class runtime baselines are never catalog product throughput evidence.
+- `scripts/run_distributed_faults.py` exercises worker crash reclamation, restart persistence, backup and stale-epoch rejection.
 
 ## Non-blocking rules
 
 1. Network I/O stays native async and pooled.
 2. Filesystem, SQLite and material JSON/HTML CPU work stay off the event loop.
-3. Fan-out remains bounded at source, URL, HTTP, transform and queue levels.
-4. A failed/rate-limited source never masquerades as an empty successful source.
-5. Streaming paths do not re-materialize whole refreshes merely for convenience.
-6. Distributed workers never write canonical catalog/history state directly.
-7. Process isolation remains optional and profiling-driven.
-8. `scripts/check_async_blocking.py` mechanically guards the local, service and distributed async paths.
+3. Fan-out remains bounded at coordinator task, source, URL, HTTP, transform and queue levels.
+4. Failed/canceled/rate-limited sources never masquerade as empty successful sources.
+5. Streaming paths do not re-materialize whole source/refresh/cycle payloads for convenience.
+6. Distributed workers never write canonical catalog/history directly.
+7. Secure mutations require valid identity, lease ownership and leader epoch.
+8. Content-addressed snapshots/results preserve immutable digest semantics and bounded retention/GC policy.
+9. Process isolation remains optional and profiling-driven.
+10. `scripts/check_async_blocking.py` mechanically covers local, service and secure-distributed async paths.
 
 ## Next layer
 
-The next runtime work is authenticated/TLS-protected workers, automatic distributed cycles inside the service, streamed/chunked remote result transport, worker capability scheduling, drain/cancel/restart semantics, coordinator recovery/HA, optional native OTLP export and fault-injection testing. See `TODO.md`.
+The next production-hardening layer is external secret/certificate rotation, object-store CAS, stronger consensus/state backends where separate failure domains require them, historical scheduler learning, artifact integrity/retention automation, cluster bootstrap/enrollment and long-running chaos/soak validation. See `TODO.md`.

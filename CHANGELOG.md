@@ -6,65 +6,54 @@ All notable changes to this project will be documented here.
 
 ### Added
 
-- Bounded asynchronous catalog discovery pipeline with generic JSON-feed and schema.org JSON-LD product-page adapters.
-- Hierarchical source-agent workers plus per-source URL subworkers with bounded queues/backpressure.
-- Native pooled `aiohttp` networking with global/per-host concurrency caps, keep-alive/DNS reuse and response-size limits.
-- Conditional HTTP caching with `ETag` / `Last-Modified` and parsed-observation reuse on `304 Not Modified` responses.
-- Bounded retry/backoff/jitter for transient HTTP failures plus `Retry-After` handling and per-source rate-limit telemetry.
-- AIMD-like adaptive per-source concurrency that backs off quickly after errors/rate limits and recovers cautiously after healthy requests.
-- Per-source circuit breakers with cooldown and bounded half-open recovery probes.
-- Conditional-cache TTL expiration, LRU-style pruning, bounded cache size and optional gzip persistence.
-- Adaptive observation batch sizing driven by batch latency and RSS pressure.
-- Long-running `llm-cluster-service` command that reuses HTTP connections, DNS cache, conditional cache, normalization workers and SQLite state across refresh cycles.
-- Service health/readiness/status endpoints plus dependency-light Prometheus metrics suitable for Prometheus or an OpenTelemetry Collector Prometheus receiver.
-- `llm-cluster-install-service` systemd installer with absolute paths, restart policy, conservative scheduling and service hardening.
-- Incremental discovery batches, incremental SQLite refresh writes and an on-disk normalized-observation spool to bound refresh memory.
-- Streaming bounded synchronous worker transforms via `map_sync_bounded_iter`.
-- True streaming large-JSON source ingestion through `ijson` when `streaming_json` is enabled.
-- Optional process-isolated source adapters with bounded JSON stdin/JSONL stdout protocol and no shell invocation.
-- Durable distributed source-worker backend with coordinator cycles, leases, heartbeats, lease reclamation, attempt tracking and idempotent result batches.
-- Canonical distributed collector that retains one history writer and only runs disappearance detection for successfully completed remote sources.
-- `docs/DISTRIBUTED_RUNTIME.md` covering multi-node operation, retry guarantees and current network-security boundaries.
-- Runtime telemetry for total/discovery/persistence-normalization duration, per-source timing, request attempts, retries, rate limits, transferred bytes, cache hits, circuit state, adaptive batch targets and peak in-flight requests.
-- Persistent single-writer SQLite history actor using one dedicated worker thread, WAL mode and batched writes.
-- CI `check_async_blocking.py` guard for event-loop blocking regressions across discovery, HTTP, streaming persistence, service and distributed paths.
-- `docs/CONCURRENCY.md` with worker hierarchy, cache/retry/circuit/adaptive behavior, streaming design, service tuning and distributed-runtime rules.
-- Synthetic E2E performance harness for 100/1,000/10,000 observations with throughput, peak RSS and event-loop-lag measurements.
-- Broad shared-runner performance regression gate and committed synthetic reference baseline for 1k/10k refreshes.
-- JSON-LD parser profiler; current measurements still do not justify a default process pool.
-- Non-blocking SQLite catalog history with price, currency, title, stock, disappearance and reappearance change events.
-- Discovery normalization for form factor, dimensions, DC input, PSU/cooling/host requirements, board-RAM evidence and exact-SKU metadata.
-- Seller, source and exact-SKU confidence scoring.
-- Explicit-FX CAD conversion and Canada landed-cost estimates with shipping, duty, brokerage and province-tax planning assumptions.
-- Catalog reports for sub-$100/$200/$500 candidates, high-memory bargains, low-power nodes, weird hardware and EOL bargains.
-- `docs/DASHBOARD.md` defining the dashboard information hierarchy, evidence-boundary rules, responsive behavior and next live-data UX layer.
-- Dashboard regression tests for the richer view model, required Overview/Browse/Inspect/Compare hierarchy and safe embedded catalog data.
-- Sourced performance-record model and JSON/JSONL importer carrying hardware/model/runtime/workload/quantization/context/power provenance.
-- Confidence-aware measured performance ranges that require multiple independent compatible sources.
-- Model-fit presets for common 1B-70B quantized model classes while preserving the capacity-only warning.
-- Explicit published-power boundary helper that distinguishes accelerator/board measurements from processor TDP/cTDP.
-- Discovery configuration and performance-record schemas, example discovery configuration, initial watchlist, and one vendor-provenance Hailo-10H record.
-- Tests for discovery, cache lifecycle, retries/rate limits, adaptive controls, circuit breakers, streaming workers, service health, systemd rendering, process isolation, distributed lease/idempotency behavior, history/change detection, pricing/evidence, catalog reports and dashboard rendering.
+- Bounded asynchronous catalog discovery pipeline with generic JSON-feed, schema.org JSON-LD and optional process-isolated source adapters.
+- Hierarchical source-agent workers, per-source URL subworkers and bounded queues/backpressure.
+- Native pooled `aiohttp` networking with global/per-host caps, keep-alive/DNS reuse, response-size limits, retry/backoff/jitter and `Retry-After` handling.
+- Conditional HTTP cache with `ETag` / `Last-Modified`, parsed-observation reuse, TTL expiration, LRU-style pruning, bounded entry count and optional gzip persistence.
+- AIMD-like adaptive source concurrency, per-source circuit breakers and adaptive observation batch sizing driven by latency/RSS pressure.
+- True streaming large-JSON source ingestion through `ijson`.
+- Persistent `llm-cluster-service` operation with health/readiness/status endpoints, dependency-light Prometheus metrics and hardened systemd installation.
+- Incremental discovery/history writes, persistent single-writer SQLite/WAL state, bounded streaming transforms and normalized disk spooling.
+- Original durable v1 distributed source-worker backend with cycles, leases, heartbeats, lease reclamation, retry attempts and idempotent batch IDs.
+- **Secure v2 distributed coordinator protocol** with separate admin bearer authorization and replay-protected per-worker HMAC identity.
+- TLS server/client support plus optional mutual-TLS worker certificates for secure coordinator deployments.
+- `llm-cluster-distributed init-auth` for mode-`0600` generated admin/worker credentials without printing generated secrets.
+- Leader-lease/epoch fencing so stale coordinators and old worker leases cannot mutate task state after active/standby failover.
+- Automatic secure distributed cycles inside `llm-cluster-service`: submit, wait, streamed collection and canonical history persistence happen in one recurring daemon cycle.
+- SHA-256 content-addressed remote result batches with idempotent `(task_id,batch_id)` insertion and NDJSON result streaming that avoids complete-cycle materialization.
+- Worker capability advertisements, key/value locality labels, source affinity and bounded work stealing.
+- CPU load, available-memory, Linux thermal and optional operator-supplied power/energy resource snapshots for lease eligibility.
+- Worker drain/self-drain, cycle cancellation, failure quarantine and documented rolling-restart behavior.
+- Live coordinator SQLite backup, offline atomic restore and shared-state active/standby promotion without making canonical catalog history multi-master.
+- Optional native OTLP/HTTP traces/counters through the `telemetry` extra while retaining Prometheus as the default metrics path.
+- Shared immutable SHA-256 source snapshots for normal full-body HTTP fetches with explicit freshness-bounded replay.
+- Deterministic distributed fault smoke suite for worker crashes, coordinator restart persistence, stale-epoch fencing and backups.
+- Hardware-class synthetic runtime baseline gate alongside the broad generic shared-runner performance floor.
+- Runtime telemetry for source timing, HTTP attempts/retries/rate limits/bytes/cache hits, circuit state, batch targets and distributed cycle information.
+- CI async-blocking guard across local, resilient, secure-distributed and daemon paths.
+- Explicit-FX CAD landed-cost planning, catalog reports, sourced performance records, confidence-aware measured ranges and safe model-fit presets.
+- Ground-up catalog dashboard redesign with Overview → Browse → Inspect → Compare, structured evidence/deployment detail, responsive navigation and safe embedded data.
+- `docs/DASHBOARD.md`, `docs/DISTRIBUTED_RUNTIME.md` and `docs/DISTRIBUTED_SECURITY.md` defining UX, runtime, trust, failover and evidence boundaries.
+- Tests for discovery, cache/retry/adaptive/circuit behavior, streaming, service health, process isolation, v1 leases, secure HMAC/replay, capability/resource scheduling, leader epochs, content-addressed results, cancellation/reclaim/backup, daemon distributed cycles and dashboard rendering.
 
 ### Changed
 
-- Replaced thread-wrapped `urllib` discovery HTTP with a real async pooled client so socket I/O no longer consumes the global thread pool.
-- JSON/HTML parsing and normalization stay off the event loop; normalization and SQLite persistence overlap safely in streamed batches.
-- SQLite schema initialization/open-close churn was removed from hot operations; refreshes support `begin_refresh` / `record_batch` / `finish_refresh` with batched transactions.
-- Discovery concurrency is configurable independently for source agents, source subworkers, HTTP global/per-host limits, normalization workers, adaptive batch bounds and queue size.
-- Repeatedly failing sources now open a circuit and cool down rather than consuming workers every service cycle.
-- Cache state is lifecycle-managed rather than growing indefinitely in service mode.
-- Failed local or distributed sources do not participate in disappearance detection for that cycle.
-- Very large JSON source results can stream directly from HTTP rather than retaining the decoded source document in memory.
-- Distributed workers execute staging source work only; canonical history and promotion remain coordinator/collector responsibilities.
-- Rebuilt the catalog dashboard from the ground up around an Overview → Browse → Inspect → Compare research flow instead of a single dense table/filter bar.
-- Dashboard Browse now shows only decision-critical columns; product details expose buying state, memory evidence, power/deployment requirements, software/workload support and provenance in a structured drawer.
-- Dashboard comparison is now a dedicated four-product matrix, while overview cards/data-coverage indicators explain catalog completeness before filtering.
-- Dashboard rendering preserves richer catalog/evidence context, explicitly labels unknown/evidence boundaries, safely embeds catalog JSON, restricts external links to HTTP/HTTPS, persists local research state and adapts navigation/filtering for smaller screens.
-- Catalog shortlist scoring now incorporates seller/source and exact-SKU confidence when those fields exist without converting marketing compute specifications into performance.
-- Board maximum-memory evidence can carry a source URL/verification date and receives stronger confidence than an unlinked maximum.
-- CLI supports `discover`, `report`, `dashboard`, `landed-cost` and `performance-range`, plus `fit --preset` and `list --min-sku-confidence`; persistent and distributed operation use `llm-cluster-service`, `llm-cluster-distributed` and `llm-cluster-install-service`.
-- `TODO.md` now places live/staging dashboard data UX alongside secure/automatic distributed operation as the next major work, including discovery/history views, price timelines and portable research sets.
+- Replaced thread-wrapped discovery HTTP with native async pooled networking.
+- JSON/HTML parsing, normalization, filesystem work and SQLite work stay off the asyncio event loop.
+- Discovery concurrency is independently bounded for agents, source subworkers, HTTP, transforms and queues.
+- Repeatedly failing sources cool down instead of consuming service workers indefinitely.
+- Failed/canceled local or remote sources do not participate in disappearance detection for that cycle.
+- Very large JSON feeds can stream from HTTP instead of materializing the complete decoded document.
+- Secure distributed collection now streams bounded result batches from content-addressed artifacts rather than returning one full-cycle JSON document.
+- Distributed workers remain staging/source executors; canonical history and promotion remain collector responsibilities.
+- `llm-cluster-service` can switch from local execution to authenticated v2 remote execution through `--distributed-coordinator` without changing canonical output semantics.
+- `llm-cluster-install-service` accepts distributed coordinator, token-file, TLS and OTLP options so secure automatic cycles can run under systemd.
+- Source configuration can express worker capability/label/resource requirements and affinity.
+- The coordinator can run active/standby with epoch fencing; documentation explicitly distinguishes this from quorum consensus or SQLite multi-master replication.
+- Source snapshots and result payloads can share immutable content-addressed storage while preserving explicit source freshness semantics.
+- The catalog dashboard is a structured research console instead of one dense table/filter bar; unknown/evidence boundaries stay explicit.
+- Catalog shortlist scoring remains separate from measured performance and board-memory evidence remains distinct from CPU-theoretical maximums.
+- `TODO.md` marks the secure/automatic distributed phase complete and moves next runtime work to credential/certificate rotation, external CAS/consensus backends, scheduler learning, disaster recovery, soak/chaos testing and cluster enrollment.
 - Benchmarking remains optional and specialist metrics remain isolated from LLM throughput.
 
 ## [0.4.1] - 2026-08-10
@@ -100,13 +89,13 @@ All notable changes to this project will be documented here.
 - Complete-system acquisition-cost handling and throughput-per-purchase-dollar metrics.
 - Result comparison that groups incompatible model/workload signatures instead of ranking them together.
 - Example benchmark profiles for llama.cpp CPU/Vulkan, Hailo-10H, SOPHGO, Tenstorrent, FPGA research and specialist vision.
-- Benchmark contract validation in CI and new benchmark harness documentation.
+- Benchmark contract validation in CI and benchmark harness documentation.
 
 ### Changed
 
-- Benchmark schema upgraded to v2 and now preserves raw samples, statistics, power scope and workload class.
-- Benchmark/release agent skills now enforce complete-node power and workload-comparability rules.
-- v0.4 roadmap milestone is now the implementation baseline; real hardware result collection remains the next measurement phase.
+- Benchmark schema upgraded to v2 and preserves raw samples, statistics, power scope and workload class.
+- Benchmark/release agent skills enforce complete-node power and workload-comparability rules.
+- v0.4 roadmap milestone is the implementation baseline; real hardware result collection remains a measurement phase.
 
 ## [0.3.0] - 2026-08-10
 
@@ -122,10 +111,10 @@ All notable changes to this project will be documented here.
 
 ### Changed
 
-- Screening and BOM code now handles unresolved prices safely.
+- Screening and BOM code handles unresolved prices safely.
 - LLM screening explicitly excludes TOPS/TFLOPS from the heuristic.
 - Fixed-function vision accelerators are cataloged as specialists rather than mislabeled LLM workers.
-- Project charter and guardrails now cover accelerator power boundaries, runtime evidence and lifecycle risk.
+- Project charter and guardrails cover accelerator power boundaries, runtime evidence and lifecycle risk.
 
 ## [0.2.0] - 2026-08-10
 
@@ -142,8 +131,8 @@ All notable changes to this project will be documented here.
 
 ### Changed
 
-- Screening score now supports heterogeneous hardware and explicitly avoids CPU-core-based cross-architecture performance claims.
-- Parts table now supports Alibaba, AliExpress and manufacturer/reference sources instead of labelling every URL as Alibaba.
+- Screening score supports heterogeneous hardware and avoids CPU-core-based cross-architecture performance claims.
+- Parts table supports Alibaba, AliExpress and manufacturer/reference sources instead of labelling every URL as Alibaba.
 
 ## [0.1.0] - 2026-08-10
 
