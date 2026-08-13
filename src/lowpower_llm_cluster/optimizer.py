@@ -18,7 +18,6 @@ def _reason(label: str, value: float | None, *, high: float = 75.0, low: float =
 
 
 def rank_devices_full(devices: Sequence[Mapping[str, Any]], req: TaskRequirements) -> list[dict[str, Any]]:
-    """Rank devices and attach explainable operational/theoretical/practical dimensions."""
     rows = rank_devices(devices, req)
     by_id = {str(device.get("id", device.get("name", "unknown"))): device for device in devices}
     for row in rows:
@@ -27,35 +26,19 @@ def rank_devices_full(devices: Sequence[Mapping[str, Any]], req: TaskRequirement
         row["operational"] = operational
         categories = row["category_scores"]
         row["theoretical_score"] = categories.get("ai_compute")
-        practical_values = [
-            value
-            for value in (
-                categories.get("llm_speed"),
-                categories.get("power_efficiency"),
-                row["profile_score"].get("score"),
-            )
-            if isinstance(value, (int, float))
-        ]
+        profile = row["profile_score"]
+        practical_values = [value for value in (categories.get("llm_speed"), categories.get("power_efficiency")) if isinstance(value, (int, float))]
+        if float(profile.get("coverage", 0.0) or 0.0) > 0 and isinstance(profile.get("score"), (int, float)):
+            practical_values.append(float(profile["score"]))
         row["practical_score"] = round(sum(practical_values) / len(practical_values), 2) if practical_values else None
 
         reasons: list[str] = []
-        for label, value in (
-            ("LLM speed", categories.get("llm_speed")),
-            ("model capacity", categories.get("model_capacity")),
-            ("power efficiency", categories.get("power_efficiency")),
-            ("cost efficiency", categories.get("cost_efficiency")),
-            ("off-grid fit", categories.get("off_grid")),
-            ("software support", operational.get("software_support")),
-            ("deployability", operational.get("deployability")),
-            ("reliability", operational.get("reliability")),
-        ):
+        for label, value in (("LLM speed", categories.get("llm_speed")), ("model capacity", categories.get("model_capacity")), ("power efficiency", categories.get("power_efficiency")), ("cost efficiency", categories.get("cost_efficiency")), ("off-grid fit", categories.get("off_grid")), ("software support", operational.get("software_support")), ("deployability", operational.get("deployability")), ("reliability", operational.get("reliability"))):
             text = _reason(label, value)
             if text:
                 reasons.append(text)
-
-        decode = metric_value(source, "decode_tokens_s")
-        if decode is None and req.workload != "vision":
-            reasons.append("no measured/sourced decode throughput; speed score coverage is limited")
+        if metric_value(source, "decode_tokens_s") is None and req.workload != "vision":
+            reasons.append("no measured or sourced decode throughput; speed score coverage is limited")
         if row["gates"]:
             reasons.extend(f"ineligible: {failure}" for failure in row["gates"])
         row["reasons"] = reasons
