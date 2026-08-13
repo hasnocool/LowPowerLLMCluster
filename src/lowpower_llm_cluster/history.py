@@ -206,7 +206,7 @@ class CatalogHistory:
         connection.execute("BEGIN IMMEDIATE")
         try:
             connection.executemany(
-                """INSERT INTO observations(run_id, source, source_id, observed_at, listing_url, title, price, currency, shipping, in_stock, payload_json)
+                """INSERT OR IGNORE INTO observations(run_id, source, source_id, observed_at, listing_url, title, price, currency, shipping, in_stock, payload_json)
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 observation_rows,
             )
