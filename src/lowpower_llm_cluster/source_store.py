@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -48,7 +49,7 @@ class SourceCandidateStore:
         await asyncio.to_thread(self._initialize_sync)
 
     def _initialize_sync(self) -> None:
-        with self._connect() as connection:
+        with closing(self._connect()) as connection:
             connection.commit()
 
     async def upsert(self, records: Sequence[Mapping[str, Any]]) -> int:
@@ -68,7 +69,7 @@ class SourceCandidateStore:
                 int(bool(item.get("active", False))),
                 json.dumps(metadata if isinstance(metadata, Mapping) else {}, sort_keys=True, separators=(",", ":"), default=str),
             ))
-        with self._connect() as connection:
+        with closing(self._connect()) as connection:
             connection.executemany(
                 """INSERT INTO source_candidates(
                        domain, source_url, source_type, discovered_from,
@@ -91,7 +92,7 @@ class SourceCandidateStore:
         return await asyncio.to_thread(self._active_sync, max(1, int(limit)), float(min_score))
 
     def _active_sync(self, limit: int, min_score: float) -> list[dict[str, Any]]:
-        with self._connect() as connection:
+        with closing(self._connect()) as connection:
             rows = connection.execute(
                 """SELECT domain, source_url, source_type, discovered_from, score, status, active, metadata_json
                    FROM source_candidates
@@ -114,7 +115,7 @@ class SourceCandidateStore:
         return await asyncio.to_thread(self._summary_sync)
 
     def _summary_sync(self) -> dict[str, int]:
-        with self._connect() as connection:
+        with closing(self._connect()) as connection:
             rows = connection.execute(
                 "SELECT status, active, COUNT(*) AS count FROM source_candidates GROUP BY status, active"
             ).fetchall()
