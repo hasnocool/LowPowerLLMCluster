@@ -41,7 +41,7 @@ def main() -> int:
     required = [
         "README.md", "PARTS.md", "TODO.md", "CHANGELOG.md", "AGENTS.md",
         "docs/PROJECT_CHARTER.md", "docs/GUARDRAILS.md", "docs/ACCELERATORS.md",
-        "docs/SOURCING.md", "docs/CONCURRENCY.md", "docs/DISTRIBUTED_RUNTIME.md",
+        "docs/SOURCING.md", "docs/CONCURRENCY.md", "docs/DISTRIBUTED_RUNTIME.md", "docs/DASHBOARD.md",
         "specs/HARDWARE_CATALOG.md", "specs/EVIDENCE.md", "specs/BENCHMARKING.md", "specs/SCORING.md",
         "specs/hardware-catalog.schema.json", "specs/hardware-part.schema.json",
         "specs/benchmark.schema.json", "specs/benchmark-profile.schema.json",
