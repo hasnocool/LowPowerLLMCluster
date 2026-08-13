@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "manufacturer_jsonld_urls": [
+    "https://www.raspberrypi.com/products/ai-hat-plus-2/",
+    "https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/",
+    "https://frame.work/products/mainboard-amd-ai300",
+    "https://www.minisforum.com/products/minisforum-bd795m",
+    "https://tenstorrent.com/en/hardware/cards",
+    "https://turingpi.com/product/turing-rk1/",
+    "https://turingpi.com/product/turing-pi-2-5/",
+    "https://shop.allnetchina.cn/products/rock-5-itx-1",
+    "https://www.orangepi.org/html/hardWare/computerAndMicrocontrollers/details/Orange-Pi-5-plus-32GB.html",
+    "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/",
+    "https://www.nvidia.com/en-us/geforce/graphics-cards/30-series/rtx-3090/"
+  ],
+  "gpu_reference_urls": [
+    "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/",
+    "https://www.nvidia.com/en-us/geforce/graphics-cards/30-series/rtx-3090/",
+    "https://www.amd.com/en/newsroom/press-releases/2025-2-28-amd-unveils-next-generation-amd-rdna-4-architectur.html",
+    "https://rocm.docs.amd.com/en/latest/reference/gpu-specs.html",
+    "https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/desktop/b-series.html",
+    "https://www.intel.com/content/www/us/en/products/sku/229151/intel-arc-a770-graphics-16gb/specifications.html"
+  ],
+  "structured_sources": {
+    "mouser": {
+      "credential_env": ["MOUSER_API_KEY"],
+      "endpoint": "https://api.mouser.com/api/v1/search/keyword",
+      "docs": "https://api.mouser.com/api/docs/ui/index"
+    },
+    "digikey": {
+      "credential_env": ["DIGIKEY_CLIENT_ID", "DIGIKEY_ACCESS_TOKEN"],
+      "endpoint": "https://api.digikey.com/products/v4/search/keyword",
+      "docs": "https://developer.digikey.com/products/product-information-v4"
+    },
+    "ebay-ca": {
+      "credential_env": ["EBAY_CLIENT_ID", "EBAY_CLIENT_SECRET"],
+      "endpoint": "https://api.ebay.com/buy/browse/v1/item_summary/search",
+      "docs": "https://developer.ebay.com/api-docs/buy/api-browse.html"
+    }
+  },
+  "fx": {
+    "provider": "Bank of Canada Valet API",
+    "endpoint_template": "https://www.bankofcanada.ca/valet/observations/{series}/json",
+    "currencies": ["USD", "EUR", "GBP", "JPY", "CNY", "AUD"],
+    "docs": "https://www.bankofcanada.ca/valet/docs"
+  },
+  "benchmark_seed_sources": [
+    {
+      "name": "Turing Pi RK3588 llama.cpp benchmark suite",
+      "url": "https://turingpi.com/llm-inference-benchmarks-rk3588-gguf-quantization/",
+      "hardware_scope": "module-turing-rk1-32g",
+      "source_type": "vendor_measured"
+    }
+  ]
+}

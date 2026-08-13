@@ -13,6 +13,8 @@ jobs:
         with:
           python-version: "3.12"
       - run: python scripts/check_governance.py
+      - run: python scripts/check_bios_pair_governance.py
+      - run: python scripts/check_mobile_firmware_governance.py
       - run: python scripts/check_async_blocking.py
       - run: python scripts/validate_catalog.py
       - run: python scripts/validate_evidence_records.py

@@ -1,0 +1,39 @@
+{
+  "parts": [
+    {
+      "id": "module-turing-rk1-32g",
+      "category": "embedded_board",
+      "hardware_class": "rk3588_compute_module",
+      "llm_candidate": true,
+      "name": "Turing RK1 compute module, RK3588, 32GB",
+      "vendor": "Turing Pi",
+      "price_min_usd": 379.0,
+      "price_max_usd": 379.0,
+      "moq": 1,
+      "url": "https://turingpi.com/product/turing-rk1/",
+      "source_url": "https://docs.turingpi.com/docs/turing-rk1-specs-and-io-ports",
+      "verified_on": "2026-08-10",
+      "listing_status": "official_reference",
+      "cpu": "Rockchip RK3588",
+      "cores": 8,
+      "threads": 8,
+      "architecture": "4x Cortex-A76 + 4x Cortex-A55",
+      "memory_type": "32GB LPDDR4/LPDDR4X class",
+      "memory_capacity_gb": 32,
+      "igpu": "Mali-G610; Vulkan 1.2 / OpenCL support",
+      "network": "Gigabit Ethernet through supported carrier",
+      "storage": "32GB eMMC plus carrier-board PCIe/NVMe options",
+      "expandability": "260-pin Jetson-compatible compute-module connector; Turing Pi carrier ecosystem",
+      "power_target_w": 7,
+      "power_range_w": "vendor product page lists 7W TDP; complete-system benchmark power still requires measurement",
+      "software_maturity": "community_linux_rk3588",
+      "risk_level": "low",
+      "plain_language": "The 32GB RK1 is a useful RK3588 reference because the vendor has published a reproducible llama.cpp benchmark suite on this exact module. It is more expensive than many Orange Pi/Radxa alternatives, but it gives the catalog a clean product-to-benchmark evidence link instead of transferring SoC-level results onto different boards.",
+      "source_notes": "Turing Pi currently lists the RK1 family at US$249-379 with the 32GB configuration at US$379. Vendor documentation describes RK3588, up to 32GB RAM, Vulkan/OpenCL-capable Mali-G610, 6-TOPS NPU and a 5V/3A power input. Published July 2026 llama.cpp benchmarks are stored separately as performance evidence.",
+      "price_status": "observed_market",
+      "lifecycle_status": "current",
+      "memory_config_status": "fixed",
+      "max_memory_gb": 32
+    }
+  ]
+}

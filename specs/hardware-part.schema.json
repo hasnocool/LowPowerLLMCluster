@@ -52,29 +52,7 @@
         "plain_language": {"type": "string", "minLength": 10},
         "source_notes": {"type": "string"},
         "max_memory_gb": {"type": ["number", "null"], "exclusiveMinimum": 0},
-        "cpu_max_memory_gb": {"type": ["number", "null"], "exclusiveMinimum": 0},
-        "max_memory_source_url": {"type": "string", "format": "uri"},
-        "max_memory_verified_on": {"type": "string", "format": "date"},
         "memory_config_status": {"enum": ["included", "fixed", "configurable", "unknown"]},
-        "source_confidence": {"type": "number", "minimum": 0, "maximum": 1},
-        "seller_confidence": {"type": "number", "minimum": 0, "maximum": 1},
-        "sku_confidence": {"type": "number", "minimum": 0, "maximum": 1},
-        "form_factor": {"type": "string"},
-        "dimensions_mm": {
-          "type": "object",
-          "properties": {
-            "width_mm": {"type": "number", "exclusiveMinimum": 0},
-            "depth_mm": {"type": "number", "exclusiveMinimum": 0},
-            "height_mm": {"type": "number", "exclusiveMinimum": 0}
-          },
-          "additionalProperties": false
-        },
-        "dc_input_v": {"type": "number", "exclusiveMinimum": 0},
-        "dc_input_min_v": {"type": "number", "exclusiveMinimum": 0},
-        "dc_input_max_v": {"type": "number", "exclusiveMinimum": 0},
-        "dc_connector": {"type": "string"},
-        "psu_requirements": {"type": "string"},
-        "cooling_requirements": {"type": "string"},
         "performance_evidence": {
           "type": "object",
           "properties": {

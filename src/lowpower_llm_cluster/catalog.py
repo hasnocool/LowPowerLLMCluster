@@ -5,19 +5,21 @@ import json
 from pathlib import Path
 from typing import Any, Iterable
 
+from .compute_units import enrich_catalog_compute_topology
+
 
 def project_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
 def load_catalog(path: Path | None = None) -> dict[str, Any]:
-    """Load the catalog manifest and transparently merge its part fragments."""
+    """Load the catalog manifest, merge fragments, and attach architecture-native compute topology."""
     catalog_path = path or project_root() / "data" / "parts.json"
     with catalog_path.open("r", encoding="utf-8") as handle:
         data: dict[str, Any] = json.load(handle)
 
     if "parts" in data:
-        return data
+        return enrich_catalog_compute_topology(data)
 
     parts: list[dict[str, Any]] = []
     for relative_path in data.get("part_files", []):
@@ -26,7 +28,7 @@ def load_catalog(path: Path | None = None) -> dict[str, Any]:
             fragment = json.load(handle)
         parts.extend(fragment.get("parts", []))
 
-    return {**data, "parts": parts}
+    return enrich_catalog_compute_topology({**data, "parts": parts})
 
 
 def midpoint_price(part: dict[str, Any]) -> float | None:

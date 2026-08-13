@@ -5,12 +5,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "lowpower-llm-cluster"
 version = "0.5.0"
-description = "Catalog-first research and buying planner for low-power local LLM hardware with asynchronous market discovery."
+description = "Catalog-first research and buying planner for low-power local LLM hardware, with autonomous market intelligence, optional benchmark evidence, normalized workload optimization, and secure distributed discovery/runtime tooling."
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [{name = "LowPowerLLMCluster contributors"}]
-dependencies = ["aiohttp>=3.14.3,<4", "ijson>=3.3,<4"]
+dependencies = ["httpx>=0.28,<1", "pypdf>=5,<7", "aiohttp>=3.14.3,<4", "ijson>=3.3,<4"]
 
 [project.optional-dependencies]
 telemetry = [
@@ -21,10 +21,13 @@ telemetry = [
 
 [project.scripts]
 llm-cluster = "lowpower_llm_cluster.cli:main"
+llm-cluster-market = "lowpower_llm_cluster.market_cli:main"
+llm-cluster-refresh = "lowpower_llm_cluster.refresh_cli:main"
+llm-cluster-bench = "lowpower_llm_cluster.benchmarking.cli:main"
+llm-cluster-optimize = "lowpower_llm_cluster.optimizer_cli:main"
 llm-cluster-service = "lowpower_llm_cluster.service_cli:main"
 llm-cluster-distributed = "lowpower_llm_cluster.distributed_cli:main"
 llm-cluster-install-service = "lowpower_llm_cluster.service_install:main"
-llm-cluster-bench = "lowpower_llm_cluster.benchmarking.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

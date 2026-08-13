@@ -2,76 +2,149 @@
 
 ## Purpose
 
-`data/parts.json` is the catalog manifest and points to category-sized JSON fragments under `data/catalog/`. Together they are the source of truth for reviewed hardware and market references. `PARTS.md` is generated from them.
+`data/parts.json` is the catalog manifest and points to category-sized JSON fragments under `data/catalog/`. Together they are the source of truth for purchasable hardware and market references. `PARTS.md` is generated from them.
 
-Catalog schema **v3** remains structurally compatible while v0.5 adds discovery/evidence metadata. Newly discovered observations may live in `results/` or `data/discovery/` until an exact SKU is reviewed and promoted.
+Catalog schema **v3** adds first-class accelerator and lifecycle metadata and allows an unresolved price to be represented honestly as `null`. v0.4.1 extends the same schema compatibly with catalog-first memory/evidence fields; the manifest version stays v3 because existing fragment structure remains compatible. The manifest is described by `specs/hardware-catalog.schema.json`; category fragments are described by `specs/hardware-part.schema.json`.
 
 ## Candidate categories
 
-The project currently recognizes `compute_node`, `mini_pc`, `dev_board`, `sbc`, `embedded_board`, `specialty_board`, `control_plane`, `npu_accelerator`, `tpu_accelerator`, `ai_asic_accelerator`, `fpga_accelerator`, `adaptive_soc`, `decommissioned_accelerator`, `network`, `memory`, and `storage`.
+The project currently recognizes:
+
+- `compute_node`
+- `mini_pc`
+- `dev_board`
+- `sbc`
+- `embedded_board`
+- `specialty_board`
+- `control_plane`
+- `gpu_accelerator`
+- `npu_accelerator`
+- `tpu_accelerator`
+- `ai_asic_accelerator`
+- `fpga_accelerator`
+- `adaptive_soc`
+- `decommissioned_accelerator`
+- `network`
+- `memory`
+- `storage`
+
+A new class is acceptable when it advances the project charter and does not duplicate an existing category without a clear reason.
 
 ## Required common fields
 
-Every canonical part keeps:
+Every part keeps:
 
-- `id`, `category`, `name`, `vendor`;
-- `price_min_usd`, `price_max_usd`, `price_status`;
-- `moq`, `url`, `verified_on`, `listing_status`;
-- `plain_language`.
+- `id`
+- `category`
+- `name`
+- `vendor`
+- `price_min_usd`
+- `price_max_usd`
+- `price_status`
+- `moq`
+- `url`
+- `verified_on`
+- `listing_status`
+- `plain_language`
 
-Prices may be `null` only when both minimum and maximum are unresolved and `price_status` clearly explains why. **Never use zero as a fake unknown price.**
-
-## Discovery / configuration confidence
-
-When available, canonical records may carry:
-
-- `source_confidence` (0-1);
-- `seller_confidence` (0-1);
-- `sku_confidence` (0-1);
-- `form_factor`;
-- `dimensions_mm` (`width_mm`, `depth_mm`, `height_mm`);
-- `dc_input_v`, `dc_input_min_v`, `dc_input_max_v`, `dc_connector`;
-- `psu_requirements`;
-- `cooling_requirements`;
-- `host_requirements`.
-
-These fields improve shopping/configuration reliability; they do not prove inference performance.
+Prices may be `null` only when both minimum and maximum are unresolved and `price_status` clearly explains why, such as `secondary_market_watch` or `board_price_not_resolved`. **Never use zero as a fake unknown price.**
 
 ## LLM candidate fields
 
-LLM candidates additionally carry `hardware_class`, `llm_candidate`, processor/architecture fields where known, memory metadata, storage/network/expandability when applicable, power hints with scope, `software_maturity`, `risk_level`, and source notes.
+LLM candidates additionally carry:
 
-## Memory configuration rule
-
-`memory_capacity_gb` means RAM actually included/fixed in that exact referenced product configuration. Barebones use `null` and may record a verified `max_memory_gb`.
-
-Where possible, board maximum evidence should also carry:
-
-- `max_memory_source_url`;
-- `max_memory_verified_on`.
-
-`cpu_max_memory_gb` remains processor-theoretical metadata and must never be presented as included or board-verified memory.
+- `hardware_class`
+- `llm_candidate`
+- processor/architecture fields where known
+- `memory_type`, `memory_capacity_gb`, `max_memory_gb` and `memory_config_status` where known
+- memory bandwidth when a trustworthy value is available
+- storage/network/expandability when applicable
+- `power_target_w` or a clearly labelled power range when known
+- `software_maturity`
+- `risk_level`
+- source notes separating manufacturer/seller/community evidence
 
 ## Accelerator fields
 
-Every NPU, TPU, AI ASIC, FPGA/adaptive platform or decommissioned accelerator should additionally record accelerator family/name, host mode/requirements, precision formats, software stack, LLM support, workload role, lifecycle status and power scope when power is present.
+Every GPU, NPU, TPU, AI ASIC, FPGA/adaptive platform or decommissioned accelerator should additionally record:
 
-`llm_support` is more important than a TOPS number. A fixed-function accelerator can stay in the catalog as a specialist without being an LLM candidate.
+- `accelerator_family`
+- `accelerator`
+- `host_mode`
+- `host_requirements` when host-attached
+- `precision_formats`
+- `software_stack`
+- `llm_support`
+- `workload_role`
+- `lifecycle_status`
+- `power_scope` when a power number is present
+- `peak_int4_tops`, `peak_int8_tops`, `peak_fp16_tflops` only when sourced
+
+`llm_support` is more important than a TOPS number. Examples include `mature_cuda_llama_cpp`, `rocm_and_vulkan_candidate`, `oneapi_sycl_vulkan_candidate`, `vendor_supported`, `research_only`, `not_supported_general_llm`, and `unproven_for_project`.
+
+## Discrete GPU rules
+
+`gpu_accelerator` is a first-class sourcing category.
+
+A discrete GPU entry must record:
+
+- fixed VRAM in `memory_capacity_gb`;
+- `memory_config_status: fixed`;
+- memory type when known;
+- host mode/requirements;
+- software/runtime path;
+- board power only with an explicit board-power scope;
+- lifecycle/current-vs-used-market status;
+- exact reference/source URL.
+
+Reference GPU identity and exact board-partner SKU are different evidence layers. Cooler, clocks, connectors, warranty, BIOS, condition and seller history belong in listing/configuration evidence when available.
+
+GPU VRAM is valid input to the conservative model-fit screen. It is not host system RAM and it is not expandable.
 
 ## Power scope rule
 
-Never compare accelerator chip power, accelerator-board power or processor TDP/cTDP with complete-node wall power without labelling the scope.
+Never compare accelerator chip/board power with complete-node wall power without labelling the scope. Examples:
 
-Only measured complete-node input power belongs in final system efficiency rankings.
+- `accelerator_board_tgp`
+- `accelerator_board_tbp`
+- `accelerator_board_power_reference`
+- `accelerator_chip_typical`
+- `four_chip_module_typical_and_tdp_reference`
+- `K26_SOM_typical_and_max`
+- measured `complete_node_input`
+
+Only measured complete-node power belongs in final system energy-efficiency rankings. GPU board TGP/TBP may be used as deployment/PSU/cooling friction, not canonical tokens/joule.
 
 ## Price rules
 
-A range on a multi-variant page is not the price of a specific SKU. Secondary-market pricing should be recent and explicitly marked. Manufacturer MSRP, official-store price and marketplace price are different evidence classes.
+A range on a multi-variant page is not the price of a specific SKU. Secondary-market pricing should be recent and explicitly marked. Manufacturer MSRP and vendor-store price are different evidence classes and should keep distinct `price_status` values.
 
-Canada landed-cost calculations are derived planning outputs, not canonical product price fields. They must preserve FX snapshot/date, shipping, duty, brokerage and tax assumptions.
+For GPU references, unresolved catalog price is acceptable because the autonomous market layer is intended to discover current board-partner and used listings. Do not freeze a launch MSRP into the catalog and later present it as a current street price.
+
+## Inclusion test
+
+Before adding hardware, answer in one sentence: **what hypothesis does this platform let us test?**
+
+Examples:
+
+- unusually high memory bandwidth per dollar;
+- sub-15W 32GB node;
+- 16/24GB discrete GPU whose live price makes local LLM inference compelling;
+- dedicated 8GB GenAI NPU at a few watts;
+- low-cost TPU with a maintained LLM compiler;
+- scalable AI ASIC with high-speed chip interconnect;
+- FPGA platform for custom ternary/INT4 transformer datapaths;
+- obsolete enterprise accelerator that may become compelling below a threshold used price;
+- fixed-function accelerator that saves total cluster energy by offloading vision.
+
+## Memory configuration rule
+
+`memory_capacity_gb` means RAM/VRAM actually included or fixed in that exact referenced product configuration. Barebones use `null` and may record a verified `max_memory_gb`. `cpu_max_memory_gb` remains processor-theoretical metadata and must never be presented as included or board-verified memory.
+
+For discrete GPUs, `memory_capacity_gb` is fixed VRAM and `memory_config_status` must be `fixed`.
 
 ## Performance evidence rule
 
-Catalog inclusion does not require owning or benchmarking the product. When throughput evidence exists, attach provenance or keep normalized records under `data/performance/` as defined in `specs/EVIDENCE.md`.
+Catalog inclusion does not require owning or benchmarking the product. When throughput evidence exists, optionally attach `performance_evidence` with source type, confidence, URL and notes as defined in `specs/EVIDENCE.md`. Unknown performance is valid. Do not fill the gap with fake tokens/sec.
 
-Unknown performance is valid. Do not fill the gap with fake tokens/sec.
+GPU TOPS/TFLOPS, shader counts, memory bandwidth and TGP/TBP must not be converted directly into LLM throughput or complete-node efficiency.
