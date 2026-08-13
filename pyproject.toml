@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "lowpower-llm-cluster"
 version = "0.5.0"
-description = "Catalog-first research and buying planner for low-power local LLM hardware, with autonomous market intelligence and optional benchmark evidence tooling."
+description = "Catalog-first research and buying planner for low-power local LLM hardware, with autonomous market intelligence, optional benchmark evidence, and heterogeneous workload optimization."
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
@@ -17,6 +17,7 @@ llm-cluster = "lowpower_llm_cluster.cli:main"
 llm-cluster-market = "lowpower_llm_cluster.market_cli:main"
 llm-cluster-refresh = "lowpower_llm_cluster.refresh_cli:main"
 llm-cluster-bench = "lowpower_llm_cluster.benchmarking.cli:main"
+llm-cluster-optimize = "lowpower_llm_cluster.optimizer_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

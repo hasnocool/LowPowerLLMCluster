@@ -1,0 +1,52 @@
+{
+  "devices": [
+    {
+      "id": "example-fast-gpu",
+      "name": "Example fast GPU system",
+      "workloads": ["interactive_chat", "coding_agent", "long_context", "always_on_agent", "off_grid_ai"],
+      "runtimes": ["llama.cpp"],
+      "precisions": ["Q4_K_M", "FP16", "INT8"],
+      "metrics": {
+        "price_usd": {"value": 350, "source_type": "reported", "confidence": 0.9},
+        "usable_ai_memory_gb": {"value": 16, "source_type": "manufacturer", "confidence": 0.75},
+        "memory_bandwidth_gbs": {"value": 400, "source_type": "manufacturer", "confidence": 0.75},
+        "model_capacity_b_q4": {"value": 24, "source_type": "derived_estimate", "confidence": 0.6},
+        "context_capacity_tokens": {"value": 32768, "source_type": "measured_local", "confidence": 1.0},
+        "decode_tokens_s": {"value": 40, "source_type": "measured_local", "confidence": 1.0},
+        "prefill_tokens_s": {"value": 400, "source_type": "measured_local", "confidence": 1.0},
+        "system_power_w": {"value": 100, "source_type": "measured_local", "confidence": 1.0},
+        "idle_w": {"value": 10, "source_type": "measured_local", "confidence": 1.0},
+        "fp16_tflops": {"value": 20, "source_type": "manufacturer", "confidence": 0.75},
+        "int8_tops": {"value": 40, "source_type": "manufacturer", "confidence": 0.75},
+        "dc_powerability": {"value": 50, "source_type": "reported", "confidence": 0.9},
+        "sleep_wake": {"value": 85, "source_type": "reported", "confidence": 0.9}
+      },
+      "software": {"llama_cpp": true, "pytorch": true, "gguf": true, "linux": true, "driver_maturity": 90, "docker": true},
+      "deployability": {"installation": 85, "driver_setup": 85, "firmware_setup": 90, "power_integration": 60, "cooling_integration": 65, "host_compatibility": 90, "runtime_setup": 90, "model_conversion": 90}
+    },
+    {
+      "id": "example-efficient-apu",
+      "name": "Example efficient APU system",
+      "workloads": ["interactive_chat", "coding_agent", "long_context", "always_on_agent", "off_grid_ai"],
+      "runtimes": ["llama.cpp"],
+      "precisions": ["Q4_K_M", "FP16", "INT8"],
+      "metrics": {
+        "price_usd": {"value": 220, "source_type": "reported", "confidence": 0.9},
+        "usable_ai_memory_gb": {"value": 32, "source_type": "manufacturer", "confidence": 0.75},
+        "memory_bandwidth_gbs": {"value": 100, "source_type": "manufacturer", "confidence": 0.75},
+        "model_capacity_b_q4": {"value": 50, "source_type": "derived_estimate", "confidence": 0.6},
+        "context_capacity_tokens": {"value": 65536, "source_type": "measured_local", "confidence": 1.0},
+        "decode_tokens_s": {"value": 20, "source_type": "measured_local", "confidence": 1.0},
+        "prefill_tokens_s": {"value": 200, "source_type": "measured_local", "confidence": 1.0},
+        "system_power_w": {"value": 35, "source_type": "measured_local", "confidence": 1.0},
+        "idle_w": {"value": 5, "source_type": "measured_local", "confidence": 1.0},
+        "fp16_tflops": {"value": 8, "source_type": "manufacturer", "confidence": 0.75},
+        "int8_tops": {"value": 16, "source_type": "manufacturer", "confidence": 0.75},
+        "dc_powerability": {"value": 95, "source_type": "reported", "confidence": 0.9},
+        "sleep_wake": {"value": 95, "source_type": "reported", "confidence": 0.9}
+      },
+      "software": {"llama_cpp": true, "pytorch": true, "gguf": true, "linux": true, "driver_maturity": 85, "docker": true},
+      "deployability": {"installation": 95, "driver_setup": 90, "firmware_setup": 95, "power_integration": 95, "cooling_integration": 95, "host_compatibility": 95, "runtime_setup": 90, "model_conversion": 90}
+    }
+  ]
+}
