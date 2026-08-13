@@ -8,7 +8,7 @@ from html.parser import HTMLParser
 from typing import AsyncIterator, Sequence
 from urllib.parse import urljoin, urlparse
 
-from .discovery import ProductObservation, _parse_jsonld_page
+from .discovery import ProductObservation, _parse_jsonld_page, canonical_url
 from .http_runtime import AdaptiveConcurrency, AsyncHttpClient, DiscoveryCache
 from .resilience_runtime import AdaptiveBatchSizer
 
@@ -27,6 +27,38 @@ class _LinkParser(HTMLParser):
                 return
 
 
+class _PageMetadataParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self._in_title = False
+        self._title_parts: list[str] = []
+        self.meta: dict[str, str] = {}
+
+    @property
+    def title(self) -> str:
+        return " ".join("".join(self._title_parts).split())
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        values = {str(key).lower(): (value or "") for key, value in attrs}
+        if tag.lower() == "title":
+            self._in_title = True
+            return
+        if tag.lower() != "meta":
+            return
+        key = (values.get("property") or values.get("name") or "").strip().lower()
+        content = values.get("content", "").strip()
+        if key and content:
+            self.meta.setdefault(key, content)
+
+    def handle_data(self, data: str) -> None:
+        if self._in_title:
+            self._title_parts.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.lower() == "title":
+            self._in_title = False
+
+
 def _local(tag: str) -> str:
     return tag.rsplit("}", 1)[-1].lower()
 
@@ -42,7 +74,6 @@ def extract_xml_links(text: str, mode: str) -> tuple[list[str], list[str]]:
             if _local(node.tag) == "loc" and node.text and node.text.strip():
                 target.append(node.text.strip())
         return pages, children
-    # RSS and Atom both expose linked entry/item URLs, with slightly different syntax.
     for node in root.iter():
         if _local(node.tag) != "link":
             continue
@@ -58,14 +89,38 @@ def extract_html_links(base_url: str, text: str) -> list[str]:
     return [urljoin(base_url, value) for value in parser.links]
 
 
-def _allowed(
-    url: str,
-    *,
-    base_hosts: set[str],
-    same_host: bool,
-    include: Sequence[re.Pattern[str]],
-    exclude: Sequence[re.Pattern[str]],
-) -> bool:
+def parse_page_metadata(name: str, url: str, text: str, *, discovery_kind: str) -> ProductObservation | None:
+    parser = _PageMetadataParser()
+    parser.feed(text)
+    title = parser.meta.get("og:title") or parser.meta.get("twitter:title") or parser.title
+    title = " ".join(title.split())
+    if not title:
+        return None
+    description = parser.meta.get("og:description") or parser.meta.get("description") or parser.meta.get("twitter:description") or ""
+    published_at = parser.meta.get("article:published_time") or parser.meta.get("date") or parser.meta.get("datepublished") or ""
+    price_raw = parser.meta.get("product:price:amount") or parser.meta.get("og:price:amount") or ""
+    currency = parser.meta.get("product:price:currency") or parser.meta.get("og:price:currency") or "USD"
+    try:
+        price = float(price_raw.replace(",", "")) if price_raw else None
+    except ValueError:
+        price = None
+    return ProductObservation(
+        source=name,
+        source_id=canonical_url(url),
+        listing_url=url,
+        title=title,
+        price=price,
+        currency=currency,
+        attributes={
+            "discovery_kind": discovery_kind,
+            "description": " ".join(description.split())[:4000],
+            "published_at": published_at,
+            "metadata_fallback": True,
+        },
+    )
+
+
+def _allowed(url: str, *, base_hosts: set[str], same_host: bool, include: Sequence[re.Pattern[str]], exclude: Sequence[re.Pattern[str]]) -> bool:
     parsed = urlparse(url)
     if parsed.scheme not in {"http", "https"} or not parsed.netloc:
         return False
@@ -80,15 +135,10 @@ def _allowed(
 
 @dataclass(slots=True)
 class PublicWebDiscoveryAdapter:
-    """Credential-free public URL discovery followed by schema.org Product parsing.
+    """Credential-free bounded public-web discovery.
 
-    Modes:
-    - ``sitemap``: XML urlset/sitemapindex seeds, with bounded sitemap recursion.
-    - ``feed``: RSS/Atom feeds whose entries link to product pages.
-    - ``html_index``: public category/index pages whose anchors link to products.
-
-    This deliberately does not attempt login/session bypasses or private APIs. Candidate and
-    index caps keep continuously-running discovery bounded and polite.
+    ``html_index``/``sitemap``/``feed`` discover product pages and prefer schema.org Product.
+    ``announcement_index`` records article metadata so announcement sites can seed later product enrichment.
     """
 
     name: str
@@ -105,6 +155,8 @@ class PublicWebDiscoveryAdapter:
     subworkers: int = 4
     batch_size: int = 128
     batch_sizer: AdaptiveBatchSizer | None = None
+    fallback_page_metadata: bool = False
+    discovery_kind: str = "product_page"
 
     async def _fetch_text(self, url: str) -> str:
         response = await self.client.get_response(url, validators=None, source=self.name, adaptive=self.adaptive)
@@ -118,19 +170,17 @@ class PublicWebDiscoveryAdapter:
         visited_indexes: set[str] = set()
         candidates: list[str] = []
         seen_candidates: set[str] = set()
-
         while queue and len(visited_indexes) < self.max_index_pages and len(candidates) < self.max_candidate_pages:
             index_url = queue.pop(0)
             if index_url in visited_indexes:
                 continue
             visited_indexes.add(index_url)
             text = await self._fetch_text(index_url)
-            if self.mode == "html_index":
+            if self.mode in {"html_index", "announcement_index"}:
                 pages = await asyncio.to_thread(extract_html_links, index_url, text)
                 children: list[str] = []
             else:
                 pages, children = await asyncio.to_thread(extract_xml_links, text, self.mode)
-
             for child in children:
                 parsed = urlparse(child)
                 if parsed.scheme not in {"http", "https"}:
@@ -139,7 +189,6 @@ class PublicWebDiscoveryAdapter:
                     continue
                 if child not in visited_indexes and child not in queue and len(queue) < self.max_index_pages * 2:
                     queue.append(child)
-
             for page in pages:
                 absolute = urljoin(index_url, page)
                 if absolute in seen_candidates:
@@ -153,12 +202,7 @@ class PublicWebDiscoveryAdapter:
         return candidates
 
     async def _product_page(self, url: str) -> list[ProductObservation]:
-        response = await self.client.get_response(
-            url,
-            validators=self.cache.validators(url),
-            source=self.name,
-            adaptive=self.adaptive,
-        )
+        response = await self.client.get_response(url, validators=self.cache.validators(url), source=self.name, adaptive=self.adaptive)
         if response.not_modified:
             cached = self.cache.observations(url)
             if cached is not None:
@@ -166,6 +210,10 @@ class PublicWebDiscoveryAdapter:
                 return list(cached)
         text = await asyncio.to_thread(response.payload.decode, "utf-8", "replace")
         records = await asyncio.to_thread(_parse_jsonld_page, self.name, url, text)
+        if not records and self.fallback_page_metadata:
+            fallback = await asyncio.to_thread(parse_page_metadata, self.name, url, text, discovery_kind=self.discovery_kind)
+            if fallback is not None:
+                records = [fallback]
         await self.cache.store(url, response, records)
         return records
 
@@ -176,13 +224,11 @@ class PublicWebDiscoveryAdapter:
         workers = min(max(1, self.subworkers), len(urls))
         queue: asyncio.Queue[str | None] = asyncio.Queue()
         output: asyncio.Queue[list[ProductObservation] | BaseException | None] = asyncio.Queue()
-
         async def producer() -> None:
             for url in urls:
                 await queue.put(url)
             for _ in range(workers):
                 await queue.put(None)
-
         async def worker() -> None:
             while True:
                 url = await queue.get()
@@ -193,11 +239,9 @@ class PublicWebDiscoveryAdapter:
                     try:
                         await output.put(await self._product_page(url))
                     except BaseException as exc:
-                        # A single malformed/blocked page should not discard a useful public index.
                         await output.put(exc)
                 finally:
                     queue.task_done()
-
         failures = 0
         successful_pages = 0
         async with asyncio.TaskGroup() as group:
