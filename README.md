@@ -1,206 +1,258 @@
 # LowPowerLLMCluster
 
-**A catalog-first research and buying planner for cheap, efficient and unusual local-LLM hardware.**
+**A catalog-first research and buying planner for cheap, efficient and unusual local-LLM hardware, with a bounded multi-node discovery runtime.**
 
-The project tracks mini PCs, laptop/mobile-CPU boards, SBCs, dev boards, embedded systems, NPUs, TPUs, AI ASICs, FPGAs, specialty boards such as AMD BC-250, and interesting decommissioned accelerators.
-
-You do **not** need to own every product. The catalog exists to answer:
+The project tracks mini PCs, laptop/mobile-CPU boards, SBCs, embedded systems, NPUs, TPUs, AI ASICs, FPGAs, specialty APUs and useful decommissioned accelerators. Hardware can be cataloged without being physically owned; performance claims remain separate from product/source evidence.
 
 > **What can I buy, what does it cost, what can it probably fit/run, what software does it need, how efficient might it be, how strong is the evidence, and is it a good deal?**
 
-The repository keeps exact market observations separate from derived estimates. Prices and variants change; verify exact SKUs before purchasing.
+## Runtime architecture
 
-## The project in one picture
-
-```text
-                     PRODUCT DISCOVERY
-                           │
-       ┌───────────────────┼───────────────────┐
-       ▼                   ▼                   ▼
- JSON / JSON-LD       manual research       imports
-       │                   │                   │
-       └───────────────────┼───────────────────┘
-                           ▼
-                  NORMALIZE + CONFIDENCE
-                           │
-            ┌──────────────┼──────────────┐
-            ▼              ▼              ▼
-      listing history   exact SKU      hardware shape
-      price/stock       confidence     RAM/DC/cooling
-            │              │              │
-            └──────────────┼──────────────┘
-                           ▼
-                     PRODUCT CATALOG
-                           │
-          ┌────────────────┼────────────────┐
-          ▼                ▼                ▼
-       reports          model fit        evidence
-      /dashboard        capacity         provenance
-          │                │                │
-          └────────────────┼────────────────┘
-                           ▼
-                    BUYING SHORTLIST
-```
-
-## Evidence, not pretend precision
-
-A product can be valuable even when no local benchmark exists. Performance evidence is labelled by provenance:
+The discovery path now scales from one low-power node to multiple workers without making canonical history multi-master:
 
 ```text
-measured_local       direct project measurement
-community_measured   identifiable third-party measurement
-vendor_measured      vendor workload measurement
-
-derived_estimate     transformation of measured evidence
-spec_based_estimate  weak planning clue only
-unknown              valid when evidence does not exist
+                      DISCOVERY COORDINATOR
+                              │
+                   bounded source/task queue
+                              │
+             ┌────────────────┼────────────────┐
+             ▼                ▼                ▼
+          worker A         worker B         worker C
+             │                │                │
+       circuit breaker   circuit breaker  circuit breaker
+       adaptive permits  adaptive permits adaptive permits
+             │                │                │
+             └──────── pooled/streamed source I/O ────────┐
+                                                          ▼
+                                           observation batches
+                                                          │
+                              ┌───────────────────────────┴──────┐
+                              ▼                                  ▼
+                      off-loop normalize                canonical history
+                      adaptive batches                  single SQLite writer
+                              │                                  │
+                              └──────────────┬───────────────────┘
+                                             ▼
+                                  normalized JSONL spool
+                                             │
+                                             ▼
+                                     atomic latest JSON
 ```
 
-The project **will not manufacture tokens/sec** from TOPS, TFLOPS, memory bandwidth, core count or TDP.
+The core invariants are:
 
-v0.5 adds multi-source ranges, but a range is emitted only when at least two independent measured records share the same hardware/model/runtime/workload/metric/quantization/context signature. A single vendor result stays a single vendor result.
+- native async HTTP through reusable `aiohttp` pools;
+- bounded source workers, URL workers, queues, HTTP connections and transform workers;
+- `ETag` / `Last-Modified` conditional requests with parsed-observation reuse on `304`;
+- retry/backoff/jitter and `Retry-After` handling;
+- adaptive per-source concurrency plus circuit breakers that cool down repeatedly failing sources;
+- cache TTL, bounded entry count, LRU-style pruning and optional gzip persistence;
+- adaptive observation batch sizes based on batch latency and RSS pressure;
+- true streaming large-JSON ingestion through `ijson` when `streaming_json` is enabled;
+- optional `process` adapters for isolating unstable third-party parsers;
+- incremental SQLite writes and disk-backed normalized spooling;
+- failed sources are excluded from disappearance detection;
+- a persistent service can reuse HTTP/DNS/cache/SQLite state across cycles;
+- distributed source workers use leases, heartbeats and idempotent batch IDs while one collector retains canonical history ownership.
 
-## Fast, bounded end-to-end discovery
+See [docs/CONCURRENCY.md](docs/CONCURRENCY.md) and [docs/DISTRIBUTED_RUNTIME.md](docs/DISTRIBUTED_RUNTIME.md).
 
-The discovery path now runs as a bounded streaming pipeline rather than a catalog-sized fan-out:
+## Install and configure
 
-```text
-source agents / URL subworkers
-             │
-             ▼
-   adaptive per-source permits
-             │
-             ▼
- pooled aiohttp + keepalive/DNS
-             │
-      ETag / Last-Modified
-       304 -> cached parse
-             │
-             ▼
-     streamed source batches
-             │
-      ┌──────┴──────┐
-      ▼             ▼
- off-loop       SQLite writer
- normalize      incremental WAL
-      │             │
-      └──────┬──────┘
-             ▼
-   normalized JSONL spool
-             │
-             ▼
-      atomic latest JSON
+```bash
+python -m pip install -e .
+cp config/discovery.example.json config/discovery.local.json
+# Edit the sources and remove example.invalid before live use.
 ```
 
-Important properties:
-
-- native async HTTP through a reusable `aiohttp.ClientSession`;
-- bounded source-agent workers, per-source URL subworkers, queues, global HTTP connections and per-host connections;
-- `ETag` / `Last-Modified` conditional requests reuse cached parsed observations on `304 Not Modified`, avoiding body transfer and reparsing;
-- bounded retry/backoff/jitter for `429`, `500`, `502`, `503` and `504`, including `Retry-After` handling and rate-limit telemetry;
-- AIMD-like adaptive per-source concurrency backs off quickly on failures/rate limits and recovers cautiously after healthy low-latency requests;
-- JSON/HTML parsing, normalization, filesystem work and SQLite work stay off the asyncio event loop;
-- SQLite owns one persistent connection on one dedicated writer thread and records refreshes incrementally in batches;
-- failed sources are excluded from disappearance detection rather than being treated as empty successful responses;
-- normalized observations spool to disk, so the complete refresh does not need to remain in RAM before output;
-- runtime telemetry records source timing, requests, attempts, retries, rate limits, bytes, conditional-cache hits, adaptive concurrency state and streaming counts;
-- CI rejects obvious event-loop blocking regressions in the E2E path.
-
-The defaults are conservative. Configure worker and retry levels independently:
+A representative runtime configuration looks like:
 
 ```json
 {
   "agent_workers": 4,
   "subworkers_per_agent": 4,
   "normalize_workers": 2,
-  "queue_size": 64,
   "http_concurrency": 16,
   "http_per_host": 4,
   "retry_attempts": 3,
   "adaptive_concurrency": true,
-  "stream_batch_size": 256
+  "circuit_breaker": true,
+  "adaptive_batching": true,
+  "adaptive_batch_min": 64,
+  "adaptive_batch_max": 2048,
+  "cache_ttl_s": 604800,
+  "cache_max_entries": 10000,
+  "cache_compress": true
 }
 ```
 
-See [docs/CONCURRENCY.md](docs/CONCURRENCY.md) for the worker hierarchy and tuning guidance.
+## One-shot discovery
 
 ```bash
-cp config/discovery.example.json config/discovery.local.json
-# Edit sources; remove the example.invalid feed before running.
-llm-cluster discover --config config/discovery.local.json
+llm-cluster discover \
+  --config config/discovery.local.json \
+  --history results/catalog-history.sqlite3 \
+  --output results/discovery-latest.json
 ```
 
-History defaults to `results/catalog-history.sqlite3`, conditional HTTP state to a sibling cache file, and the latest normalized observations to `results/discovery-latest.json`.
+Discovery/history output is **staging evidence**. It is not automatically canonical product truth.
 
-### Long-running service
-
-For continuous discovery, reuse the HTTP/DNS/SQLite/cache pools instead of rebuilding them each cycle:
+## Persistent service, health and metrics
 
 ```bash
 llm-cluster-service \
   --config config/discovery.local.json \
-  --interval 300
+  --interval 300 \
+  --health-host 127.0.0.1 \
+  --health-port 8787
 ```
 
-Use `--cycles N` for a finite run. SIGINT/SIGTERM stop the service cleanly.
+Endpoints:
 
-### Performance harness
+```text
+GET /healthz     process/liveness state
+GET /readyz      readiness and last-cycle freshness
+GET /metrics     Prometheus text exposition
+GET /v1/status   JSON health + runtime metrics snapshot
+```
 
-The optional synthetic performance job exercises 100, 1,000 and 10,000 observation refreshes:
+The Prometheus endpoint is directly scrapeable by Prometheus and by an OpenTelemetry Collector using its Prometheus receiver. A native optional OTLP exporter remains future work rather than a mandatory dependency on small nodes.
+
+Install a hardened systemd user unit:
 
 ```bash
-python scripts/benchmark_discovery_pipeline.py --counts 100 1000 10000
-python scripts/profile_jsonld.py --products 100 1000 10000 --repeats 3
+llm-cluster-install-service \
+  --config config/discovery.local.json \
+  --enable-now
 ```
 
-On the development runner, the 10k E2E path was roughly 4k observations/sec with about 140 MB peak RSS and low single-digit-millisecond p95 event-loop lag. Synthetic 10k-product JSON-LD parsing was roughly 167k products/sec, so a process pool is not currently justified as the default parser path. `.github/workflows/perf.yml` exposes the load harness as a manual Actions job.
+Use `--system` for `/etc/systemd/system`. The installer resolves configured paths to absolute paths and emits `Restart=on-failure`, restart backoff, conservative scheduling priority, `NoNewPrivileges`, `PrivateTmp` and a restrictive umask.
+
+## Distributed source workers
+
+Start the durable coordinator on the canonical node:
+
+```bash
+llm-cluster-distributed coordinator \
+  --state results/distributed-tasks.sqlite3 \
+  --host 0.0.0.0 --port 8788
+```
+
+Submit a source cycle:
+
+```bash
+llm-cluster-distributed submit \
+  --coordinator http://coordinator:8788 \
+  --config config/discovery.local.json \
+  --cycle-id refresh-001
+```
+
+Run workers on one or more machines:
+
+```bash
+llm-cluster-distributed worker \
+  --coordinator http://coordinator:8788 \
+  --config config/discovery.local.json \
+  --worker-id node-a
+```
+
+Then collect the completed remote cycle into canonical history:
+
+```bash
+llm-cluster-distributed collect \
+  --coordinator http://coordinator:8788 \
+  --cycle-id refresh-001 \
+  --config config/discovery.local.json \
+  --wait
+```
+
+Workers have durable leases and heartbeats. Expired work is reclaimed, attempts survive worker changes, task/batch IDs are deterministic, and duplicate result batches are ignored. Only completed source tasks participate in disappearance detection.
+
+**Security note:** the initial coordinator API does not yet provide built-in authentication or TLS/mTLS. Keep it on a trusted/private network, VPN, or protected reverse proxy; do not expose it directly to the public Internet. The next runtime phase adds authenticated worker identities and transport security.
+
+## Very large JSON feeds
+
+For a JSON feed whose product array is too large to decode as one document, enable streaming:
+
+```json
+{
+  "name": "large-feed",
+  "type": "json",
+  "endpoint": "https://example.invalid/catalog.json",
+  "items_path": "products",
+  "streaming_json": true
+}
+```
+
+`ijson` consumes array items directly from the `aiohttp` response stream. The item mapping remains the same as normal JSON adapters, but the complete decoded document is never required in memory.
+
+## Process-isolated adapters
+
+A source may use `type: "process"` with a command array. The child receives the source configuration as one JSON line on stdin and returns either one observation per JSONL line or `{"observations": [...]}`. The command is executed without a shell, line size and runtime are bounded, and the rest of the discovery pipeline remains unchanged. This is for unstable/special third-party parsers—not a reason to move every parser into a process.
+
+## Performance regression tooling
+
+```bash
+python scripts/benchmark_discovery_pipeline.py --counts 1000 10000 --output results/discovery-perf.json
+python scripts/check_perf_regression.py \
+  --baseline benchmarks/perf-baseline.json \
+  --current results/discovery-perf.json
+python scripts/profile_jsonld.py --products 1000 10000 --repeats 2
+```
+
+The PR performance workflow uses deliberately broad thresholds to catch catastrophic throughput/RSS/event-loop regressions without treating ordinary shared-runner noise as a failure. JSON-LD parsing remains fast enough in current measurements that a process pool is not justified as the default path.
+
+## Evidence, not pretend precision
+
+Performance evidence is explicitly labeled:
+
+```text
+measured_local       direct project measurement
+community_measured   identifiable third-party measurement
+vendor_measured      vendor workload measurement
+derived_estimate     transformation of measured evidence
+spec_based_estimate  weak planning clue only
+unknown              valid when evidence does not exist
+```
+
+The project does **not** manufacture tokens/sec from TOPS, TFLOPS, memory bandwidth, core count or TDP. Confidence-aware ranges require multiple independent compatible measured records.
 
 ## Memory semantics matter
 
-A barebone with a CPU that theoretically supports 256GB does **not** contain 256GB. The catalog separates:
+A barebone with a processor that theoretically supports 256GB does not contain 256GB. The catalog separates:
 
-- `memory_capacity_gb` — RAM actually included/fixed in the referenced configuration;
-- `max_memory_gb` — verified maximum for the actual board/product when known;
-- `max_memory_source_url` / `max_memory_verified_on` — evidence for that board maximum;
-- `cpu_max_memory_gb` — processor-theoretical maximum only;
+- `memory_capacity_gb` — included/fixed RAM;
+- `max_memory_gb` — verified maximum for the actual product/board;
+- `max_memory_source_url` / `max_memory_verified_on` — board evidence;
+- `cpu_max_memory_gb` — CPU-theoretical maximum only;
 - `memory_config_status` — included, fixed, configurable or unknown.
-
-Board-level maximums can therefore be trusted more strongly than CPU-only limits without pretending every legacy record is already verified.
 
 ## Browse, report and compare
 
 ```bash
-python -m pip install -e .
-
 llm-cluster rank
 llm-cluster list --llm-only --max-price 250
 llm-cluster list --llm-only --min-sku-confidence 0.70 --sort price
-
 llm-cluster report best_under_200
 llm-cluster report high_memory_bargains
 llm-cluster report low_power_nodes
 llm-cluster report weird_hardware
 llm-cluster report eol_bargains
-
 llm-cluster dashboard --output results/catalog-dashboard.html
 ```
 
-The dashboard supports budget, RAM, published-power-boundary and risk filters, side-by-side selection, and browser-saved filters. Power labels retain their scope; a processor TDP is never shown as wall power.
+The shopping/catalog score is separate from measured performance. A high catalog score means **worth investigating**, not fastest LLM hardware.
 
 ## Safe model-fit presets
 
-Model fit is a **capacity screen**, not a speed predictor:
+Model fit is a memory-capacity screen, not a speed predictor:
 
 ```bash
 llm-cluster fit special-amd-bc250-16g --preset 14b-q4
 llm-cluster fit special-amd-bc250-16g --params-b 14 --bits 4
 ```
 
-Presets cover representative 1B, 3B, 7B, 14B, 32B and 70B quantized classes. Runtime overhead and KV cache remain model/backend specific and are called out in the result.
-
 ## CAD / Canada landed-cost planning
-
-Landed cost uses an **explicit FX snapshot** rather than silently fetching a rate, which makes saved calculations reproducible:
 
 ```bash
 llm-cluster landed-cost \
@@ -209,11 +261,9 @@ llm-cluster landed-cost \
   --province BC --shipping 25 --duty-rate 0.00 --brokerage-cad 15
 ```
 
-This is a planning estimate, not a customs/tax guarantee. Shipping, duty classification, brokerage and tax assumptions are printed with the result.
+The FX snapshot is explicit for reproducibility. The result is a planning estimate, not a customs/tax guarantee.
 
 ## Sourced performance records
-
-Performance records preserve model/runtime/workload provenance rather than attaching a naked throughput number to hardware.
 
 ```bash
 llm-cluster performance-range data/performance/my-records.json \
@@ -224,78 +274,30 @@ llm-cluster performance-range data/performance/my-records.json \
   --metric tokens_per_second
 ```
 
-Specialist vision/audio/embedding/reranking records are kept out of the LLM range bucket. `data/performance/hailo10h-qwen2-vendor.json` is an example of a single vendor-provenance record; by design it cannot create a multi-source confidence range by itself.
-
-## Hardware families
-
-| Class | Examples | Why track it? |
-|---|---|---|
-| low-power x86 | Ryzen 7735U/8845HS, N100 | common Linux ecosystem, replaceable RAM on many models |
-| high-memory mobile boards | 8745HS/HX370/7945HX | dense CPU/APU compute with laptop-class efficiency |
-| unusual APU | AMD BC-250 | cheap unified GDDR6 and interesting Vulkan potential |
-| ARM/SBC | RK3588, RK3576, Jetson Orin | low power and compact always-on nodes |
-| GenAI NPU/TPU | Hailo-10H, SOPHGO | real purpose-built transformer paths at low power |
-| AI ASIC | Tenstorrent | interesting accelerator architecture and fast local memory |
-| FPGA/adaptive | Kria, Versal, Alveo | custom low-precision research potential |
-| specialist | Coral, MemryX | fixed inference can keep larger nodes asleep |
-| decommissioned | Alveo/NCS2/etc. | liquidation pricing can create strange bargains |
-
-See **[PARTS.md](PARTS.md)** for the canonical catalog. `data/discovery/watchlist.json` holds newly researched targets that still need exact price/SKU verification before promotion.
-
-## Catalog score vs performance
-
-`llm-cluster rank` is deliberately shopping-oriented. It considers price, memory evidence, published power hints, software maturity, lifecycle, risk, and—when present—seller/source/SKU confidence.
-
-```text
-CATALOG SCORE                   PERFORMANCE EVIDENCE
-─────────────                   ────────────────────
-price                           measured tokens/sec
-RAM included/potential          exact model/runtime/workload
-published power scope           complete-node watts when measured
-software maturity               tokens/joule when comparable
-seller/SKU confidence           independent source provenance
-risk / availability             measured range confidence
-
-            kept as separate dimensions
-```
-
-A high catalog score means **"worth investigating"**, not "fastest LLM hardware."
-
-## Optional benchmark subsystem
-
-The `llm-cluster-bench` harness remains available for local or contributed measurements. It is evidence tooling, not a catalog-release gate.
-
-See [docs/BENCHMARK_HARNESS.md](docs/BENCHMARK_HARNESS.md).
+Specialist vision/audio/embedding/reranking records remain separate from LLM throughput.
 
 ## Repository layout
 
 ```text
 LowPowerLLMCluster/
-├── config/discovery.example.json    discovery + worker/retry configuration
-├── data/parts.json                  canonical catalog manifest
-├── data/catalog/                    reviewed product records by family
-├── data/discovery/                  researched promotion/watch targets
-├── data/performance/                sourced performance evidence
-├── PARTS.md                         generated canonical catalog
-├── specs/HARDWARE_CATALOG.md        product data contract
-├── specs/EVIDENCE.md                provenance + estimation rules
-├── specs/discovery-config.schema.json
-├── specs/performance-record.schema.json
-├── docs/SOURCING.md                 source/history/promotion workflow
-├── docs/CONCURRENCY.md              async/cache/retry/streaming architecture
-├── src/lowpower_llm_cluster/        discovery, HTTP runtime, service, history, planner, UI
+├── config/discovery.example.json       discovery/runtime configuration
+├── data/catalog/                       reviewed canonical catalog fragments
+├── data/discovery/                     staging/watch targets
+├── data/performance/                   sourced performance evidence
+├── docs/CONCURRENCY.md                 local runtime/backpressure design
+├── docs/DISTRIBUTED_RUNTIME.md         lease/worker/coordinator design
+├── specs/discovery-config.schema.json  source/runtime configuration contract
+├── src/lowpower_llm_cluster/           planner + local/distributed runtime
+├── benchmarks/perf-baseline.json       broad synthetic regression reference
 ├── scripts/benchmark_discovery_pipeline.py
-├── scripts/profile_jsonld.py
-├── benchmarks/                      optional benchmark profiles
-└── results/                         generated local outputs
+├── scripts/check_perf_regression.py
+└── PARTS.md                            generated canonical catalog
 ```
 
 ## Next priorities
 
-See **[TODO.md](TODO.md)**. The completed E2E optimization layer now hands off to **distributed/runtime resilience**: per-source circuit breakers, cache lifecycle management, adaptive batch sizing, health/metrics endpoints, service installation, distributed source workers with leases/heartbeats/idempotent batches, and eventually streaming raw JSON for exceptionally large feeds. Catalog work continues with marketplace-specific adapters, reviewed promotion diffs, live-FX as an optional provider, exact-SKU enrichment, and additional independent performance evidence.
+See [TODO.md](TODO.md). With the current resilience layer complete, the next runtime phase is **secure/automatic distributed operation**: service-integrated remote cycles, authenticated workers and TLS/mTLS, streamed remote result transport, capability-aware scheduling, drain/cancel semantics, coordinator recovery/HA, optional native OTLP export, resource/thermal-aware controls, and fault-injection tests. Catalog work then continues with marketplace-specific adapters, reviewed promotion proposals, optional live FX and exact-SKU enrichment.
 
 ## Data quality rule
 
 **Measured ≠ published ≠ community-reported ≠ derived ≠ speculative.**
-
-The distinction is a feature of the project, not an inconvenience.

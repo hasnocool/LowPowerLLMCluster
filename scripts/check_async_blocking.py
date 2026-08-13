@@ -1,4 +1,3 @@
-# scripts/check_async_blocking.py
 from __future__ import annotations
 
 import ast
@@ -6,20 +5,36 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-TARGETS = (
-    ROOT / "src/lowpower_llm_cluster/discovery.py",
-    ROOT / "src/lowpower_llm_cluster/http_runtime.py",
-    ROOT / "src/lowpower_llm_cluster/streaming_discovery.py",
-    ROOT / "src/lowpower_llm_cluster/catalog_refresh.py",
-    ROOT / "src/lowpower_llm_cluster/history.py",
-    ROOT / "src/lowpower_llm_cluster/runtime.py",
-    ROOT / "src/lowpower_llm_cluster/service_cli.py",
+TARGETS = tuple(
+    ROOT / "src" / "lowpower_llm_cluster" / name
+    for name in (
+        "discovery.py",
+        "http_runtime.py",
+        "streaming_discovery.py",
+        "catalog_refresh.py",
+        "history.py",
+        "runtime.py",
+        "source_runtime.py",
+        "process_adapter.py",
+        "service_cli.py",
+        "service_runtime.py",
+        "distributed_runtime.py",
+        "distributed_cli.py",
+    )
 )
 BLOCKING_CALLS = {
-    "open", "time.sleep", "sqlite3.connect", "urllib.request.urlopen",
-    "subprocess.run", "subprocess.call", "subprocess.Popen",
-    "requests.get", "requests.post", "requests.request",
-    "Path.read_text", "Path.write_text",
+    "open",
+    "time.sleep",
+    "sqlite3.connect",
+    "urllib.request.urlopen",
+    "subprocess.run",
+    "subprocess.call",
+    "subprocess.Popen",
+    "requests.get",
+    "requests.post",
+    "requests.request",
+    "Path.read_text",
+    "Path.write_text",
 }
 CPU_HEAVY_CALLS = {"json.loads", "json.dumps"}
 
@@ -41,9 +56,15 @@ def scan(path: Path) -> list[str]:
             name = dotted_name(call.func)
             leaf = name.rsplit(".", 1)[-1]
             if name in BLOCKING_CALLS or leaf in {"read_text", "write_text", "urlopen"}:
-                errors.append(f"{path.relative_to(ROOT)}:{call.lineno}: blocking call {name!r} inside async {function.name}()")
+                errors.append(
+                    f"{path.relative_to(ROOT)}:{call.lineno}: blocking call {name!r} "
+                    f"inside async {function.name}()"
+                )
             if name in CPU_HEAVY_CALLS:
-                errors.append(f"{path.relative_to(ROOT)}:{call.lineno}: CPU-heavy {name!r} runs directly inside async {function.name}()")
+                errors.append(
+                    f"{path.relative_to(ROOT)}:{call.lineno}: CPU-heavy {name!r} runs directly "
+                    f"inside async {function.name}()"
+                )
     return errors
 
 
@@ -54,7 +75,7 @@ def main() -> int:
         for error in errors:
             print(f"- {error}", file=sys.stderr)
         return 1
-    print("Async blocking guard passed for discovery, streaming persistence and service mode.")
+    print("Async blocking guard passed for local, resilient and distributed runtime paths.")
     return 0
 
 

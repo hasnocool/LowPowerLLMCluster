@@ -1,4 +1,3 @@
-# scripts/check_governance.py
 from __future__ import annotations
 
 import json
@@ -41,13 +40,14 @@ def main() -> int:
 
     required = [
         "README.md", "PARTS.md", "TODO.md", "CHANGELOG.md", "AGENTS.md",
-        "docs/PROJECT_CHARTER.md", "docs/GUARDRAILS.md", "docs/ACCELERATORS.md", "docs/SOURCING.md", "docs/CONCURRENCY.md",
+        "docs/PROJECT_CHARTER.md", "docs/GUARDRAILS.md", "docs/ACCELERATORS.md",
+        "docs/SOURCING.md", "docs/CONCURRENCY.md", "docs/DISTRIBUTED_RUNTIME.md",
         "specs/HARDWARE_CATALOG.md", "specs/EVIDENCE.md", "specs/BENCHMARKING.md", "specs/SCORING.md",
         "specs/hardware-catalog.schema.json", "specs/hardware-part.schema.json",
         "specs/benchmark.schema.json", "specs/benchmark-profile.schema.json",
         "specs/adapter-output.schema.json", "specs/discovery-config.schema.json", "specs/performance-record.schema.json",
         "config/discovery.example.json", "data/discovery/watchlist.json",
-        "scripts/check_async_blocking.py",
+        "scripts/check_async_blocking.py", "scripts/check_perf_regression.py", "benchmarks/perf-baseline.json",
         "docs/BENCHMARK_HARNESS.md", "benchmarks/README.md", "results/README.md",
         ".agents/skills/hardware-research/SKILL.md",
         ".agents/skills/catalog-curation/SKILL.md",

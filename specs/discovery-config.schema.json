@@ -21,8 +21,22 @@
     "adaptive_min_subworkers": {"type":"integer","minimum":1,"maximum":64},
     "adaptive_success_window": {"type":"integer","minimum":1},
     "adaptive_latency_target_ms": {"type":"number","exclusiveMinimum":0},
-    "stream_batch_size": {"type":"integer","minimum":1,"maximum":10000},
+    "circuit_breaker": {"type":"boolean"},
+    "circuit_failure_threshold": {"type":"integer","minimum":1},
+    "circuit_recovery_timeout_s": {"type":"number","exclusiveMinimum":0},
+    "circuit_half_open_calls": {"type":"integer","minimum":1},
+    "adaptive_batching": {"type":"boolean"},
+    "adaptive_batch_min": {"type":"integer","minimum":1},
+    "adaptive_batch_max": {"type":"integer","minimum":1},
+    "adaptive_batch_initial": {"type":"integer","minimum":1},
+    "adaptive_batch_target_ms": {"type":"number","exclusiveMinimum":0},
+    "adaptive_batch_rss_soft_limit_mb": {"type":"number","exclusiveMinimum":0},
+    "adaptive_batch_success_window": {"type":"integer","minimum":1},
+    "stream_batch_size": {"type":"integer","minimum":1,"maximum":10000,"description":"Deprecated fixed-size compatibility setting; adaptive_batch_initial takes precedence."},
     "cache_observation_limit": {"type":"integer","minimum":1},
+    "cache_ttl_s": {"type":"number","exclusiveMinimum":0},
+    "cache_max_entries": {"type":"integer","minimum":1},
+    "cache_compress": {"type":"boolean"},
     "disappearance_after_runs": {"type":"integer","minimum":1},
     "concurrency": {"type":"integer","minimum":1,"maximum":256,"description":"Deprecated alias for http_concurrency."},
     "sources": {
@@ -32,18 +46,28 @@
         "required":["name","type"],
         "properties": {
           "name":{"type":"string","minLength":1},
-          "type":{"enum":["json","jsonld"]},
+          "type":{"enum":["json","jsonld","process"]},
           "source_trust":{"type":"number","minimum":0,"maximum":1},
           "subworkers":{"type":"integer","minimum":1,"maximum":64},
           "batch_size":{"type":"integer","minimum":1,"maximum":10000},
           "endpoint":{"type":"string","format":"uri"},
           "urls":{"type":"array","items":{"type":"string","format":"uri"},"minItems":1},
+          "streaming_json":{"type":"boolean"},
+          "ijson_prefix":{"type":"string"},
           "items_path":{"type":"string"},
           "fields":{"type":"object","additionalProperties":{"type":"string"}},
           "constants":{"type":"object"},
-          "attribute_fields":{"type":"object","additionalProperties":{"type":"string"}}
+          "attribute_fields":{"type":"object","additionalProperties":{"type":"string"}},
+          "command":{"type":"array","items":{"type":"string"},"minItems":1},
+          "process_timeout_s":{"type":"number","exclusiveMinimum":0},
+          "process_max_line_bytes":{"type":"integer","minimum":1024}
         },
-        "additionalProperties":false
+        "additionalProperties":false,
+        "allOf": [
+          {"if":{"properties":{"type":{"const":"json"}}},"then":{"required":["endpoint"]}},
+          {"if":{"properties":{"type":{"const":"jsonld"}}},"then":{"required":["urls"]}},
+          {"if":{"properties":{"type":{"const":"process"}}},"then":{"required":["command"]}}
+        ]
       }
     }
   },
