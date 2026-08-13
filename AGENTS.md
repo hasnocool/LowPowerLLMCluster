@@ -22,25 +22,19 @@ LowPowerLLMCluster is primarily a **catalog, sourcing and buying/research planne
 - Capacity/model-fit estimates must expose assumptions and warn that they are not throughput predictions.
 - Machine-readable catalog fragments are authoritative; generated docs follow them.
 - Discovery/history data is staging evidence until reviewed into canonical catalog fragments.
+- Async source/history/service code must keep blocking network/filesystem/database/meaningful parse work off the event loop.
+- All task, queue, HTTP, source and normalization fan-out must remain bounded; never replace worker queues with catalog-sized `create_task()` fan-out.
+- Reuse long-lived HTTP/DNS/SQLite resources in service mode instead of recreating them every cycle.
+- Honor source rate limits and `Retry-After`; adaptive concurrency must back off faster than it ramps up.
+- A failed source must not be treated as an empty successful source for disappearance detection.
+- Streaming paths must not re-materialize the whole refresh merely for convenience; use batches/spools when output can be large.
+- Do not add a process pool until profiling shows CPU parsing is a material bottleneck.
 - Preserve source URLs, source type and verification dates.
 - Experimental/EOL hardware retains risk and lifecycle labels.
 - Multi-source performance ranges require independent compatible measured sources; specialist metrics remain separate from LLM throughput.
 - Benchmark code remains available but must not become a prerequisite for catalog inclusion/ranking.
 - Update README, PARTS, CHANGELOG, TODO and relevant docs/specs with behavior changes.
 - Use semantic versioning and Python 3.12+.
-
-## Async/concurrency invariants
-
-- Meaningful network, filesystem, database and parse work must never run directly on the asyncio event loop.
-- Prefer native async I/O over wrapping blocking libraries in the global thread pool. HTTP discovery uses one pooled `aiohttp.ClientSession` with bounded global and per-host concurrency.
-- Concurrency must remain bounded at every level: source-agent workers, per-source subworkers, HTTP connections, normalization workers and queues.
-- Do not replace bounded worker queues with unbounded `asyncio.create_task()` fan-out.
-- SQLite uses one persistent connection owned by one dedicated writer thread; do not share SQLite connections across worker threads.
-- Batch database mutations with `executemany`/transactions when possible rather than issuing one round-trip per observation.
-- Independent post-discovery stages should overlap when safe (for example normalization and SQLite persistence).
-- Preserve backpressure and cancellation safety when adding adapters.
-- Add/extend tests for worker bounds and run `python scripts/check_async_blocking.py` for async pipeline changes.
-- Read `docs/CONCURRENCY.md` before changing discovery, history, or refresh orchestration.
 
 ## Release/document invariants
 
@@ -49,6 +43,6 @@ LowPowerLLMCluster is primarily a **catalog, sourcing and buying/research planne
 - `python scripts/check_async_blocking.py` passes.
 - `python scripts/validate_catalog.py` passes.
 - `python scripts/validate_evidence_records.py` passes.
-- `python scripts/validate_benchmark_profiles.py` passes (optional benchmark subsystem remains healthy).
+- `python scripts/validate_benchmark_profiles.py` passes.
 - `python scripts/render_parts_table.py` leaves `PARTS.md` clean.
 - `pytest -q` passes.
