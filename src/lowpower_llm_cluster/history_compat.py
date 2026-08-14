@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import asyncio
 import sqlite3
 from pathlib import Path
 from typing import Any
 
 from aiohttp import web
 
+from .catalog import project_root
 from .live_discoveries import LIVE_DISCOVERIES_HTML, query_live
+from .promotion_state import STATES, build_promotion_snapshot, filter_promotion_items
 
 EXPECTED_TABLES = {"observations", "listing_state", "refresh_runs"}
 
@@ -56,13 +59,47 @@ def _live_shell(html: str) -> str:
 <script>
 (()=>{
 function fmt(n){if(n==null)return '—';if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KiB';return (n/1048576).toFixed(1)+' MiB';}
-function install(){const first=document.querySelector('.stats');if(!first||document.getElementById('lpllm-runtime-block'))return;const block=document.createElement('section');block.id='lpllm-runtime-block';block.innerHTML=`<div id="lpllm-runtime-head"><div><div class="eyebrow">Runtime staging</div><h2>Live scanner activity</h2></div><a href="/discoveries">Browse live discoveries →</a></div><div class="stats"><div class="stat"><div class="statlabel">Live discoveries</div><div class="statvalue" id="lpllm-active">0</div><div class="statfoot">active staged listings</div></div><div class="stat"><div class="statlabel">Observations saved</div><div class="statvalue" id="lpllm-observations">0</div><div class="statfoot">committed to SQLite</div></div><div class="stat"><div class="statlabel">Scanner state</div><div class="statvalue" id="lpllm-run">—</div><div class="statfoot">current refresh run</div></div><div class="stat"><div class="statlabel">History database</div><div class="statvalue" id="lpllm-size">—</div><div class="statfoot" id="lpllm-dbpath">resolving…</div></div></div>`;first.parentNode.insertBefore(block,first);for(const el of document.querySelectorAll('.statlabel')){const t=el.textContent.trim();if(t==='Catalog records')el.textContent='Canonical catalog records';else if(t==='Priced records')el.textContent='Canonical priced records';else if(t==='Memory known')el.textContent='Canonical memory known';else if(t==='Low-risk entries')el.textContent='Canonical low-risk entries';}}
-async function update(){install();try{const r=await fetch('/api/state',{cache:'no-store'}),s=await r.json();document.getElementById('lpllm-active').textContent=s.active_listings||0;document.getElementById('lpllm-observations').textContent=s.observations||0;document.getElementById('lpllm-run').textContent=s.latest_run?.status||s.scanner_status||'unknown';document.getElementById('lpllm-size').textContent=fmt(s.database_bytes);document.getElementById('lpllm-dbpath').textContent=s.history_path||s.configured_history_path||'not connected';}catch(_){document.getElementById('lpllm-run').textContent='disconnected';}}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',update);else update();setInterval(update,2000);const es=new EventSource('/api/events');es.onmessage=update;
+function install(){const first=document.querySelector('.stats');if(!first||document.getElementById('lpllm-runtime-block'))return;const block=document.createElement('section');block.id='lpllm-runtime-block';block.innerHTML=`<div id="lpllm-runtime-head"><div><div class="eyebrow">Runtime staging</div><h2>Live scanner & promotion activity</h2></div><a href="/discoveries">Review promotion pipeline →</a></div><div class="stats"><div class="stat"><div class="statlabel">Live discoveries</div><div class="statvalue" id="lpllm-active">0</div><div class="statfoot">active staged listings</div></div><div class="stat"><div class="statlabel">Held for review</div><div class="statvalue" id="lpllm-held">0</div><div class="statfoot">evidence gates not met</div></div><div class="stat"><div class="statlabel">Promotion ready</div><div class="statvalue" id="lpllm-ready">0</div><div class="statfoot">passes current gates</div></div><div class="stat"><div class="statlabel">Auto canonical</div><div class="statvalue" id="lpllm-canonical">0</div><div class="statfoot">active promoted records</div></div></div>`;first.parentNode.insertBefore(block,first);for(const el of document.querySelectorAll('.statlabel')){const t=el.textContent.trim();if(t==='Catalog records')el.textContent='Canonical catalog records';else if(t==='Priced records')el.textContent='Canonical priced records';else if(t==='Memory known')el.textContent='Canonical memory known';else if(t==='Low-risk entries')el.textContent='Canonical low-risk entries';}}
+async function update(){install();try{const [r,p]=await Promise.all([fetch('/api/state',{cache:'no-store'}),fetch('/api/promotion-state?limit=1',{cache:'no-store'})]),s=await r.json(),x=await p.json();document.getElementById('lpllm-active').textContent=s.active_listings||0;document.getElementById('lpllm-held').textContent=x.counts?.held||0;document.getElementById('lpllm-ready').textContent=x.counts?.promotion_ready||0;document.getElementById('lpllm-canonical').textContent=x.counts?.canonical||0;}catch(_){}}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',update);else update();setInterval(update,3000);const es=new EventSource('/api/events');es.onmessage=update;
 })();
 </script>
 '''
     return html.replace("</body>", shell + "</body>") if "</body>" in html else html + shell
+
+
+def _merge_active_promotion(live: dict[str, Any], snapshot: dict[str, Any]) -> dict[str, Any]:
+    projected = {
+        (str(item.get("source", "")), str(item.get("source_id", ""))): item
+        for item in snapshot.get("items", [])
+        if isinstance(item, dict)
+    }
+    merged: list[dict[str, Any]] = []
+    counts = {state: 0 for state in STATES}
+    reason_counts: dict[str, int] = {}
+    for active in live.get("items", []):
+        identity = (str(active.get("source", "")), str(active.get("source_id", "")))
+        detail = projected.get(identity, {})
+        row = dict(active)
+        for key in ("manufacturer", "sku", "mpn", "source_confidence", "sku_confidence", "canonical_id"):
+            if detail.get(key) not in (None, ""):
+                row[key] = detail[key]
+        state = str(detail.get("promotion_state") or "discovered")
+        reasons = [str(value) for value in detail.get("promotion_reasons", [])]
+        row["promotion_state"] = state
+        row["promotion_reasons"] = reasons
+        counts[state] = counts.get(state, 0) + 1
+        for reason in reasons:
+            reason_counts[reason] = reason_counts.get(reason, 0) + 1
+        merged.append(row)
+    return {
+        "total": len(merged),
+        "sources": live.get("sources", []),
+        "counts": counts,
+        "reason_counts": dict(sorted(reason_counts.items(), key=lambda item: (-item[1], item[0]))),
+        "promotion_report_generated_at": snapshot.get("promotion_report_generated_at"),
+        "items": merged,
+    }
 
 
 def main() -> int:
@@ -108,10 +145,45 @@ def main() -> int:
         payload = await query_live(candidate, limit=limit, offset=offset, query=request.query.get("q", "").strip(), source=request.query.get("source", "").strip())
         return web.json_response(payload)
 
+    async def promotion_api(request: web.Request) -> web.Response:
+        configured = Path(request.app["dashboard_history"])
+        candidate = select_history(configured)
+        if candidate is None:
+            return web.json_response({"total": 0, "sources": [], "counts": {state: 0 for state in STATES}, "reason_counts": {}, "items": [], "error": "live history database is not connected"}, status=503)
+        try:
+            limit = min(2000, max(1, int(request.query.get("limit", "500"))))
+            offset = max(0, int(request.query.get("offset", "0")))
+        except ValueError:
+            limit, offset = 500, 0
+        root = project_root()
+        live, snapshot = await asyncio.gather(
+            query_live(candidate, limit=10000, offset=0),
+            asyncio.to_thread(
+                build_promotion_snapshot,
+                discovery_path=root / "results" / "discovery-latest.json",
+                report_path=root / "results" / "promotion-latest.json",
+                catalog_path=root / "data" / "catalog" / "auto-promoted.json",
+            ),
+        )
+        merged = _merge_active_promotion(live, snapshot)
+        filtered = filter_promotion_items(
+            merged["items"],
+            state=request.query.get("state", ""),
+            reason=request.query.get("reason", ""),
+            query=request.query.get("q", ""),
+            source=request.query.get("source", ""),
+        )
+        merged["filtered_total"] = len(filtered)
+        merged["items"] = filtered[offset : offset + limit]
+        merged["limit"] = limit
+        merged["offset"] = offset
+        return web.json_response(merged)
+
     def create_with_live_routes(**kwargs: Any) -> web.Application:
         app = original_create(**kwargs)
         app.router.add_get("/discoveries", discoveries_page)
         app.router.add_get("/api/discoveries", discoveries_api)
+        app.router.add_get("/api/promotion-state", promotion_api)
         return app
 
     dashboard._history_state_sync = compatible_state
