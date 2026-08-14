@@ -1,15 +1,18 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import sqlite3
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from aiohttp import web
 
-from .catalog import project_root
+from .active_records import active_records
 from .live_discoveries import LIVE_DISCOVERIES_HTML, query_live
-from .promotion_state import STATES, build_promotion_snapshot, filter_promotion_items
+from .promotion_state import STATES, filter_promotion_items, project_promotion_records
+from .source_observability import read_source_health
 
 EXPECTED_TABLES = {"observations", "listing_state", "refresh_runs"}
 
@@ -39,8 +42,7 @@ def history_candidates(configured: Path) -> list[Path]:
     for candidate in candidates:
         resolved = candidate.resolve()
         if resolved not in seen:
-            seen.add(resolved)
-            result.append(resolved)
+            seen.add(resolved); result.append(resolved)
     return result
 
 
@@ -51,66 +53,62 @@ def select_history(configured: Path) -> Path | None:
     return None
 
 
+def _load_json(path: Path) -> dict[str, Any]:
+    if not path.exists(): return {}
+    try: payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError): return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def _parse_time(value: Any) -> datetime | None:
+    if not value: return None
+    try: parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError: return None
+    if parsed.tzinfo is None: parsed = parsed.replace(tzinfo=UTC)
+    return parsed.astimezone(UTC)
+
+
+def _promotion_health(path: Path, latest_run: dict[str, Any] | None) -> dict[str, Any]:
+    health = _load_json(path)
+    promotion_at = _parse_time(health.get("promotion_completed_at"))
+    run_at = _parse_time((latest_run or {}).get("completed_at"))
+    stale = bool(run_at and (promotion_at is None or promotion_at < run_at))
+    value = dict(health)
+    value["exists"] = path.exists()
+    value["promotion_stale"] = stale
+    value["promotion_fresh"] = bool(health.get("status") == "ok" and not stale)
+    return value
+
+
 def _live_shell(html: str) -> str:
     shell = r'''
-<style>
-#lpllm-runtime-block{margin:0 0 18px}#lpllm-runtime-head{display:flex;justify-content:space-between;gap:12px;align-items:end;margin:0 0 10px}#lpllm-runtime-head h2{margin:0;font-size:17px}#lpllm-runtime-head a{font-size:12px}#lpllm-dbpath{font-family:ui-monospace,SFMono-Regular,monospace;overflow-wrap:anywhere}
-</style>
-<script>
-(()=>{
-function fmt(n){if(n==null)return '—';if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KiB';return (n/1048576).toFixed(1)+' MiB';}
-function install(){const first=document.querySelector('.stats');if(!first||document.getElementById('lpllm-runtime-block'))return;const block=document.createElement('section');block.id='lpllm-runtime-block';block.innerHTML=`<div id="lpllm-runtime-head"><div><div class="eyebrow">Runtime staging</div><h2>Live scanner & promotion activity</h2></div><a href="/discoveries">Review promotion pipeline →</a></div><div class="stats"><div class="stat"><div class="statlabel">Live discoveries</div><div class="statvalue" id="lpllm-active">0</div><div class="statfoot">active staged listings</div></div><div class="stat"><div class="statlabel">Held for review</div><div class="statvalue" id="lpllm-held">0</div><div class="statfoot">evidence gates not met</div></div><div class="stat"><div class="statlabel">Promotion ready</div><div class="statvalue" id="lpllm-ready">0</div><div class="statfoot">passes current gates</div></div><div class="stat"><div class="statlabel">Auto canonical</div><div class="statvalue" id="lpllm-canonical">0</div><div class="statfoot">active promoted records</div></div></div>`;first.parentNode.insertBefore(block,first);for(const el of document.querySelectorAll('.statlabel')){const t=el.textContent.trim();if(t==='Catalog records')el.textContent='Canonical catalog records';else if(t==='Priced records')el.textContent='Canonical priced records';else if(t==='Memory known')el.textContent='Canonical memory known';else if(t==='Low-risk entries')el.textContent='Canonical low-risk entries';}}
-async function update(){install();try{const [r,p]=await Promise.all([fetch('/api/state',{cache:'no-store'}),fetch('/api/promotion-state?limit=1',{cache:'no-store'})]),s=await r.json(),x=await p.json();document.getElementById('lpllm-active').textContent=s.active_listings||0;document.getElementById('lpllm-held').textContent=x.counts?.held||0;document.getElementById('lpllm-ready').textContent=x.counts?.promotion_ready||0;document.getElementById('lpllm-canonical').textContent=x.counts?.canonical||0;}catch(_){}}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',update);else update();setInterval(update,3000);const es=new EventSource('/api/events');es.onmessage=update;
-})();
-</script>
+<style>#lpllm-runtime-block{margin:0 0 18px}#lpllm-runtime-head{display:flex;justify-content:space-between;gap:12px;align-items:end;margin:0 0 10px}#lpllm-runtime-head h2{margin:0;font-size:17px}#lpllm-runtime-head a{font-size:12px}</style>
+<script>(()=>{function install(){const first=document.querySelector('.stats');if(!first||document.getElementById('lpllm-runtime-block'))return;const block=document.createElement('section');block.id='lpllm-runtime-block';block.innerHTML=`<div id="lpllm-runtime-head"><div><div class="eyebrow">Runtime staging</div><h2>Discovery & canonical promotion</h2></div><a href="/discoveries">Review promotion pipeline →</a></div><div class="stats"><div class="stat"><div class="statlabel">Live discoveries</div><div class="statvalue" id="lpa">0</div></div><div class="stat"><div class="statlabel">Held</div><div class="statvalue" id="lph">0</div></div><div class="stat"><div class="statlabel">Promotion ready</div><div class="statvalue" id="lpr">0</div></div><div class="stat"><div class="statlabel">Auto canonical</div><div class="statvalue" id="lpc">0</div></div></div>`;first.parentNode.insertBefore(block,first)}async function update(){install();try{const [s,p]=await Promise.all([fetch('/api/state',{cache:'no-store'}).then(r=>r.json()),fetch('/api/promotion-state?limit=1',{cache:'no-store'}).then(r=>r.json())]);lpa.textContent=s.active_listings||0;lph.textContent=p.counts?.held||0;lpr.textContent=p.counts?.promotion_ready||0;lpc.textContent=p.counts?.canonical||0;}catch(_){}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',update);else update();setInterval(update,5000)})();</script>
 '''
     return html.replace("</body>", shell + "</body>") if "</body>" in html else html + shell
-
-
-def _merge_active_promotion(live: dict[str, Any], snapshot: dict[str, Any]) -> dict[str, Any]:
-    projected = {
-        (str(item.get("source", "")), str(item.get("source_id", ""))): item
-        for item in snapshot.get("items", [])
-        if isinstance(item, dict)
-    }
-    merged: list[dict[str, Any]] = []
-    counts = {state: 0 for state in STATES}
-    reason_counts: dict[str, int] = {}
-    for active in live.get("items", []):
-        identity = (str(active.get("source", "")), str(active.get("source_id", "")))
-        detail = projected.get(identity, {})
-        row = dict(active)
-        for key in ("manufacturer", "sku", "mpn", "source_confidence", "sku_confidence", "canonical_id"):
-            if detail.get(key) not in (None, ""):
-                row[key] = detail[key]
-        state = str(detail.get("promotion_state") or "discovered")
-        reasons = [str(value) for value in detail.get("promotion_reasons", [])]
-        row["promotion_state"] = state
-        row["promotion_reasons"] = reasons
-        counts[state] = counts.get(state, 0) + 1
-        for reason in reasons:
-            reason_counts[reason] = reason_counts.get(reason, 0) + 1
-        merged.append(row)
-    return {
-        "total": len(merged),
-        "sources": live.get("sources", []),
-        "counts": counts,
-        "reason_counts": dict(sorted(reason_counts.items(), key=lambda item: (-item[1], item[0]))),
-        "promotion_report_generated_at": snapshot.get("promotion_report_generated_at"),
-        "items": merged,
-    }
 
 
 def main() -> int:
     from . import dashboard_service as dashboard
 
+    parser = dashboard.build_parser()
+    parser.add_argument("--discovery-output", default="results/discovery-latest.json")
+    parser.add_argument("--promotion-report", default="results/promotion-latest.json")
+    parser.add_argument("--promotion-catalog", default="data/catalog/auto-promoted.json")
+    parser.add_argument("--promotion-health", default="results/promotion-health.json")
+    args = parser.parse_args()
+
     original_state = dashboard._history_state_sync
     original_shell = dashboard._inject_live_shell
-    original_create = dashboard.create_dashboard_app
+    original_health = dashboard._health
+
+    configured_history = Path(args.history).expanduser().resolve()
+    discovery_path = Path(args.discovery_output).expanduser().resolve()
+    report_path = Path(args.promotion_report).expanduser().resolve()
+    catalog_path = Path(args.promotion_catalog).expanduser().resolve()
+    health_path = Path(args.promotion_health).expanduser().resolve()
 
     def compatible_state(configured: Path) -> dict[str, Any]:
-        configured = configured.expanduser().resolve()
         candidate = select_history(configured)
         if candidate is not None:
             state = original_state(candidate)
@@ -118,79 +116,76 @@ def main() -> int:
             state["history_path"] = str(candidate)
             state["auto_selected_history"] = candidate != configured
             state["schema_status"] = "live_history"
-            try:
-                state["database_bytes"] = candidate.stat().st_size
-            except OSError:
-                state["database_bytes"] = None
-            if state.get("latest_run") is None:
-                state["latest_run"] = {"status": "waiting_for_scanner"}
+            try: state["database_bytes"] = candidate.stat().st_size
+            except OSError: state["database_bytes"] = None
+            if state.get("latest_run") is None: state["latest_run"] = {"status": "waiting_for_scanner"}
+            state["promotion"] = _promotion_health(health_path, state.get("latest_run"))
             return state
         info = probe_history(configured)
         status = "misconfigured" if info.get("database_exists") else "disconnected"
-        return {"database_exists": bool(info.get("database_exists")), "database_bytes": configured.stat().st_size if configured.exists() else None, "observations": 0, "active_listings": 0, "max_observation_id": 0, "latest_run": {"status": status}, "recent": [], "scanner_status": status, "schema_status": "legacy_or_incompatible" if info.get("database_exists") else "missing", "missing_tables": info.get("missing_tables", []), "configured_history_path": str(configured), "history_path": None}
+        return {"database_exists": bool(info.get("database_exists")), "observations": 0, "active_listings": 0, "max_observation_id": 0, "latest_run": {"status": status}, "recent": [], "scanner_status": status, "schema_status": "legacy_or_incompatible" if info.get("database_exists") else "missing", "missing_tables": info.get("missing_tables", []), "configured_history_path": str(configured), "history_path": None, "promotion": _promotion_health(health_path, None)}
 
     async def discoveries_page(_: web.Request) -> web.Response:
         return web.Response(text=LIVE_DISCOVERIES_HTML, content_type="text/html", headers={"Cache-Control": "no-store"})
 
     async def discoveries_api(request: web.Request) -> web.Response:
-        configured = Path(request.app["dashboard_history"])
-        candidate = select_history(configured)
+        candidate = select_history(configured_history)
         if candidate is None:
             return web.json_response({"path": None, "total": 0, "sources": [], "items": [], "error": "live history database is not connected"}, status=503)
         try:
-            limit = min(1000, max(1, int(request.query.get("limit", "200"))))
-            offset = max(0, int(request.query.get("offset", "0")))
-        except ValueError:
-            limit, offset = 200, 0
-        payload = await query_live(candidate, limit=limit, offset=offset, query=request.query.get("q", "").strip(), source=request.query.get("source", "").strip())
-        return web.json_response(payload)
+            limit = min(1000, max(1, int(request.query.get("limit", "200")))); offset = max(0, int(request.query.get("offset", "0")))
+        except ValueError: limit, offset = 200, 0
+        return web.json_response(await query_live(candidate, limit=limit, offset=offset, query=request.query.get("q", "").strip(), source=request.query.get("source", "").strip()))
 
     async def promotion_api(request: web.Request) -> web.Response:
-        configured = Path(request.app["dashboard_history"])
-        candidate = select_history(configured)
+        candidate = select_history(configured_history)
         if candidate is None:
             return web.json_response({"total": 0, "sources": [], "counts": {state: 0 for state in STATES}, "reason_counts": {}, "items": [], "error": "live history database is not connected"}, status=503)
         try:
-            limit = min(2000, max(1, int(request.query.get("limit", "500"))))
-            offset = max(0, int(request.query.get("offset", "0")))
-        except ValueError:
-            limit, offset = 500, 0
-        root = project_root()
-        live, snapshot = await asyncio.gather(
-            query_live(candidate, limit=10000, offset=0),
-            asyncio.to_thread(
-                build_promotion_snapshot,
-                discovery_path=root / "results" / "discovery-latest.json",
-                report_path=root / "results" / "promotion-latest.json",
-                catalog_path=root / "data" / "catalog" / "auto-promoted.json",
-            ),
-        )
-        merged = _merge_active_promotion(live, snapshot)
-        filtered = filter_promotion_items(
-            merged["items"],
-            state=request.query.get("state", ""),
-            reason=request.query.get("reason", ""),
-            query=request.query.get("q", ""),
-            source=request.query.get("source", ""),
-        )
-        merged["filtered_total"] = len(filtered)
-        merged["items"] = filtered[offset : offset + limit]
-        merged["limit"] = limit
-        merged["offset"] = offset
-        return web.json_response(merged)
+            limit = min(2000, max(1, int(request.query.get("limit", "500")))); offset = max(0, int(request.query.get("offset", "0")))
+        except ValueError: limit, offset = 500, 0
+        live = await active_records(candidate)
+        report, catalog = await asyncio.gather(asyncio.to_thread(_load_json, report_path), asyncio.to_thread(_load_json, catalog_path))
+        snapshot = await asyncio.to_thread(project_promotion_records, live["items"], report=report, catalog=catalog)
+        filtered = filter_promotion_items(snapshot["items"], state=request.query.get("state", ""), reason=request.query.get("reason", ""), query=request.query.get("q", ""), source=request.query.get("source", ""))
+        snapshot["sources"] = live["sources"]
+        snapshot["filtered_total"] = len(filtered)
+        snapshot["items"] = filtered[offset:offset+limit]
+        snapshot["limit"] = limit; snapshot["offset"] = offset
+        snapshot["promotion_health"] = _promotion_health(health_path, compatible_state(configured_history).get("latest_run"))
+        snapshot["paths"] = {"discovery": str(discovery_path), "report": str(report_path), "catalog": str(catalog_path), "health": str(health_path)}
+        return web.json_response(snapshot)
 
-    def create_with_live_routes(**kwargs: Any) -> web.Application:
-        app = original_create(**kwargs)
-        app.router.add_get("/discoveries", discoveries_page)
-        app.router.add_get("/api/discoveries", discoveries_api)
-        app.router.add_get("/api/promotion-state", promotion_api)
-        return app
+    async def source_health_api(_: web.Request) -> web.Response:
+        candidate = select_history(configured_history)
+        if candidate is None: return web.json_response({"total": 0, "summary": {}, "sources": []}, status=503)
+        return web.json_response(await read_source_health(candidate, report_path))
+
+    async def promotion_health_api(_: web.Request) -> web.Response:
+        state = compatible_state(configured_history)
+        return web.json_response(state.get("promotion") or {})
+
+    async def compatible_health(request: web.Request) -> web.Response:
+        base = await original_health(request)
+        state = compatible_state(configured_history)
+        promotion = state.get("promotion") or {}
+        payload = json.loads(base.text) if base.text else {}
+        payload["promotion"] = promotion
+        degraded = base.status >= 400 or not promotion.get("promotion_fresh", False)
+        payload["status"] = "degraded" if degraded else "ok"
+        return web.json_response(payload, status=503 if degraded else 200)
 
     dashboard._history_state_sync = compatible_state
     dashboard._inject_live_shell = lambda html: _live_shell(original_shell(html))
-    dashboard.create_dashboard_app = create_with_live_routes
-    return dashboard.main()
+    dashboard._health = compatible_health
+    app = dashboard.create_dashboard_app(output=args.output, history=args.history, event_log=args.event_log, refresh_interval=args.refresh_interval, db_poll=args.db_poll)
+    app.router.add_get("/discoveries", discoveries_page)
+    app.router.add_get("/api/discoveries", discoveries_api)
+    app.router.add_get("/api/promotion-state", promotion_api)
+    app.router.add_get("/api/source-health", source_health_api)
+    app.router.add_get("/api/promotion-health", promotion_health_api)
+    web.run_app(app, host=args.host, port=args.port, print=None)
+    return 0
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+if __name__ == "__main__": raise SystemExit(main())
