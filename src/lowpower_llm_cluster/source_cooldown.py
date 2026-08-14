@@ -20,6 +20,11 @@ CREATE TABLE IF NOT EXISTS source_cooldown (
   updated_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_source_cooldown_due ON source_cooldown(cooldown_until_cycle);
+CREATE TABLE IF NOT EXISTS source_cooldown_meta (
+  singleton INTEGER PRIMARY KEY CHECK(singleton = 1),
+  current_cycle INTEGER NOT NULL DEFAULT 0,
+  updated_at TEXT NOT NULL
+);
 """
 
 
@@ -40,7 +45,47 @@ class SourceCooldownStore:
 
     def _initialize_sync(self) -> None:
         with closing(self._connect()) as connection:
+            connection.execute(
+                "INSERT OR IGNORE INTO source_cooldown_meta(singleton, current_cycle, updated_at) VALUES (1, 0, ?)",
+                (utc_now_iso(),),
+            )
             connection.commit()
+
+    async def next_cycle_index(self) -> int:
+        """Return a restart-safe monotonically increasing scheduler cycle index."""
+        return await asyncio.to_thread(self._next_cycle_index_sync)
+
+    def _next_cycle_index_sync(self) -> int:
+        now = utc_now_iso()
+        with closing(self._connect()) as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            try:
+                connection.execute(
+                    "INSERT OR IGNORE INTO source_cooldown_meta(singleton, current_cycle, updated_at) VALUES (1, 0, ?)",
+                    (now,),
+                )
+                connection.execute(
+                    "UPDATE source_cooldown_meta SET current_cycle = current_cycle + 1, updated_at = ? WHERE singleton = 1",
+                    (now,),
+                )
+                row = connection.execute(
+                    "SELECT current_cycle FROM source_cooldown_meta WHERE singleton = 1"
+                ).fetchone()
+                connection.commit()
+            except BaseException:
+                connection.rollback()
+                raise
+        return int(row[0]) if row is not None else 1
+
+    async def current_cycle_index(self) -> int:
+        return await asyncio.to_thread(self._current_cycle_index_sync)
+
+    def _current_cycle_index_sync(self) -> int:
+        with closing(self._connect()) as connection:
+            row = connection.execute(
+                "SELECT current_cycle FROM source_cooldown_meta WHERE singleton = 1"
+            ).fetchone()
+        return int(row[0]) if row is not None else 0
 
     async def record_cycle(self, *, cycle_index: int, selected_sources: Sequence[str], errors: Mapping[str, str]) -> None:
         await asyncio.to_thread(self._record_cycle_sync, int(cycle_index), tuple(selected_sources), dict(errors))
