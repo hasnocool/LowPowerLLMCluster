@@ -1,11 +1,16 @@
 {
-  "schema_version": 1,
+  "as_of": "2026-08-13",
   "base": "CAD",
   "rates_to_cad": {
-    "CAD": 1.0
+    "AUD": 0.9838,
+    "CAD": 1.0,
+    "CNY": 0.2067,
+    "EUR": 1.6075,
+    "GBP": 1.8806,
+    "JPY": 0.00875,
+    "USD": 1.3938
   },
-  "as_of": null,
-  "source_url": null,
+  "schema_version": 1,
   "source": "Bank of Canada Valet API",
-  "notes": "Run `llm-cluster-market refresh-fx` to populate sourced non-CAD rates. Rates are CAD per unit of source currency."
+  "source_url": "https://www.bankofcanada.ca/valet/observations/FXUSDCAD,FXEURCAD,FXGBPCAD,FXJPYCAD,FXCNYCAD,FXAUDCAD/json?recent=1"
 }

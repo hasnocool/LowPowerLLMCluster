@@ -1,0 +1,141 @@
+{
+  "bom": {
+    "chassis": {
+      "candidates": 0,
+      "selected_landed_cad": null,
+      "source": null
+    },
+    "cooling": {
+      "candidates": 0,
+      "selected_landed_cad": null,
+      "source": null
+    },
+    "cpu_host": {
+      "candidates": 0,
+      "selected_landed_cad": null,
+      "source": null
+    },
+    "host_ram_32gb": {
+      "candidates": 0,
+      "selected_landed_cad": null,
+      "source": null
+    },
+    "motherboard": {
+      "candidates": 0,
+      "selected_landed_cad": null,
+      "source": null
+    },
+    "pcie_adapter": {
+      "candidates": 0,
+      "selected_landed_cad": null,
+      "source": null
+    },
+    "psu_750w": {
+      "candidates": 0,
+      "selected_landed_cad": null,
+      "source": null
+    },
+    "storage_1tb": {
+      "candidates": 0,
+      "selected_landed_cad": null,
+      "source": null
+    }
+  },
+  "change_alerts": 0,
+  "completed_at": "2026-08-14T15:05:56.318714+00:00",
+  "fx": {
+    "as_of": "2026-08-13",
+    "base": "CAD",
+    "rates_to_cad": {
+      "AUD": 0.9838,
+      "CAD": 1.0,
+      "CNY": 0.2067,
+      "EUR": 1.6075,
+      "GBP": 1.8806,
+      "JPY": 0.00875,
+      "USD": 1.3938
+    },
+    "schema_version": 1,
+    "source": "Bank of Canada Valet API",
+    "source_url": "https://www.bankofcanada.ca/valet/observations/FXUSDCAD,FXEURCAD,FXGBPCAD,FXJPYCAD,FXCNYCAD,FXAUDCAD/json?recent=1"
+  },
+  "listings": 0,
+  "new_all_time_lows": 0,
+  "power_evidence": {
+    "added": 30,
+    "after": 30,
+    "before": 0,
+    "candidate_sources": {
+      "benchmarks": 1,
+      "catalog": 21,
+      "manufacturer_specs": 0,
+      "sourced_measurements": 8
+    },
+    "candidates": 30,
+    "eligible_device_observations": 17,
+    "research_only_observations": 13
+  },
+  "presence": {
+    "disappeared": 0,
+    "discovered": 0,
+    "reappeared": 0
+  },
+  "price_observations": {
+    "added": 0,
+    "total": 0
+  },
+  "priority_alerts": 0,
+  "profile": "daily-market",
+  "recommendations": {
+    "Buy": 0,
+    "Experimental": 2,
+    "Ignore": 19,
+    "Watch": 20
+  },
+  "reports": {
+    "32gb-plus": 6,
+    "eol-bargains": 0,
+    "low-power": 6,
+    "measured-evidence": 3,
+    "under-100": 0,
+    "under-250": 1,
+    "under-500": 7,
+    "weird-bargains": 5
+  },
+  "source_budgets": {
+    "digikey": {
+      "allowed": 16,
+      "daily_limit": 90,
+      "remaining_after": 74,
+      "requested": 25
+    },
+    "ebay": {
+      "allowed": 25,
+      "daily_limit": 160,
+      "remaining_after": 135,
+      "requested": 25
+    },
+    "manufacturer": {
+      "allowed": 25,
+      "daily_limit": 144,
+      "remaining_after": 119,
+      "requested": 25
+    },
+    "mouser": {
+      "allowed": 16,
+      "daily_limit": 90,
+      "remaining_after": 74,
+      "requested": 25
+    }
+  },
+  "stale_count": 0,
+  "statuses": [
+    {
+      "count": 0,
+      "error": "HTTPStatusError: Client error '403 Forbidden' for url 'https://www.raspberrypi.com/products/ai-hat-plus-2/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403",
+      "ok": false,
+      "source": "manufacturer-jsonld"
+    }
+  ],
+  "tco_scenario": "mixed-3yr"
+}

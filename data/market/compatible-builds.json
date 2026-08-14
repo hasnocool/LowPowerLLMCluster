@@ -1,6 +1,56 @@
 {
-  "schema_version": 1,
-  "generated_at": null,
   "currency": "CAD",
-  "gpus": {}
+  "generated_at": "2026-08-14T15:05:56.235612+00:00",
+  "gpus": {
+    "gpu-amd-rx-9070-16g": {
+      "best_build": null,
+      "build_count": 0,
+      "builds": [],
+      "gpu_market": null,
+      "gpu_spec_enrichment": null,
+      "name": "AMD Radeon RX 9070 16GB"
+    },
+    "gpu-amd-rx-9070-xt-16g": {
+      "best_build": null,
+      "build_count": 0,
+      "builds": [],
+      "gpu_market": null,
+      "gpu_spec_enrichment": null,
+      "name": "AMD Radeon RX 9070 XT 16GB"
+    },
+    "gpu-intel-arc-a770-16g": {
+      "best_build": null,
+      "build_count": 0,
+      "builds": [],
+      "gpu_market": null,
+      "gpu_spec_enrichment": null,
+      "name": "Intel Arc A770 16GB"
+    },
+    "gpu-intel-arc-b580-12g": {
+      "best_build": null,
+      "build_count": 0,
+      "builds": [],
+      "gpu_market": null,
+      "gpu_spec_enrichment": null,
+      "name": "Intel Arc B580 12GB"
+    },
+    "gpu-nvidia-rtx-3090-24g": {
+      "best_build": null,
+      "build_count": 0,
+      "builds": [],
+      "gpu_market": null,
+      "gpu_spec_enrichment": null,
+      "name": "NVIDIA GeForce RTX 3090 24GB"
+    },
+    "gpu-nvidia-rtx-5060-ti-16g": {
+      "best_build": null,
+      "build_count": 0,
+      "builds": [],
+      "gpu_market": null,
+      "gpu_spec_enrichment": null,
+      "name": "NVIDIA GeForce RTX 5060 Ti 16GB"
+    }
+  },
+  "schema_version": 3,
+  "spec_enrichment_generated_at": "2026-08-14T15:05:56.251040+00:00"
 }

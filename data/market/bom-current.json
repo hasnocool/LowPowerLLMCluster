@@ -1,7 +1,286 @@
 {
-  "schema_version": 1,
-  "generated_at": null,
+  "compatible_builds": {
+    "gpu-amd-rx-9070-16g": {
+      "best_build_acquisition_cad": null,
+      "build_count": 0,
+      "compatibility": null,
+      "gpu_spec_enrichment": null,
+      "manufacturer_spec_fields": 0
+    },
+    "gpu-amd-rx-9070-xt-16g": {
+      "best_build_acquisition_cad": null,
+      "build_count": 0,
+      "compatibility": null,
+      "gpu_spec_enrichment": null,
+      "manufacturer_spec_fields": 0
+    },
+    "gpu-intel-arc-a770-16g": {
+      "best_build_acquisition_cad": null,
+      "build_count": 0,
+      "compatibility": null,
+      "gpu_spec_enrichment": null,
+      "manufacturer_spec_fields": 0
+    },
+    "gpu-intel-arc-b580-12g": {
+      "best_build_acquisition_cad": null,
+      "build_count": 0,
+      "compatibility": null,
+      "gpu_spec_enrichment": null,
+      "manufacturer_spec_fields": 0
+    },
+    "gpu-nvidia-rtx-3090-24g": {
+      "best_build_acquisition_cad": null,
+      "build_count": 0,
+      "compatibility": null,
+      "gpu_spec_enrichment": null,
+      "manufacturer_spec_fields": 0
+    },
+    "gpu-nvidia-rtx-5060-ti-16g": {
+      "best_build_acquisition_cad": null,
+      "build_count": 0,
+      "compatibility": null,
+      "gpu_spec_enrichment": null,
+      "manufacturer_spec_fields": 0
+    }
+  },
+  "components": {
+    "chassis": {
+      "candidate_count": 0,
+      "candidates": [],
+      "description": "ATX/mATX chassis with room for a full-size GPU and tower cooler",
+      "selected": null,
+      "statuses": [
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "mouser"
+        },
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "digikey"
+        },
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "ebay"
+        }
+      ]
+    },
+    "cooling": {
+      "candidate_count": 0,
+      "candidates": [],
+      "description": "CPU air cooler for the host processor",
+      "selected": null,
+      "statuses": [
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "mouser"
+        },
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "digikey"
+        },
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "ebay"
+        }
+      ]
+    },
+    "cpu_host": {
+      "candidate_count": 0,
+      "candidates": [],
+      "description": "CPU for a low-cost PCIe GPU host build",
+      "selected": null,
+      "statuses": [
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "mouser"
+        },
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "digikey"
+        },
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "ebay"
+        }
+      ]
+    },
+    "host_ram_32gb": {
+      "candidate_count": 0,
+      "candidates": [],
+      "description": "32GB desktop memory kit",
+      "selected": null,
+      "statuses": [
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "mouser"
+        },
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "digikey"
+        },
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "ebay"
+        }
+      ]
+    },
+    "motherboard": {
+      "candidate_count": 0,
+      "candidates": [],
+      "description": "ATX/mATX motherboard with a full-length PCIe GPU slot",
+      "selected": null,
+      "statuses": [
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "mouser"
+        },
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "digikey"
+        },
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "ebay"
+        }
+      ]
+    },
+    "pcie_adapter": {
+      "candidate_count": 0,
+      "candidates": [],
+      "description": "PCIe riser/extension/OCuLink integration allowance when required",
+      "selected": null,
+      "statuses": [
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "mouser"
+        },
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "digikey"
+        },
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "ebay"
+        }
+      ]
+    },
+    "psu_750w": {
+      "candidate_count": 0,
+      "candidates": [],
+      "description": "750W ATX PSU suitable for a discrete GPU",
+      "selected": null,
+      "statuses": [
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "mouser"
+        },
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "digikey"
+        },
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "ebay"
+        }
+      ]
+    },
+    "storage_1tb": {
+      "candidate_count": 0,
+      "candidates": [],
+      "description": "1TB NVMe SSD",
+      "selected": null,
+      "statuses": [
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "mouser"
+        },
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "digikey"
+        },
+        {
+          "count": 0,
+          "enabled": false,
+          "ok": true,
+          "reason": "credentials_not_configured",
+          "source": "ebay"
+        }
+      ]
+    }
+  },
   "currency": "CAD",
-  "components": {},
-  "source_status": []
+  "generated_at": "2026-08-14T15:05:56.235612+00:00",
+  "schema_version": 4,
+  "source_status": [],
+  "spec_enriched_candidate_count": 0,
+  "spec_enrichment_generated_at": "2026-08-14T15:05:56.251040+00:00"
 }

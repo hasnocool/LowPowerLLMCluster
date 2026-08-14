@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-08-14T15:05:56.272322+00:00",
+  "reports": {
+    "32gb-plus": 6,
+    "eol-bargains": 0,
+    "low-power": 6,
+    "measured-evidence": 3,
+    "under-100": 0,
+    "under-250": 1,
+    "under-500": 7,
+    "weird-bargains": 5
+  },
+  "tax_rate": 0.12
+}
