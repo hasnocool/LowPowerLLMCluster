@@ -34,7 +34,7 @@ def test_history_selection_finds_runtime_db(tmp_path: Path) -> None:
     assert probe_history(legacy)['compatible'] is False
     assert select_history(legacy)==live.resolve()
 
-def test_live_page_labels_staging_persistence() -> None:
-    assert 'Live Discoveries' in LIVE_DISCOVERIES_HTML
-    assert 'persisted in SQLite immediately' in LIVE_DISCOVERIES_HTML
-    assert '/api/discoveries' in LIVE_DISCOVERIES_HTML
+def test_live_page_exposes_promotion_review() -> None:
+    assert 'Promotion Review' in LIVE_DISCOVERIES_HTML
+    assert 'Discovery → Held → Promotion Ready → Canonical' in LIVE_DISCOVERIES_HTML
+    assert '/api/promotion-state' in LIVE_DISCOVERIES_HTML
