@@ -50,7 +50,7 @@ class PromotionCatalogRefreshEngine(LearningCatalogRefreshEngine):
     async def _scheduler_plan(self) -> tuple[list[Any], dict[str, Any]]:
         """Apply quality learning and failure cooldown to curated and learned sources."""
         assert self.quality_store is not None and self.cooldown_store is not None
-        self._cycle_index += 1
+        self._cycle_index = await self.cooldown_store.next_cycle_index()
         quality = self._quality_config()
         adaptive = bool(quality.get("enabled", True)) and bool(quality.get("adaptive_scheduling", True))
         names = [adapter.name for adapter in self.adapters]
