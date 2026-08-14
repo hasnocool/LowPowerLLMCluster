@@ -1,8 +1,15 @@
 from __future__ import annotations
 
 import argparse
+import re
 
 from .promotion_state import STATES, build_promotion_snapshot, filter_promotion_items
+
+_TERMINAL_CONTROL = re.compile(r"[\x00-\x1f\x7f-\x9f]")
+
+
+def _terminal_text(value: object) -> str:
+    return _TERMINAL_CONTROL.sub("", str(value))
 
 
 def main() -> int:
@@ -31,7 +38,7 @@ def main() -> int:
     if snapshot.get("reason_counts"):
         print("Top hold reasons:")
         for reason, count in list(snapshot["reason_counts"].items())[:10]:
-            print(f"  {count:>5}  {reason}")
+            print(f"  {count:>5}  {_terminal_text(reason)}")
 
     rows = filter_promotion_items(
         snapshot["items"],
@@ -42,13 +49,13 @@ def main() -> int:
     )
     print(f"\nShowing {min(len(rows), max(1, args.limit))} of {len(rows)} matching records")
     for row in rows[: max(1, args.limit)]:
-        reasons = ",".join(str(value) for value in row.get("promotion_reasons", [])) or "-"
+        reasons = ",".join(_terminal_text(value) for value in row.get("promotion_reasons", [])) or "-"
         identity = row.get("mpn") or row.get("sku") or row.get("source_id") or "-"
         print(
-            f"{str(row.get('promotion_state', '-')):<16} "
-            f"{str(row.get('source', '-')):<28} "
-            f"{str(identity):<24} "
-            f"{str(row.get('title', ''))[:70]}  [{reasons}]"
+            f"{_terminal_text(row.get('promotion_state', '-')):<16} "
+            f"{_terminal_text(row.get('source', '-')):<28} "
+            f"{_terminal_text(identity):<24} "
+            f"{_terminal_text(row.get('title', ''))[:70]}  [{reasons}]"
         )
     return 0
 
