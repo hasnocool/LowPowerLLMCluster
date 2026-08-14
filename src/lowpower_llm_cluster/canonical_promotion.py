@@ -160,22 +160,26 @@ def promote(
     promoted: list[str] = []
     updated: list[str] = []
     held: list[dict[str, Any]] = []
+    decisions: list[dict[str, Any]] = []
     for record in records:
         reasons = evaluate(record, min_source_confidence=min_source_confidence, min_sku_confidence=min_sku_confidence)
         source, source_id = listing_identity(record)
+        common = {
+            "source": source,
+            "source_id": source_id,
+            "listing_url": record.get("listing_url"),
+            "title": record.get("title"),
+        }
         if reasons:
-            held.append({
-                "source": source,
-                "source_id": source_id,
-                "listing_url": record.get("listing_url"),
-                "title": record.get("title"),
-                "reasons": reasons,
-            })
+            held_record = {**common, "reasons": reasons}
+            held.append(held_record)
+            decisions.append({**common, "state": "held", "reasons": reasons, "canonical_id": None})
             continue
         part = canonical_part(record)
         pid = str(part["id"])
         (updated if pid in existing else promoted).append(pid)
         existing[pid] = part
+        decisions.append({**common, "state": "canonical", "reasons": [], "canonical_id": pid})
     parts = sorted(existing.values(), key=lambda x: (str(x.get("category", "")), str(x.get("vendor", "")), str(x.get("name", ""))))
     _atomic_json(catalog_path, {"parts": parts})
     report = {
@@ -187,6 +191,7 @@ def promote(
         "promoted": promoted,
         "updated": updated,
         "held": held,
+        "decisions": decisions,
         "by_source": promotion_metrics(records, min_source_confidence=min_source_confidence, min_sku_confidence=min_sku_confidence),
     }
     _atomic_json(report_path, report)
