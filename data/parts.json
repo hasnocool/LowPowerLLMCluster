@@ -36,6 +36,7 @@
     "catalog/gpus.json",
     "catalog/accelerators-genai.json",
     "catalog/accelerators-research.json",
-    "catalog/accelerators-specialist.json"
+    "catalog/accelerators-specialist.json",
+    "catalog/auto-promoted.json"
   ]
 }
