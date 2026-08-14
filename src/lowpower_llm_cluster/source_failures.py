@@ -24,13 +24,12 @@ _POLICIES = {
     "unknown_error": FailurePolicy("unknown_error", 2, 16, True),
 }
 
-_STATUS = re.compile(r"\b(?:status(?:=|\s)|http(?:\s+status)?\s*)(\d{3})\b", re.I)
+_STATUS = re.compile(r"\b(?:status(?:=|\s)|http(?:\s+status)?\s*)?(400|401|403|404|408|429|500|501|502|503|504|505)\b", re.I)
 
 
 def classify_error(error: str) -> FailurePolicy:
     """Classify source failures without relying on one exception implementation."""
-    text = str(error or "")
-    lower = text.lower()
+    lower = str(error or "").lower()
     status = None
     match = _STATUS.search(lower)
     if match:
@@ -38,10 +37,6 @@ def classify_error(error: str) -> FailurePolicy:
             status = int(match.group(1))
         except ValueError:
             status = None
-    for code in (400, 401, 403, 404, 408, 429, 500, 502, 503, 504):
-        if status is None and (f" {code}" in lower or f": {code}" in lower or f"{code}, message" in lower):
-            status = code
-            break
 
     if status in {401, 403} or "forbidden" in lower or "access denied" in lower:
         return _POLICIES["access_denied"]
