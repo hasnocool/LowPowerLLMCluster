@@ -75,6 +75,7 @@ def main() -> int:
         "", "## Reading the catalog", "",
         "The machine-readable catalog keeps source type, software maturity, risk, lifecycle, power scope and host requirements. "
         "Use `data/parts.json` as the manifest and the files in `data/catalog/` as the editable source records. Included/fixed RAM and fixed GPU VRAM are kept separate from board/CPU maximums.", "",
+        "This generated PARTS view represents canonical catalog truth only. Continuous public discoveries remain staged as Discovered / Held / Promotion Ready evidence and do not appear here until the exact listing passes canonical promotion gates with retained provenance.", "",
         "Apple-silicon Macs are complete unified-memory nodes, while phones/tablets/media devices retain their mobile OS, thermal and sandbox constraints. Battery capacity, charger wattage and charging rate are not treated as measured inference wall power.", "",
         "A discrete GPU is a first-class LLM sourcing target, but its board TGP/TBP is not complete-node power. A specialist accelerator is not a failed LLM node either: Coral/MemryX-class hardware can still save whole-cluster energy by keeping larger workers asleep. "
         "Conversely, an EOL FPGA/ASIC with impressive TOPS stays a research/watch item until a real runtime, price and complete-node benchmark exist.", "",

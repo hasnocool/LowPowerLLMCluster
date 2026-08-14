@@ -89,6 +89,32 @@ llm-cluster-refresh recommendations
 
 Transient HTTP/network failures use exponential backoff and jitter; rate-limited/failed sources cannot manufacture disappearance events. Source budgets, watchlists, price-drop alerts, stock returns, all-time lows, benchmark changes and decision reports remain separate evidence layers.
 
+## Discovery promotion and source resilience
+
+Continuous public discovery now feeds an explicit evidence pipeline rather than writing directly into canonical truth:
+
+```text
+public / learned sources
+        │
+        ▼
+   normalized discovery
+        │
+        ├── source-quality learning + crawl-budget adaptation
+        ├── typed failure cooldowns with restart-safe persisted scheduler epoch
+        └── bounded official-product/schema.org enrichment for Held records
+        │
+        ▼
+Discovery → Held → Promotion Ready → Canonical
+```
+
+Promotion thresholds stay conservative. The system improves weak records by adding official manufacturer/product evidence and then re-evaluating them; it does not lower the gates. Canonical provenance is tied to the exact promoted listing identity, so another seller listing for the same manufacturer/SKU does not inherit canonical status.
+
+The scanner emits `results/promotion-latest.json`, `results/promotion-health.json`, and source-quality/cooldown state in the discovery history database. The dashboard exposes promotion and source-health APIs and reports a degraded health state when the latest completed discovery cycle is newer than the latest successful promotion pass.
+
+SQLite discovery history is compacted only for **payload-identical heartbeat polls** inside the configured sampling window. `listing_state` is refreshed every successful sighting, while URL, shipping, identity, manufacturer, SKU/MPN, structured attributes, and other provenance-bearing payload changes force a durable new observation. This compaction does not change the append-only semantics of dedicated price/FX/evidence histories.
+
+See `docs/DISCOVERY_PROMOTION_RESILIENCE.md` and `specs/MARKET_INTELLIGENCE.md`.
+
 ## Automatic hardware identity enrichment
 
 Identity is now enriched **before** matching, price history, adaptive power learning, TCO, and recommendations. Structured source data is preferred over prose: schema.org `additionalProperty`, DigiKey parameters, distributor attributes/specifications, and eBay aspects can preserve explicit identity fields such as:
@@ -183,6 +209,7 @@ llm-cluster fit special-amd-bc250-16g --params-b 14 --bits 4
 - `data/evidence/performance.json` — sourced benchmark evidence.
 - `reports/current/` — current buying, change, decision and TCO reports.
 - `docs/AUTOMATIC_IDENTITY_ENRICHMENT.md` — listing/manufacturer identity extraction rules.
+- `docs/DISCOVERY_PROMOTION_RESILIENCE.md` — promotion gates, enrichment, source cooldowns, compaction and operational health.
 - `docs/HARDWARE_POWER_IDENTITY.md` — narrow identity and learned power-distribution methodology.
 - `docs/FIRMWARE_BOOT_READINESS.md` — CPU/BIOS, Flashback and boot-readiness evidence.
 - `docs/BIOS_VERSIONING.md` — conservative vendor BIOS ordering.
@@ -190,7 +217,7 @@ llm-cluster fit special-amd-bc250-16g --params-b 14 --bits 4
 - `docs/TOTAL_COST_OF_OWNERSHIP.md` — complete-node cost methodology.
 - `docs/GPUS.md` — GPU sourcing and evidence rules.
 - `benchmarks/` — optional local measurement tooling.
-- `PARTS.md` — deterministic human-readable catalog view.
+- `PARTS.md` — deterministic human-readable canonical catalog view; staged discovery records appear only after promotion.
 
 ## Design rule
 

@@ -78,6 +78,12 @@
 - [x] Add a data-driven vendor parameter alias registry so new structured source labels can map into normalized identity fields without inventing values.
 - [x] Add a conservative factory-firmware rule registry that permits serial/batch/revision/physical-label mappings only when a vendor publishes the relationship.
 - [x] Preserve ASRock's documented BIOS-chip sticker method as verified factory/default BIOS evidence.
+- [x] Add promotion-aware discovery with persisted Held/promotion-ready/canonical decisions and exact-listing canonical provenance.
+- [x] Add bounded Held-record official-product/schema.org enrichment before promotion re-evaluation.
+- [x] Apply source-quality cadence and crawl-budget adaptation to curated public sources as well as learned sources.
+- [x] Add typed persistent source-failure cooldowns with a restart-safe scheduler epoch.
+- [x] Compact only payload-identical SQLite discovery heartbeats while preserving provenance-bearing payload changes and keeping `listing_state` fresh.
+- [x] Add source-health and promotion-health dashboard APIs, complete-population pagination and stale-promotion watchdogs.
 - [ ] Continuously harvest exact complete-node/device power measurements across Apple, mini PCs/SBCs, phones/tablets and unusual accelerators.
 - [ ] Harvest exact GPU + host wall-input measurements under llama.cpp/vLLM/MLC workloads with host CPU/motherboard/RAM/PSU identity.
 - [ ] Harvest exact SSD idle/average/max power with controller + NAND + capacity identity from auditable numeric sources.
