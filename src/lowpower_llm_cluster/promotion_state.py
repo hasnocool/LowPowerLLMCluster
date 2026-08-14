@@ -66,20 +66,18 @@ def project_promotion_records(
     min_source_confidence: float = 0.80,
     min_sku_confidence: float = 0.55,
 ) -> dict[str, Any]:
-    """Project arbitrary current records into the promotion workflow.
-
-    Canonical state is tied to the exact listing provenance that was promoted, not
-    merely to a manufacturer/SKU-derived catalog id. This prevents an unreviewed
-    seller listing for an already-known product from inheriting canonical status.
-    """
+    """Project current records into promotion state using persisted last decisions."""
     report = report or {}
     catalog = catalog or {}
     canonical = _canonical_provenance(catalog)
+    decision_index: dict[tuple[str, str], dict[str, Any]] = {}
+    for item in report.get("decisions", []) if isinstance(report.get("decisions"), list) else []:
+        if isinstance(item, Mapping):
+            decision_index[listing_identity(item)] = dict(item)
     held_index: dict[tuple[str, str], list[str]] = {}
     for item in report.get("held", []) if isinstance(report.get("held"), list) else []:
-        if not isinstance(item, Mapping):
-            continue
-        held_index[listing_identity(item)] = [str(reason) for reason in item.get("reasons", [])]
+        if isinstance(item, Mapping):
+            held_index[listing_identity(item)] = [str(reason) for reason in item.get("reasons", [])]
 
     report_generated_at = _parse_time(report.get("generated_at"))
     items: list[dict[str, Any]] = []
@@ -92,23 +90,24 @@ def project_promotion_records(
         observed_at = _parse_time(record.get("observed_at") or record.get("last_seen_at"))
         reasons: list[str] = []
         canonical_id = canonical.get(identity)
+        persisted = decision_index.get(identity)
 
         if canonical_id:
             state = "canonical"
         elif report_generated_at is None or (observed_at is not None and observed_at > report_generated_at):
             state = "discovered"
+        elif persisted is not None:
+            state = str(persisted.get("state") or "discovered")
+            reasons = [str(value) for value in persisted.get("reasons", [])]
+            canonical_id = str(persisted.get("canonical_id") or "") or None
         elif identity in held_index:
             state = "held"
             reasons = held_index[identity]
         else:
-            reasons = evaluate(
-                record,
-                min_source_confidence=min_source_confidence,
-                min_sku_confidence=min_sku_confidence,
-            )
+            reasons = evaluate(record, min_source_confidence=min_source_confidence, min_sku_confidence=min_sku_confidence)
             state = "held" if reasons else "promotion_ready"
 
-        counts[state] += 1
+        counts[state] = counts.get(state, 0) + 1
         for reason in reasons:
             reason_counts[reason] = reason_counts.get(reason, 0) + 1
         row["source"], row["source_id"] = identity
@@ -145,41 +144,20 @@ def build_promotion_snapshot(
         min_source_confidence=min_source_confidence,
         min_sku_confidence=min_sku_confidence,
     )
-    snapshot["paths"] = {
-        "discovery": str(discovery),
-        "report": str(report_file),
-        "catalog": str(catalog_file),
-    }
+    snapshot["paths"] = {"discovery": str(discovery), "report": str(report_file), "catalog": str(catalog_file)}
     return snapshot
 
 
-def filter_promotion_items(
-    items: Sequence[Mapping[str, Any]],
-    *,
-    state: str = "",
-    reason: str = "",
-    query: str = "",
-    source: str = "",
-) -> list[dict[str, Any]]:
-    state = state.strip().lower()
-    reason = reason.strip()
-    query = query.strip().lower()
-    source = source.strip().lower()
+def filter_promotion_items(items: Sequence[Mapping[str, Any]], *, state: str = "", reason: str = "", query: str = "", source: str = "") -> list[dict[str, Any]]:
+    state = state.strip().lower(); reason = reason.strip(); query = query.strip().lower(); source = source.strip().lower()
     result: list[dict[str, Any]] = []
     for value in items:
-        if state and str(value.get("promotion_state", "")).lower() != state:
-            continue
+        if state and str(value.get("promotion_state", "")).lower() != state: continue
         reasons = [str(item) for item in value.get("promotion_reasons", [])]
-        if reason and reason not in reasons:
-            continue
-        if source and str(value.get("source", "")).lower() != source:
-            continue
+        if reason and reason not in reasons: continue
+        if source and str(value.get("source", "")).lower() != source: continue
         if query:
-            haystack = " ".join(
-                str(value.get(key, ""))
-                for key in ("title", "source", "source_id", "listing_url", "manufacturer", "sku", "mpn")
-            ).lower()
-            if query not in haystack:
-                continue
+            haystack = " ".join(str(value.get(key, "")) for key in ("title", "source", "source_id", "listing_url", "manufacturer", "sku", "mpn")).lower()
+            if query not in haystack: continue
         result.append(dict(value))
     return result
