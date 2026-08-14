@@ -33,6 +33,25 @@ vendor/community benchmark sources
           compatibility-signature groups
 ```
 
+Continuous public discovery also has a separate evidence-to-canonical promotion path:
+
+```text
+public / learned discovery sources
+                         │
+                         ▼
+                normalized discovery
+                         │
+          source quality + failure cooldown
+                         │
+                         ▼
+        Held-record official-product enrichment
+                         │
+                         ▼
+ Discovery → Held → Promotion Ready → Canonical
+```
+
+Canonical promotion MUST remain conservative. Weak records are improved with stronger manufacturer/product evidence and then re-evaluated; thresholds are not lowered merely to increase catalog volume. Canonical status is bound to the exact promoted listing provenance, not only to a manufacturer/SKU-derived product ID.
+
 ## Real discovery sources
 
 Network adapters use `httpx.AsyncClient` and must not block the event loop.
@@ -51,6 +70,14 @@ A missing credential disables that source cleanly. A failed source request is re
 
 Discovery must never invent a SKU, price, shipping charge, configuration, seller, stock state or availability state.
 
+### Public-source scheduling and failure cooldowns
+
+Source-quality learning may reduce cadence or crawl budget for repeatedly weak sources and increase budget for sources that repeatedly produce relevant, fresh, low-duplicate hardware evidence. This adaptive scheduling applies to curated public sources as well as learned sources when enabled.
+
+Persistent failure cooldowns classify failures such as access denial, rate limiting, TLS/network failure, timeout, server failure, protocol/header failure and parser failure. Cooldowns are bounded and MUST use a restart-safe persisted scheduler epoch (or an equivalent restart-safe time basis); restarting the service must not accidentally extend a source's cooldown by replaying a process-local cycle counter from zero.
+
+A skipped/cooldown source is not considered polled for disappearance purposes.
+
 ## Listing disappearance / reappearance
 
 `data/market/listing-state.json` tracks listing state separately from price history.
@@ -66,6 +93,14 @@ This prevents an API outage or a narrower/different search from generating false
 
 Lifecycle events are `discovered`, `disappeared`, and `reappeared`. History is not deleted when a listing disappears.
 
+## Discovery observation history and compaction
+
+The SQLite discovery history and the dedicated market price history have different retention semantics.
+
+`listing_state` is refreshed on every successful sighting. The SQLite `observations` table may compact repeated heartbeat polls only when the complete persisted observation payload is identical except for `observed_at` and the new sighting occurs inside the configured heartbeat sampling window. Any change to URL, shipping, seller, manufacturer, SKU/MPN, stock, title, price, attributes, structured identity evidence, or other provenance-bearing payload MUST retain a new durable observation.
+
+This compaction is an operational storage optimization only. It MUST NOT erase the latest evidence needed to reconstruct an active record, and it does not change the append-only semantics of dedicated price, FX, benchmark, or manufacturer-evidence histories.
+
 ## Price history
 
 Price history is append-only at the observation level and deduplicated by source, source listing ID, observation time, price and currency. A listing can disappear and later return without erasing its history.
@@ -76,6 +111,14 @@ Each price observation may include two independent confidence signals:
 - seller/source confidence.
 
 These must never be collapsed into one score: a trustworthy seller can still list the wrong configuration, and an exact configuration can still come from a weak seller.
+
+## Canonical promotion and enrichment
+
+The continuous scanner MAY emit normalized public discovery records that are not yet canonical. Each evaluated listing receives a persisted promotion decision so a source intentionally skipped by adaptive scheduling does not revert from Held/Canonical back to a transient Discovered state in the operator UI.
+
+Automatic promotion gates include HTTPS product identity, title/manufacturer evidence, source confidence, identity confidence, stock state, and rejection of announcement-only or unverified metadata-fallback records. Official manufacturer/product URL identity and schema.org `Product` evidence may strengthen a Held record. A bounded enrichment queue may re-fetch official product pages and then re-run the same gates.
+
+Promotion output and health artifacts must make freshness observable. If a completed discovery run is newer than the latest successful promotion pass, dashboard/service health should report promotion as stale/degraded rather than presenting old promotion state as current.
 
 ## Exact SKU/configuration confidence
 
