@@ -49,7 +49,7 @@ All notable changes to this project will be documented here.
 - Compact `reports/current/daily-changes.md` and machine-readable `daily-changes.json` change-intelligence outputs.
 - First-class `gpu_accelerator` catalog/sourcing category with fixed-VRAM and explicit board-power semantics.
 - Initial discrete-GPU reference catalog covering RTX 5060 Ti 16GB, RTX 3090 24GB, RX 9070/9070 XT 16GB, Arc B580 12GB and Arc A770 16GB.
-- GPU sourcing queries in both autonomous refresh profiles plus a dedicated `gpu-value` watchlist.
+- GPU sourcing queries in both autonomous refresh profiles plus a dedicated GPU-value watchlist.
 - Official NVIDIA/AMD/Intel GPU specification/reference URLs in the source registry without treating launch/reference pages as live street prices.
 - Decision-quality engine using price-history position, conservative model-capacity fit, evidence confidence, opportunity freshness and price stability.
 - Native-currency new-all-time-low detection so FX movement cannot fabricate a seller-price record.
@@ -97,6 +97,12 @@ All notable changes to this project will be documented here.
 - First-class Apple-silicon, mobile phone, tablet and media-device catalog categories with M1-through-M5 Apple coverage plus current Android reference phones.
 - Mobile runtime policy and conservative unified/shared-memory fit budgets that keep macOS service nodes distinct from sandboxed mobile endpoints.
 - Linked official manufacturer support-endpoint discovery, BIOS Flashback / CPU-less recovery evidence and a separate boot-readiness score on complete builds.
+- Promotion-aware continuous discovery with conservative discovery → Held → promotion-ready → canonical gates, persisted per-listing decisions, exact-listing canonical provenance, bounded Held-record schema.org `Product` re-enrichment, and promotion freshness health artifacts.
+- Typed persistent source-failure cooldowns for curated and learned sources, backed by a restart-safe scheduler epoch so service restarts do not accidentally extend cooldowns.
+- Source observability that reports quality, duplicate rate, typed failure state, cooldown, and per-source canonical promotion yield.
+- Discovery-history compaction that samples truly unchanged poll heartbeats while retaining every payload/provenance change and continuously refreshing `listing_state`.
+- Complete-population promotion dashboard APIs with pagination, HTTPS-only links, source health, promotion health, and stale-promotion watchdog behavior.
+- `docs/DISCOVERY_PROMOTION_RESILIENCE.md` with operator expectations for enrichment, cooldown, compaction, health and deployment wiring.
 
 ### Changed
 
@@ -120,6 +126,8 @@ All notable changes to this project will be documented here.
 - Complete-build ranking prefers fully compatible builds, then better manufacturer-spec coverage, before relying on provisional unknowns.
 - Apple exact configuration evidence is resolved before marketplace matching; broad A-number/chip family evidence cannot manufacture missing RAM/SSD/GPU-bin details.
 - CPU support matrix completeness is now a persisted evidence claim requiring explicit pagination proof rather than a row-count heuristic.
+- Source-quality cadence and crawl-budget adaptation now apply to curated public sources as well as learned `auto-*` sources by default.
+- SQLite discovery observation history is compacted only for payload-identical heartbeat polls inside the configured sampling window; price history, FX history, evidence changes and provenance-bearing observation changes remain durable.
 
 ## [0.4.1] - 2026-08-10
 
