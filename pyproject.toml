@@ -25,11 +25,12 @@ llm-cluster-market = "lowpower_llm_cluster.market_cli:main"
 llm-cluster-refresh = "lowpower_llm_cluster.refresh_cli:main"
 llm-cluster-bench = "lowpower_llm_cluster.benchmarking.cli:main"
 llm-cluster-optimize = "lowpower_llm_cluster.optimizer_cli:main"
-llm-cluster-service = "lowpower_llm_cluster.service_cli:main"
+llm-cluster-service = "lowpower_llm_cluster.promotion_service_cli:main"
 llm-cluster-dashboard = "lowpower_llm_cluster.history_compat:main"
 llm-cluster-distributed = "lowpower_llm_cluster.distributed_cli:main"
 llm-cluster-install-service = "lowpower_llm_cluster.service_install:main"
 llm-cluster-debug-export = "lowpower_llm_cluster.debug_export_cli:main"
+llm-cluster-promote = "lowpower_llm_cluster.promotion_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
