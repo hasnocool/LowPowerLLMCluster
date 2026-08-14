@@ -96,6 +96,23 @@ def test_source_cooldown_backs_off_and_success_resets(tmp_path: Path) -> None:
     assert reset["consecutive_failures"] == 0 and reset["cooldown_until_cycle"] == 0
 
 
+def test_source_cooldown_cycle_epoch_survives_restart(tmp_path: Path) -> None:
+    path = tmp_path / "history.sqlite3"
+    first = SourceCooldownStore(path)
+    asyncio.run(first.initialize())
+    assert asyncio.run(first.next_cycle_index()) == 1
+    assert asyncio.run(first.next_cycle_index()) == 2
+    asyncio.run(first.record_cycle(cycle_index=2, selected_sources=["blocked"], errors={"blocked":"403 Forbidden"}))
+    deadline = asyncio.run(first.policies(["blocked"]))["blocked"]["cooldown_until_cycle"]
+
+    restarted = SourceCooldownStore(path)
+    asyncio.run(restarted.initialize())
+    assert asyncio.run(restarted.current_cycle_index()) == 2
+    next_cycle = asyncio.run(restarted.next_cycle_index())
+    assert next_cycle == 3
+    assert deadline - next_cycle <= 15
+
+
 def test_compacting_history_keeps_state_but_samples_unchanged_rows(tmp_path: Path) -> None:
     path = tmp_path / "history.sqlite3"
     history = CompactingCatalogHistory(path, unchanged_heartbeat_s=3600)
@@ -109,6 +126,35 @@ def test_compacting_history_keeps_state_but_samples_unchanged_rows(tmp_path: Pat
     assert con.execute("SELECT COUNT(*) FROM observations").fetchone()[0] == 1
     assert con.execute("SELECT last_seen_at FROM listing_state").fetchone()[0] == "2026-08-14T00:05:00+00:00"
     con.close()
+
+
+def test_compacting_history_preserves_payload_only_evidence_changes(tmp_path: Path) -> None:
+    path = tmp_path / "history.sqlite3"
+    history = CompactingCatalogHistory(path, unchanged_heartbeat_s=3600)
+
+    async def run():
+        await history.initialize()
+        one = ProductObservation(
+            source="shop", source_id="sku", listing_url="https://example.test/p", title="Part", price=1.0,
+            manufacturer="", sku="", attributes={"metadata_fallback": True},
+            observed_at="2026-08-14T00:00:00+00:00",
+        )
+        two = ProductObservation(
+            source="shop", source_id="sku", listing_url="https://example.test/p", title="Part", price=1.0,
+            manufacturer="Example Vendor", sku="ABC-123", attributes={"structured_product_enriched": True},
+            observed_at="2026-08-14T00:05:00+00:00",
+        )
+        await history.record_refresh([one]); await history.record_refresh([two]); await history.close()
+
+    asyncio.run(run())
+    con = sqlite3.connect(path)
+    rows = con.execute("SELECT payload_json FROM observations ORDER BY id").fetchall()
+    con.close()
+    assert len(rows) == 2
+    latest = json.loads(rows[-1][0])
+    assert latest["manufacturer"] == "Example Vendor"
+    assert latest["sku"] == "ABC-123"
+    assert latest["attributes"]["structured_product_enriched"] is True
 
 
 def test_active_records_returns_more_than_ten_thousand(tmp_path: Path) -> None:
