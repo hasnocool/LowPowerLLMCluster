@@ -45,7 +45,7 @@
     "name": "AMD / ASRock BC-250 specialty compute board, 16GB unified GDDR6",
     "power_target_w": 55,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 249.77,
+    "price_cad": 248.64,
     "risk_level": "high"
   },
   {
@@ -94,7 +94,7 @@
     "name": "NVIDIA Jetson Orin Nano Super Developer Kit, 8GB",
     "power_target_w": 15,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 388.7,
+    "price_cad": 386.95,
     "risk_level": "low"
   },
   {
@@ -143,7 +143,7 @@
     "name": "Turing RK1 compute module, RK3588, 32GB",
     "power_target_w": 7,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 591.64,
+    "price_cad": 588.97,
     "risk_level": "low"
   }
 ]

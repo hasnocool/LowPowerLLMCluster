@@ -11,7 +11,7 @@
     "name": "Orange Pi 5 Plus, RK3588, 32GB LPDDR4X",
     "power_target_w": 15,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 303.7,
+    "price_cad": 302.33,
     "risk_level": "medium"
   },
   {
@@ -26,7 +26,7 @@
     "name": "Ryzen 7 8845HS mini PC, 32GB DDR5, 1TB NVMe, dual RJ45",
     "power_target_w": null,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 332.5,
+    "price_cad": 331.0,
     "risk_level": "medium"
   },
   {
@@ -41,7 +41,7 @@
     "name": "Radxa ROCK 5 ITX+, RK3588, 32GB LPDDR5x",
     "power_target_w": 10,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 366.85,
+    "price_cad": 365.19,
     "risk_level": "medium"
   },
   {
@@ -56,7 +56,7 @@
     "name": "MINISFORUM BD795M motherboard with Ryzen 9 7945HX",
     "power_target_w": 55,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 574.31,
+    "price_cad": 571.72,
     "risk_level": "low"
   },
   {
@@ -105,7 +105,7 @@
     "name": "Turing RK1 compute module, RK3588, 32GB",
     "power_target_w": 7,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 591.64,
+    "price_cad": 588.97,
     "risk_level": "low"
   },
   {
@@ -120,7 +120,7 @@
     "name": "Framework Laptop 13 Mainboard, Ryzen AI 5 340",
     "power_target_w": 25,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 622.86,
+    "price_cad": 620.05,
     "risk_level": "low"
   }
 ]

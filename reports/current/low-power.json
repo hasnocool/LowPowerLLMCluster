@@ -11,7 +11,7 @@
     "name": "Orange Pi 5 Plus, RK3588, 32GB LPDDR4X",
     "power_target_w": 15,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 303.7,
+    "price_cad": 302.33,
     "risk_level": "medium"
   },
   {
@@ -26,7 +26,7 @@
     "name": "Raspberry Pi AI HAT+ 2 with Hailo-10H and 8GB RAM",
     "power_target_w": 2.5,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 312.21,
+    "price_cad": 310.8,
     "risk_level": "low"
   },
   {
@@ -41,7 +41,7 @@
     "name": "Radxa ROCK 5 ITX+, RK3588, 32GB LPDDR5x",
     "power_target_w": 10,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 366.85,
+    "price_cad": 365.19,
     "risk_level": "medium"
   },
   {
@@ -90,7 +90,7 @@
     "name": "NVIDIA Jetson Orin Nano Super Developer Kit, 8GB",
     "power_target_w": 15,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 388.7,
+    "price_cad": 386.95,
     "risk_level": "low"
   },
   {
@@ -139,7 +139,7 @@
     "name": "Turing RK1 compute module, RK3588, 32GB",
     "power_target_w": 7,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 591.64,
+    "price_cad": 588.97,
     "risk_level": "low"
   },
   {
@@ -154,7 +154,7 @@
     "name": "Framework Laptop 13 Mainboard, Ryzen AI 5 340",
     "power_target_w": 25,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 622.86,
+    "price_cad": 620.05,
     "risk_level": "low"
   }
 ]

@@ -45,7 +45,7 @@
     "name": "AMD / ASRock BC-250 specialty compute board, 16GB unified GDDR6",
     "power_target_w": 55,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 249.77,
+    "price_cad": 248.64,
     "risk_level": "high"
   },
   {
@@ -60,7 +60,7 @@
     "name": "Raspberry Pi AI HAT+ 2 with Hailo-10H and 8GB RAM",
     "power_target_w": 2.5,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 312.21,
+    "price_cad": 310.8,
     "risk_level": "low"
   },
   {
@@ -75,7 +75,7 @@
     "name": "Firefly Core-1688JD4 BM1688 SoM, 8GB RAM / 32GB storage",
     "power_target_w": null,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 529.2,
+    "price_cad": 526.81,
     "risk_level": "medium"
   },
   {
@@ -90,7 +90,7 @@
     "name": "SOPHGO BM1684X development board, 16GB LPDDR4X class",
     "power_target_w": null,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 1426.99,
+    "price_cad": 1420.54,
     "risk_level": "medium"
   },
   {
@@ -105,7 +105,7 @@
     "name": "Tenstorrent Wormhole n150s PCIe accelerator",
     "power_target_w": 160,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 1559.49,
+    "price_cad": 1552.45,
     "risk_level": "medium"
   }
 ]
