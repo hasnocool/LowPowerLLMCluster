@@ -17,7 +17,7 @@ from .quota import ProviderQuotaHistory
 from .structured_identity import extract_structured_identity, structured_property_pairs
 
 DEFAULT_TIMEOUT = httpx.Timeout(20.0, connect=10.0)
-USER_AGENT = "LowPowerLLMCluster/0.6 (+https://github.com/hasnocool/LowPowerLLMCluster)"
+USER_AGENT = "LowPowerLLMCluster/0.5 (+https://github.com/hasnocool/LowPowerLLMCluster)"
 _PROVIDER_QUOTAS = ProviderQuotaHistory()
 
 
