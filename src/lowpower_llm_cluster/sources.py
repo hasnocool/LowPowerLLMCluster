@@ -11,12 +11,19 @@ from urllib.parse import urljoin
 import httpx
 
 from .apple_resolution import resolve_apple_configuration
-from .identity_extraction import enrich_hardware_identity, extract_seller_firmware_evidence
+from .identity_extraction import enrich_hardware_identity, extract_marketplace_condition_evidence, extract_seller_firmware_evidence
 from .market import DiscoveryAdapter, Listing, _now
+from .quota import ProviderQuotaHistory
 from .structured_identity import extract_structured_identity, structured_property_pairs
 
 DEFAULT_TIMEOUT = httpx.Timeout(20.0, connect=10.0)
-USER_AGENT = "LowPowerLLMCluster/0.5 (+https://github.com/hasnocool/LowPowerLLMCluster)"
+USER_AGENT = "LowPowerLLMCluster/0.6 (+https://github.com/hasnocool/LowPowerLLMCluster)"
+_PROVIDER_QUOTAS = ProviderQuotaHistory()
+
+
+async def _capture_quota(provider: str, response: httpx.Response) -> None:
+    """Persist quota headers only when a provider actually exposes recognizable quota metadata."""
+    await _PROVIDER_QUOTAS.observe(provider, response.headers)
 
 
 def _float(value: Any) -> float | None:
@@ -99,6 +106,7 @@ class ManufacturerJsonLdAdapter(DiscoveryAdapter):
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT, follow_redirects=True, headers={"User-Agent": USER_AGENT}) as client:
             for url in self.urls:
                 response = await client.get(url)
+                await _capture_quota(self.name, response)
                 response.raise_for_status()
                 collector = JsonLdCollector()
                 collector.feed(response.text)
@@ -168,6 +176,7 @@ class MouserAdapter(DiscoveryAdapter):
                     params={"apiKey": self.api_key},
                     json={"SearchByKeywordRequest": {"keyword": query, "records": self.results, "startingRecord": 0, "searchOptions": "", "searchWithYourSignUpLanguage": ""}},
                 )
+                await _capture_quota(self.name, response)
                 response.raise_for_status()
                 payload = response.json()
                 parts = ((payload.get("SearchResults") or {}).get("Parts") or [])
@@ -235,6 +244,7 @@ class DigiKeyAdapter(DiscoveryAdapter):
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT, headers=headers) as client:
             for query in queries:
                 response = await client.post(endpoint, json={"Keywords": query, "Limit": self.limit, "Offset": 0})
+                await _capture_quota(self.name, response)
                 response.raise_for_status()
                 payload = response.json()
                 products = payload.get("Products") or payload.get("products") or []
@@ -296,6 +306,7 @@ class EbayBrowseAdapter(DiscoveryAdapter):
             headers={"Authorization": f"Basic {credentials}", "Content-Type": "application/x-www-form-urlencoded"},
             data={"grant_type": "client_credentials", "scope": "https://api.ebay.com/oauth/api_scope"},
         )
+        await _capture_quota("ebay-oauth", response)
         response.raise_for_status()
         return str(response.json()["access_token"])
 
@@ -316,6 +327,7 @@ class EbayBrowseAdapter(DiscoveryAdapter):
                     params={"q": query, "limit": self.limit, "fieldgroups": "EXTENDED"},
                     headers=headers,
                 )
+                await _capture_quota(self.name, response)
                 response.raise_for_status()
                 payload = response.json()
                 for item in payload.get("itemSummaries", []):
@@ -350,6 +362,17 @@ class EbayBrowseAdapter(DiscoveryAdapter):
                             configuration.setdefault("board_revision", seller_fw["board_revision"])
                         if seller_fw.get("installed_bios_version"):
                             configuration.setdefault("installed_bios_version", seller_fw["installed_bios_version"])
+                    condition_evidence = extract_marketplace_condition_evidence(combined_text)
+                    if condition_evidence.get("confidence") != "unknown":
+                        configuration.setdefault("seller_condition_evidence", condition_evidence)
+                    structured_condition = {
+                        "condition": item.get("condition"),
+                        "condition_id": item.get("conditionId"),
+                        "return_terms": item.get("returnTerms"),
+                        "source_type": "structured_marketplace",
+                    }
+                    if any(structured_condition.get(key) not in (None, "", {}, []) for key in ("condition", "condition_id", "return_terms")):
+                        configuration.setdefault("marketplace_condition", structured_condition)
                     output.append(
                         Listing(
                             source=self.name,
