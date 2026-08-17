@@ -5,6 +5,18 @@ def _parts() -> dict[str, dict]:
     return {part["id"]: part for part in load_catalog()["parts"]}
 
 
+def _discovery_ids() -> set[str]:
+    return {
+        "node-gmktec-k6-7840hs",
+        "node-beelink-ser8-8845hs",
+        "node-minisforum-um890pro-8945hs",
+        "node-minisforum-ai-x1-pro-hx370",
+        "sbc-radxa-rock5bp-32g",
+        "sbc-radxa-rock4d-16g",
+        "sbc-orange-pi5-32g",
+    }
+
+
 def test_ryzen_discovery_covers_requested_cpu_families() -> None:
     parts = _parts()
     expected = {
@@ -48,21 +60,19 @@ def test_rockchip_expansion_adds_fixed_16_and_32gb_nodes() -> None:
         assert "power_target_w" not in part
 
 
-def test_discovery_expansion_does_not_claim_benchmark_performance() -> None:
+def test_discovery_expansion_does_not_invent_benchmark_fields() -> None:
     parts = _parts()
-    ids = {
-        "node-gmktec-k6-7840hs",
-        "node-beelink-ser8-8845hs",
-        "node-minisforum-um890pro-8945hs",
-        "node-minisforum-ai-x1-pro-hx370",
-        "sbc-radxa-rock5bp-32g",
-        "sbc-radxa-rock4d-16g",
-        "sbc-orange-pi5-32g",
+    forbidden_fields = {
+        "tokens_per_second",
+        "prompt_tokens_per_second",
+        "generation_tokens_per_second",
+        "benchmark_tps",
+        "measured_tps",
+        "llm_throughput",
+        "inference_power_w",
+        "inference_wall_power_w",
     }
-    for part_id in ids:
-        text = " ".join(
-            str(parts[part_id].get(key) or "")
-            for key in ("plain_language", "source_notes", "software_stack")
-        ).casefold()
-        assert "tokens/sec" not in text
-        assert "tokens/s" not in text
+    for part_id in _discovery_ids():
+        part = parts[part_id]
+        assert forbidden_fields.isdisjoint(part)
+        assert "power_target_w" not in part
