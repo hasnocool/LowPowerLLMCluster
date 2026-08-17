@@ -189,7 +189,7 @@ async def deliver_alerts(
 
 def adapters_from_config(config: Mapping[str, Any], *, environ: Mapping[str, str] | None = None) -> list[NotificationAdapter]:
     """Build adapters while keeping credentials and webhook URLs in environment variables."""
-    env = environ or os.environ
+    env = os.environ if environ is None else environ
     adapters: list[NotificationAdapter] = []
     for row in config.get("adapters", []):
         if not row.get("enabled", True):
