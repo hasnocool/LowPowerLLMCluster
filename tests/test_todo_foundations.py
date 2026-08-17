@@ -7,13 +7,14 @@ from pathlib import Path
 
 import pytest
 
+from lowpower_llm_cluster.identity_extraction import extract_marketplace_condition_evidence
 from lowpower_llm_cluster.landed_history import (
     LandedCostHistory,
     TariffEvidence,
     fx_only_delta,
     make_landed_snapshot,
 )
-from lowpower_llm_cluster.notifications import deliver_alerts
+from lowpower_llm_cluster.notifications import adapters_from_config, deliver_alerts
 from lowpower_llm_cluster.owned_host import validate_owned_host
 from lowpower_llm_cluster.pricing import FxTable
 from lowpower_llm_cluster.quota import ProviderQuotaHistory, parse_provider_quota
@@ -24,6 +25,7 @@ def _gpu() -> dict:
         "id": "rtx-test",
         "category": "gpu_accelerator",
         "host_requirements": "PCIe 4.0 x16 host; 750W required system power.",
+        "compatibility_requirements": {"minimum_pcie_generation": 4},
         "length_mm": 310,
         "slot_width": 3,
         "power_connectors": ["8-pin", "8-pin"],
@@ -53,12 +55,14 @@ def test_owned_host_validation_covers_slot_power_connectors_clearance_and_coolin
     assert not result.unknowns
 
 
-def test_owned_host_rejects_insufficient_lane_wiring_and_duplicate_connector_count() -> None:
+def test_owned_host_rejects_insufficient_pcie_generation_lanes_and_connector_count() -> None:
     host = _owned_host()
+    host["pcie_slots"][0]["generation"] = 3
     host["pcie_slots"][0]["lanes"] = 8
     host["psu_gpu_power_connectors"] = ["8-pin"]
     result = validate_owned_host(_gpu(), host)
     assert result.status == "incompatible"
+    assert any("pcie_generation" in failure for failure in result.failures)
     assert any("pcie_lanes" in failure for failure in result.failures)
     assert any("gpu_power_connectors" in failure for failure in result.failures)
 
@@ -67,6 +71,7 @@ def test_owned_host_missing_facts_stays_provisional() -> None:
     result = validate_owned_host(_gpu(), {"pcie_gpu_slot_present": True, "psu_wattage_w": 850})
     assert result.status == "provisionally_compatible"
     assert "pcie_lanes" in result.unknowns
+    assert "pcie_generation" in result.unknowns
     assert "psu_headroom" in result.unknowns
     assert "gpu_clearance" in result.unknowns
 
@@ -172,6 +177,19 @@ def test_provider_quota_history_is_async_and_restart_safe(tmp_path: Path) -> Non
     asyncio.run(scenario())
 
 
+def test_explicit_marketplace_condition_evidence_does_not_infer_missing_facts() -> None:
+    evidence = extract_marketplace_condition_evidence(
+        "MacBook Pro with AppleCare+ until 2027-06-01. Seller warranty until 2026-12-01."
+    )
+    assert evidence["applecare_statement"] is not None
+    assert evidence["warranty_statement"] is not None
+    assert evidence["confidence"] == "medium"
+    unknown = extract_marketplace_condition_evidence("Used RTX 3090 graphics card")
+    assert unknown["gpu_fan_statement"] is None
+    assert unknown["gpu_cooler_statement"] is None
+    assert unknown["confidence"] == "unknown"
+
+
 class _RecordingAdapter:
     def __init__(self, name: str, *, fail: bool = False) -> None:
         self.name = name
@@ -201,3 +219,12 @@ def test_notification_delivery_fans_out_and_isolates_adapter_failures() -> None:
         assert any(not delivery.ok and "fixture failure" in str(delivery.error) for delivery in deliveries)
 
     asyncio.run(scenario())
+
+
+def test_notification_config_respects_explicit_empty_environment() -> None:
+    config = {
+        "adapters": [
+            {"type": "webhook", "name": "hook", "url_env": "LOWPOWER_LLM_UNUSED_WEBHOOK_URL", "enabled": True}
+        ]
+    }
+    assert adapters_from_config(config, environ={}) == []
