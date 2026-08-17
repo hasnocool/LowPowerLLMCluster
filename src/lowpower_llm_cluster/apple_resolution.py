@@ -68,7 +68,6 @@ def _capacity_gb(text: str, *, storage: bool = False) -> int | None:
     )
     if explicit is not None:
         return explicit
-    # Marketplace titles often use "M1 Max 64GB 2TB" without a RAM label.
     candidates = [int(value) for value in re.findall(r"(?:^|\D)(8|16|18|24|32|36|48|64|96|128)\s*gb(?:\D|$)", text, re.IGNORECASE)]
     return candidates[0] if len(candidates) == 1 else None
 
@@ -258,11 +257,11 @@ def resolve_apple_configuration(title: str, description: str | None = None, exis
     existing = dict(existing or {})
     combined = " ".join(value for value in (title, description or "") if value)
     lower = _norm(combined)
-    if not any(term in lower for term in APPLE_PRODUCT_TERMS):
+    parsed: dict[str, Any] = _identity(combined)
+    registry_backed = bool(_registry_matches(parsed))
+    if not any(term in lower for term in APPLE_PRODUCT_TERMS) and not registry_backed:
         return existing
 
-    parsed: dict[str, Any] = {}
-    parsed.update(_identity(combined))
     chip = _chip(combined)
     if chip:
         parsed["soc"] = chip
