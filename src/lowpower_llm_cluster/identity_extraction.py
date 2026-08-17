@@ -90,3 +90,20 @@ def extract_seller_firmware_evidence(text: str) -> dict[str, Any]:
         "source_type": "seller_listing_text",
         "confidence": "medium" if revision or bios or serial or batch or factory_label else "unknown",
     }
+
+
+def extract_marketplace_condition_evidence(text: str) -> dict[str, Any]:
+    """Preserve explicit used-hardware condition/warranty statements without inferring condition."""
+    normalized = " ".join(str(text or "").split())
+    applecare = _match(r"\b(AppleCare\+?(?:\s+(?:until|through|expires?|expiry)\s+[^,;|]{3,40})?)", normalized)
+    warranty = _match(r"\b((?:manufacturer |remaining |seller )?warranty(?:\s+(?:until|through|expires?|expiry)\s+[^,;|]{3,40})?)", normalized)
+    fan_note = _match(r"\b((?:GPU\s+)?fans?\s+(?:replaced|new|noisy|quiet|working|tested|failed|not working|damaged)[^,;|]{0,40})", normalized)
+    cooler_note = _match(r"\b((?:GPU\s+)?cooler\s+(?:original|stock|replaced|new|damaged|modified|tested)[^,;|]{0,40})", normalized)
+    return {
+        "applecare_statement": applecare,
+        "warranty_statement": warranty,
+        "gpu_fan_statement": fan_note,
+        "gpu_cooler_statement": cooler_note,
+        "source_type": "seller_listing_text",
+        "confidence": "medium" if any((applecare, warranty, fan_note, cooler_note)) else "unknown",
+    }

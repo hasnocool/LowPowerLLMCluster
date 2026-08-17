@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "adapters": [
+    {
+      "name": "generic-webhook",
+      "type": "webhook",
+      "enabled": false,
+      "url_env": "LOWPOWER_LLM_WEBHOOK_URL",
+      "timeout_s": 10
+    },
+    {
+      "name": "chat-webhook",
+      "type": "chat",
+      "enabled": false,
+      "url_env": "LOWPOWER_LLM_CHAT_WEBHOOK_URL",
+      "timeout_s": 10
+    },
+    {
+      "name": "smtp-email",
+      "type": "email",
+      "enabled": false,
+      "host": "smtp.example.invalid",
+      "port": 587,
+      "sender": "lowpower-llm@example.invalid",
+      "recipients": [
+        "operator@example.invalid"
+      ],
+      "username_env": "LOWPOWER_LLM_SMTP_USERNAME",
+      "password_env": "LOWPOWER_LLM_SMTP_PASSWORD",
+      "use_ssl": false,
+      "starttls": true,
+      "timeout_s": 15
+    }
+  ]
+}
