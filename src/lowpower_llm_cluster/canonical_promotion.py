@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 from urllib.parse import urlsplit, urlunsplit
 
+from .secondary_accelerator_policy import evaluate_secondary_accelerator, promotion_snapshot
+
 
 def _atomic_json(path: Path, payload: Mapping[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -57,6 +59,7 @@ def evaluate(record: Mapping[str, Any], *, min_source_confidence: float = 0.80, 
         reasons.append("identity_confidence_below_threshold")
     if record.get("in_stock") is False:
         reasons.append("out_of_stock")
+    reasons.extend(evaluate_secondary_accelerator(record))
     return reasons
 
 
@@ -82,6 +85,19 @@ def canonical_part(record: Mapping[str, Any]) -> dict[str, Any]:
     observed = str(record.get("observed_at") or datetime.now(UTC).isoformat())
     category = _category(record)
     source, source_id = listing_identity(record)
+    accelerator_policy = promotion_snapshot(record)
+    provenance: dict[str, Any] = {
+        "source": source,
+        "source_id": source_id,
+        "listing_url": _url(str(record.get("listing_url") or "")),
+        "observed_at": observed,
+        "sku": record.get("sku"),
+        "mpn": record.get("mpn"),
+        "identity_evidence": attrs.get("identity_evidence"),
+        "manufacturer_evidence": attrs.get("manufacturer_evidence"),
+    }
+    if accelerator_policy is not None:
+        provenance["secondary_accelerator_policy"] = accelerator_policy
     result: dict[str, Any] = {
         "id": _id(record),
         "category": category,
@@ -95,23 +111,14 @@ def canonical_part(record: Mapping[str, Any]) -> dict[str, Any]:
         "source_url": str(record.get("listing_url", "")),
         "verified_on": observed[:10],
         "listing_status": "autonomously_verified_active",
-        "plain_language": "Automatically promoted after passing product identity and source-evidence gates.",
+        "plain_language": "Automatically promoted after passing product identity, source-evidence and applicable accelerator policy gates.",
         "source_notes": f"Discovery source={source}; source confidence={record.get('source_confidence')}; SKU confidence={record.get('sku_confidence')}.",
         "llm_candidate": bool(attrs.get("llm_candidate", True)),
         "hardware_class": str(attrs.get("hardware_class") or category),
         "software_maturity": str(attrs.get("software_maturity") or "unverified_runtime_support"),
         "risk_level": str(attrs.get("risk_level") or "medium"),
         "lifecycle_status": str(attrs.get("lifecycle_status") or "current"),
-        "promotion_provenance": {
-            "source": source,
-            "source_id": source_id,
-            "listing_url": _url(str(record.get("listing_url") or "")),
-            "observed_at": observed,
-            "sku": record.get("sku"),
-            "mpn": record.get("mpn"),
-            "identity_evidence": attrs.get("identity_evidence"),
-            "manufacturer_evidence": attrs.get("manufacturer_evidence"),
-        },
+        "promotion_provenance": provenance,
     }
     for key in (
         "cpu", "architecture", "memory_type", "memory_capacity_gb", "max_memory_gb", "storage",
@@ -164,12 +171,15 @@ def promote(
     for record in records:
         reasons = evaluate(record, min_source_confidence=min_source_confidence, min_sku_confidence=min_sku_confidence)
         source, source_id = listing_identity(record)
+        policy_snapshot = promotion_snapshot(record)
         common = {
             "source": source,
             "source_id": source_id,
             "listing_url": record.get("listing_url"),
             "title": record.get("title"),
         }
+        if policy_snapshot is not None:
+            common["secondary_accelerator_policy"] = policy_snapshot
         if reasons:
             held_record = {**common, "reasons": reasons}
             held.append(held_record)
