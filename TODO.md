@@ -163,9 +163,9 @@
 
 ## Hardware discovery
 
-- [ ] More Ryzen 7840HS/8845HS/8945HS/HX370 bareboards and mini PCs.
+- [x] More Ryzen 7840HS/8845HS/8945HS/HX370 bareboards and mini PCs.
 - [ ] Cheap high-capacity DDR5/LPDDR systems.
-- [ ] More RK3588/RK3576-class 16-32GB systems.
+- [x] More RK3588/RK3576-class 16-32GB systems.
 - [ ] Current GenAI NPUs/TPUs/ASICs with real transformer runtimes.
 - [ ] Used/decommissioned Alveo, edge inference cards and other large-memory accelerators.
 - [ ] Console-derived / specialty APUs where software is usable.
