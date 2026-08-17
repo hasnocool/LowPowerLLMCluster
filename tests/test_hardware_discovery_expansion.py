@@ -11,7 +11,7 @@ def test_ryzen_discovery_covers_requested_cpu_families() -> None:
         "node-gmktec-k6-7840hs": ("AMD Ryzen 7 7840HS", 64),
         "node-beelink-ser8-8845hs": ("AMD Ryzen 7 8845HS", 256),
         "node-minisforum-um890pro-8945hs": ("AMD Ryzen 9 8945HS", 96),
-        "node-minisforum-ai-x1-pro-hx370": ("AMD Ryzen AI 9 HX 370", 96),
+        "node-minisforum-ai-x1-pro-hx370": ("AMD Ryzen AI 9 HX 370", 128),
     }
     for part_id, (cpu, max_memory_gb) in expected.items():
         part = parts[part_id]
@@ -23,11 +23,11 @@ def test_ryzen_discovery_covers_requested_cpu_families() -> None:
         assert "power_target_w" not in part
 
 
-def test_hx370_uses_conservative_formal_memory_spec() -> None:
+def test_hx370_uses_current_vendor_memory_limit() -> None:
     part = _parts()["node-minisforum-ai-x1-pro-hx370"]
-    assert part["max_memory_gb"] == 96
-    assert "conflicting 128GB and 96GB" in part["source_notes"]
-    assert "formal product-specification table" in part["source_notes"]
+    assert part["max_memory_gb"] == 128
+    assert "128GB" in part["source_notes"]
+    assert "vendor-stated maximum" in part["source_notes"]
 
 
 def test_rockchip_expansion_adds_fixed_16_and_32gb_nodes() -> None:
