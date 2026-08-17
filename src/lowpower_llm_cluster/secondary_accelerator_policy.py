@@ -135,6 +135,7 @@ def promotion_snapshot(record: Mapping[str, Any], *, policy: Mapping[str, Any] |
     ceiling = watch.get("max_landed_cad")
     return {
         "watch_id": watch.get("id"),
+        "category": watch.get("category"),
         "landed_cad": landed,
         "max_landed_cad": ceiling,
         "economic_eligible": landed is not None and isinstance(ceiling, (int, float)) and landed <= float(ceiling),
