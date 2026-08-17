@@ -3,6 +3,7 @@ from __future__ import annotations
 from lowpower_llm_cluster.canonical_promotion import canonical_part, evaluate
 from lowpower_llm_cluster.secondary_accelerator_policy import (
     evaluate_secondary_accelerator,
+    landed_cad,
     match_watch,
     promotion_snapshot,
 )
@@ -38,10 +39,20 @@ def test_unmatched_products_keep_existing_promotion_behavior() -> None:
 
 
 def test_watched_accelerator_fails_closed_without_price_or_runtime() -> None:
-    record = _record("AMD Alveo U250 64GB")
+    record = _record("AMD Alveo U250 64GB", price=None)
     reasons = evaluate(record)
     assert "accelerator_landed_cost_missing" in reasons
     assert "accelerator_transformer_runtime_unverified" in reasons
+
+
+def test_landed_cost_falls_back_to_listing_price_shipping_and_cad_fx() -> None:
+    record = _record("AMD Alveo U250 64GB", price=400.0, currency="CAD", shipping=20.0, shipping_currency="CAD")
+    assert landed_cad(record) == 470.4
+
+
+def test_explicit_landed_cost_evidence_takes_precedence() -> None:
+    record = _record("AMD Alveo U250 64GB", price=9999.0, landed_cost_cad=525.5)
+    assert landed_cad(record) == 525.5
 
 
 def test_watched_accelerator_holds_when_landed_cost_is_above_policy_ceiling() -> None:
