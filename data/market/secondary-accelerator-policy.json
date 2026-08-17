@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
   "currency": "CAD",
+  "tax_rate": 0.12,
   "policy_note": "Economic ceilings are editable investigation thresholds, not fair-market-value claims. Promotion also requires exact identity and verified transformer runtime evidence.",
   "watches": [
     {
