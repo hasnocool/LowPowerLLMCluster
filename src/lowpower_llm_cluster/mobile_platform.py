@@ -8,6 +8,8 @@ def mobile_runtime_profile(part: dict[str, Any]) -> dict[str, Any]:
     category = str(part.get("category") or "")
     stack = str(part.get("software_stack") or "").casefold()
     name = str(part.get("name") or "")
+    android = any(term in stack for term in ("android", "oxygenos", "one ui", "hyperos", "redmagicos"))
+    vulkan = "vulkan" in stack
 
     if category == "apple_silicon_system":
         return {
@@ -15,6 +17,7 @@ def mobile_runtime_profile(part: dict[str, Any]) -> dict[str, Any]:
             "headless_service": True,
             "local_cli": True,
             "metal": "metal" in stack,
+            "vulkan": vulkan,
             "mlx": "mlx" in stack,
             "core_ml": "core ml" in stack,
             "persistent_daemon": True,
@@ -26,27 +29,37 @@ def mobile_runtime_profile(part: dict[str, Any]) -> dict[str, Any]:
         return {
             "host_class": "mobile_endpoint",
             "headless_service": False,
-            "local_cli": False,
+            "local_cli": android,
             "metal": "metal" in stack,
+            "vulkan": vulkan,
             "mlx": False,
             "core_ml": "core ml" in stack,
             "persistent_daemon": False,
             "thermal_constraint": "high",
             "memory_shared_with_gpu": True,
-            "notes": "Phone-class devices are interactive/sandboxed inference endpoints; do not rank them as unattended daemon hosts.",
+            "notes": (
+                "Android phones can expose app-local/native CLI inference paths, but background execution and sustained thermals remain device-specific; do not rank them as unattended daemon hosts."
+                if android
+                else "Phone-class devices are interactive/sandboxed inference endpoints; do not rank them as unattended daemon hosts."
+            ),
         }
     if category == "tablet":
         return {
             "host_class": "mobile_endpoint",
             "headless_service": False,
-            "local_cli": False,
+            "local_cli": android,
             "metal": "metal" in stack,
+            "vulkan": vulkan,
             "mlx": False,
             "core_ml": "core ml" in stack,
             "persistent_daemon": False,
             "thermal_constraint": "medium_high",
             "memory_shared_with_gpu": True,
-            "notes": "Tablet-class Apple silicon can run substantial on-device inference but remains app-sandboxed and thermally constrained.",
+            "notes": (
+                "Android tablets can expose app-local/native CLI inference paths and may have more thermal area than phones, but they remain mobile endpoints rather than normal daemon hosts."
+                if android
+                else "Tablet-class devices can run substantial on-device inference but remain app-sandboxed and thermally constrained."
+            ),
         }
     if category == "media_device":
         return {
@@ -54,6 +67,7 @@ def mobile_runtime_profile(part: dict[str, Any]) -> dict[str, Any]:
             "headless_service": False,
             "local_cli": False,
             "metal": "metal" in stack,
+            "vulkan": vulkan,
             "mlx": False,
             "core_ml": "core ml" in stack,
             "persistent_daemon": False,
