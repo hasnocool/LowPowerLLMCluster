@@ -49,6 +49,30 @@
         "ebay": {"max_queries_per_run": 42, "daily_request_budget": 220}
       },
       "retry": {"attempts": 5, "base_delay_s": 2.0, "max_delay_s": 60.0}
+    },
+    "secondary-accelerator-scan": {
+      "description": "Focused secondary-market scan for datacenter accelerators where landed-CAD value and transformer-runtime usability must both be proven before promotion.",
+      "sources": ["ebay", "manufacturer"],
+      "queries": [
+        "AMD Alveo U200 64GB", "AMD Alveo U250 64GB", "AMD Alveo U55C 16GB",
+        "Tenstorrent Wormhole n150", "Tenstorrent Wormhole n300",
+        "Habana Gaudi 32GB", "Intel Gaudi2 96GB",
+        "AMD Instinct MI60 32GB", "NVIDIA A40 48GB"
+      ],
+      "refresh_fx": true,
+      "currencies": ["USD", "EUR", "GBP", "JPY", "CNY", "AUD"],
+      "generate_reports": true,
+      "tax_rate": 0.12,
+      "tco_scenario": "mixed-3yr",
+      "stale_after_hours": 48,
+      "price_drop_pct": 8,
+      "landed_cost_change_pct": 5,
+      "benchmark_change_pct": 10,
+      "source_budgets": {
+        "manufacturer": {"max_queries_per_run": 9, "daily_request_budget": 36},
+        "ebay": {"max_queries_per_run": 18, "daily_request_budget": 72}
+      },
+      "retry": {"attempts": 4, "base_delay_s": 1.0, "max_delay_s": 30.0}
     }
   }
 }
