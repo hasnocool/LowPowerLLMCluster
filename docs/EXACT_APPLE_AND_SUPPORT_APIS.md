@@ -20,7 +20,40 @@ The resolver can retain:
 - explicitly stated CPU core count;
 - explicitly stated GPU core count.
 
-`exact_configuration=true` requires identity + chip + RAM + storage and no conflicting pre-existing evidence. A-number alone does not define RAM, storage or GPU bin. GPU core count is never inferred from an M-series family name.
+`exact_configuration=true` requires identity + chip + RAM + storage and no conflicting evidence. A-number alone does not define RAM, storage or GPU bin. GPU core count is never inferred from an M-series family name.
+
+### Authoritative Apple identifier registry
+
+`data/evidence/apple-identifiers.json` is a data-driven Apple Support identity registry. It currently covers the highest-value Apple-silicon marketplace families across MacBook Air, MacBook Pro, Mac mini and Mac Studio from M1 through the current M5 era.
+
+Apple's model-identification pages publish model identifiers and part-number families such as `MGN63xx/A`; Apple explicitly describes `xx` as the country/region variable. The resolver therefore matches a concrete regional order number such as `MGN63LL/A` against the published family without pretending the region suffix is universal.
+
+Registry records preserve:
+
+- product family and introduced year;
+- model identifiers;
+- Apple-published part/order-number patterns;
+- exact chip identity only when Apple separates the model cleanly;
+- chip candidate sets when Apple groups Pro/Max variants under the same part-number family;
+- A-numbers only where an Apple Support technical-specification page exposes the regulatory model number;
+- Apple Support provenance for both the model/part mapping and, when applicable, the A-number mapping.
+
+The registry intentionally does **not** store build-to-order RAM, SSD capacity, CPU core count or GPU core count. Those facts still need to be explicit in the listing or come from a stronger exact-configuration source.
+
+Examples of the evidence boundary:
+
+- an M1 MacBook Air part-number family can establish `MacBookAir10,1` and M1 because Apple identifies that model directly;
+- a 2021 14-inch MacBook Pro order number can establish the 2021 14-inch family, but it does not choose M1 Pro versus M1 Max unless another fact states the chip;
+- if a seller calls an Apple-published M1 part number an M2 machine, the resolver records an identity conflict and blocks `exact_configuration`.
+
+The primary Apple Support sources are:
+
+- <https://support.apple.com/en-ca/102869> for MacBook Air model identifiers and part-number families;
+- <https://support.apple.com/en-ca/108052> for MacBook Pro model identifiers and part-number families;
+- <https://support.apple.com/en-ca/102852> for Mac mini model identifiers and part-number families;
+- <https://support.apple.com/en-ca/102231> for Mac Studio model identifiers and part-number families.
+
+Some regional Apple technical-specification pages additionally publish regulatory A-numbers. Those source URLs are retained per registry record rather than generalized to models Apple has not explicitly tied to that number on the cited page.
 
 ### Condition evidence
 
@@ -68,6 +101,6 @@ All support API requests stay on the verified manufacturer host and pagination i
 This implementation does not yet claim:
 
 - discovery of manufacturer APIs that are not linked from the verified product/support surface;
-- authoritative Apple order-number mappings for every generation/region;
+- authoritative Apple order-number mappings for every historical generation, country or build-to-order option;
 - warranty/AppleCare status from external account/service data;
 - shipped motherboard BIOS or hardware revision unless manufacturer/seller evidence explicitly provides it.
