@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "snapshot_date": "2026-08-11",
+  "snapshot_date": "2026-08-17",
   "currency": "USD",
   "project_scope": "low-power and unusual hardware candidates for distributed local LLM inference",
   "candidate_categories": [
