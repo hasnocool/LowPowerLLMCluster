@@ -126,6 +126,61 @@ def _price_alerts(
     return alerts
 
 
+def _deal_threshold_alerts(
+    parts: dict[str, dict[str, Any]],
+    observations: list[dict[str, Any]],
+    watchlists: list[dict[str, Any]],
+    fx: dict[str, float],
+    tax_rate: float,
+) -> list[dict[str, Any]]:
+    """Emit a deal alert on first sight below a configured landed-CAD ceiling or on a later crossing."""
+    by_listing: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    for row in observations:
+        by_listing[(str(row.get("source")), str(row.get("source_id")))].append(row)
+
+    alerts: list[dict[str, Any]] = []
+    for rows in by_listing.values():
+        rows.sort(key=lambda row: str(row.get("observed_at", "")))
+        current = rows[-1]
+        previous = rows[-2] if len(rows) > 1 else None
+        part = parts.get(str(current.get("part_id")))
+        current_landed = _cad_total(current, fx, tax_rate)
+        if current_landed is None:
+            continue
+
+        for watch in watchlists:
+            if not watch.get("enabled", True) or not _matches_watchlist(part, current, watch):
+                continue
+            settings = watch.get("alerts") or {}
+            ceiling = settings.get("max_landed_cad")
+            if ceiling is None:
+                continue
+            ceiling_cad = float(ceiling)
+            if current_landed > ceiling_cad:
+                continue
+
+            previous_landed = _cad_total(previous, fx, tax_rate) if previous is not None else None
+            if previous_landed is not None and previous_landed <= ceiling_cad:
+                continue
+
+            alerts.append({
+                "type": "deal_threshold",
+                "severity": str(settings.get("deal_severity") or "high"),
+                "watchlist": watch.get("id", "default"),
+                "part_id": current.get("part_id"),
+                "source": current.get("source"),
+                "source_id": current.get("source_id"),
+                "title": current.get("title"),
+                "url": current.get("url"),
+                "old_landed_cad": previous_landed,
+                "new_landed_cad": current_landed,
+                "threshold_cad": round(ceiling_cad, 2),
+                "observed_at": current.get("observed_at"),
+                "reason": f"landed cost CA${current_landed:,.2f} is at or below the CA${ceiling_cad:,.2f} watch threshold",
+            })
+    return alerts
+
+
 def _lifecycle_alerts(parts: dict[str, dict[str, Any]], events: list[dict[str, Any]], observations: list[dict[str, Any]], watchlists: list[dict[str, Any]], since: str | None) -> list[dict[str, Any]]:
     latest_listing: dict[tuple[str, str], dict[str, Any]] = {}
     for row in observations:
@@ -232,6 +287,7 @@ def generate_change_intelligence(
 
     alerts = []
     alerts.extend(_price_alerts(parts, prices, watches, fx, default_price_drop_pct, default_landed_change_pct, tax_rate))
+    alerts.extend(_deal_threshold_alerts(parts, prices, watches, fx, tax_rate))
     alerts.extend(_lifecycle_alerts(parts, listing_state.get("events", []), prices, watches, since))
     alerts.extend(_benchmark_alerts(performance, watches, parts, default_benchmark_change_pct))
 
@@ -239,7 +295,7 @@ def generate_change_intelligence(
     prior_fingerprints = set(prior.get("emitted_fingerprints", []))
     fresh: list[dict[str, Any]] = []
     for alert in alerts:
-        fingerprint = json.dumps({key: alert.get(key) for key in ("type", "watchlist", "part_id", "source", "source_id", "observed_at", "old_price", "new_price", "old_value", "new_value")}, sort_keys=True)
+        fingerprint = json.dumps({key: alert.get(key) for key in ("type", "watchlist", "part_id", "source", "source_id", "observed_at", "old_price", "new_price", "old_value", "new_value", "new_landed_cad", "threshold_cad")}, sort_keys=True)
         if fingerprint in prior_fingerprints:
             continue
         alert["fingerprint"] = fingerprint
