@@ -49,6 +49,36 @@
         "ebay": {"max_queries_per_run": 42, "daily_request_budget": 220}
       },
       "retry": {"attempts": 5, "base_delay_s": 2.0, "max_delay_s": 60.0}
+    },
+    "gpu-deal-scan": {
+      "description": "Focused daily eBay scan for workstation/datacenter GPUs whose landed-CAD price can make them practical local-LLM candidates.",
+      "sources": ["ebay"],
+      "queries": [
+        "NVIDIA RTX A5000 24GB",
+        "NVIDIA RTX A6000 48GB",
+        "NVIDIA Quadro RTX 8000 48GB",
+        "NVIDIA Tesla P40 24GB",
+        "AMD Radeon Pro W6800 32GB",
+        "Intel Arc Pro B50 16GB",
+        "Intel Arc Pro B60 24GB",
+        "Intel Arc Pro B65 32GB",
+        "Intel Arc Pro B70 32GB"
+      ],
+      "refresh_fx": true,
+      "currencies": ["USD", "EUR", "GBP"],
+      "refresh_bom": false,
+      "refresh_power_evidence": false,
+      "generate_reports": true,
+      "tax_rate": 0.12,
+      "tco_scenario": "mixed-3yr",
+      "stale_after_hours": 72,
+      "price_drop_pct": 8,
+      "landed_cost_change_pct": 6,
+      "benchmark_change_pct": 10,
+      "source_budgets": {
+        "ebay": {"max_queries_per_run": 12, "daily_request_budget": 48}
+      },
+      "retry": {"attempts": 4, "base_delay_s": 1.0, "max_delay_s": 30.0}
     }
   }
 }
