@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 from .catalog import load_catalog, project_root
+from .landed_history import LandedCostHistory, TariffEvidence, make_landed_snapshot
 from .market import (
     JsonFeedAdapter,
     Listing,
@@ -20,6 +21,8 @@ from .market import (
     refresh_bank_of_canada_fx,
     update_listing_presence,
 )
+from .notifications import adapters_from_config, deliver_alerts
+from .pricing import FxTable
 from .reports import build_report_rows, named_reports, render_report
 from .sources import DigiKeyAdapter, EbayBrowseAdapter, ManufacturerJsonLdAdapter, MouserAdapter
 
@@ -42,6 +45,26 @@ def build_parser() -> argparse.ArgumentParser:
     landed.add_argument("--tax-rate", type=float, default=0.12)
     landed.add_argument("--duty-rate", type=float, default=0.0)
     landed.add_argument("--brokerage-cad", type=float, default=0.0)
+
+    landed_snapshot = sub.add_parser(
+        "landed-snapshot",
+        help="persist an evidence-backed Canadian landed-cost snapshot without rewriting historical FX",
+    )
+    landed_snapshot.add_argument("listing", type=Path)
+    landed_snapshot.add_argument("--province", default="BC")
+    landed_snapshot.add_argument("--brokerage-cad", type=float, default=0.0)
+    landed_snapshot.add_argument("--tariff-evidence", type=Path)
+    landed_snapshot.add_argument("--history-path", type=Path)
+
+    landed_history = sub.add_parser("landed-history", help="show stored landed-CAD snapshots")
+    landed_history.add_argument("--source")
+    landed_history.add_argument("--source-id")
+    landed_history.add_argument("--history-path", type=Path)
+
+    notify = sub.add_parser("notify", help="deliver generated alert evidence through configured email/webhook/chat adapters")
+    notify.add_argument("--input", type=Path, default=project_root() / "reports" / "current" / "daily-changes.json")
+    notify.add_argument("--config", type=Path, default=project_root() / "data" / "market" / "notifications.json")
+    notify.add_argument("--maximum-priority", choices=["P1", "P2", "P3", "P4"], default="P4")
 
     fx = sub.add_parser("refresh-fx", help="refresh sourced CAD exchange-rate snapshots from Bank of Canada")
     fx.add_argument("--currency", action="append", default=[])
@@ -75,6 +98,31 @@ def _performance_records(payload: object) -> list[dict]:
             raise ValueError("performance input 'records' must be an array")
         return records
     raise ValueError("performance input must be an object or array")
+
+
+def _current_fx_table() -> FxTable:
+    path = project_root() / "data" / "market" / "fx-cad.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return FxTable(
+        target_currency="CAD",
+        rates={str(key).upper(): float(value) for key, value in payload.get("rates_to_cad", {}).items()},
+        as_of=str(payload.get("as_of") or "unknown"),
+    )
+
+
+def _tariff_evidence(path: Path | None) -> TariffEvidence | None:
+    if path is None:
+        return None
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return TariffEvidence(
+        hs_code=str(payload["hs_code"]),
+        duty_rate=float(payload["duty_rate"]),
+        source_url=str(payload["source_url"]),
+        verified_on=str(payload["verified_on"]),
+        origin_country=str(payload["origin_country"]) if payload.get("origin_country") else None,
+        description=str(payload.get("description") or ""),
+        confidence=str(payload.get("confidence") or "medium"),
+    )
 
 
 async def _discover(args: argparse.Namespace) -> int:
@@ -120,6 +168,58 @@ async def _refresh_fx(args: argparse.Namespace) -> int:
     return 0
 
 
+async def _landed_snapshot(args: argparse.Namespace) -> int:
+    payload = await asyncio.to_thread(json.loads, args.listing.read_text(encoding="utf-8"))
+    listing = Listing.from_mapping(payload, str(payload.get("source", "manual")))
+    snapshot = make_landed_snapshot(
+        source=listing.source,
+        source_id=listing.source_id,
+        listing_url=listing.url,
+        listing_observed_at=listing.observed_at,
+        item_price=listing.price,
+        source_currency=listing.currency,
+        shipping=listing.shipping or 0.0,
+        shipping_currency=listing.shipping_currency,
+        fx=_current_fx_table(),
+        province=args.province,
+        brokerage_cad=args.brokerage_cad,
+        tariff=_tariff_evidence(args.tariff_evidence),
+    )
+    history = LandedCostHistory(args.history_path)
+    added = await history.append(snapshot)
+    print(json.dumps(snapshot.to_dict(), indent=2, sort_keys=True))
+    print(f"\n{'Stored' if added else 'Already stored'} snapshot {snapshot.snapshot_id}.")
+    print("Planning evidence only: verify origin, exact HS classification, tax treatment, carrier brokerage and seller terms before purchase.")
+    return 0
+
+
+async def _landed_history(args: argparse.Namespace) -> int:
+    rows = await LandedCostHistory(args.history_path).snapshots(source=args.source, source_id=args.source_id)
+    print(json.dumps(rows, indent=2, sort_keys=True))
+    return 0
+
+
+async def _notify(args: argparse.Namespace) -> int:
+    if not args.config.exists():
+        raise SystemExit(f"notification config not found: {args.config}")
+    if not args.input.exists():
+        raise SystemExit(f"alert evidence not found: {args.input}")
+    config = await asyncio.to_thread(json.loads, args.config.read_text(encoding="utf-8"))
+    summary = await asyncio.to_thread(json.loads, args.input.read_text(encoding="utf-8"))
+    adapters = adapters_from_config(config)
+    if not adapters:
+        print("No enabled notification adapters have usable environment-backed credentials/URLs.")
+        return 0
+    deliveries = await deliver_alerts(summary.get("alerts", []), adapters, maximum_priority=args.maximum_priority)
+    for delivery in deliveries:
+        state = "OK" if delivery.ok else "FAIL"
+        suffix = f" — {delivery.error}" if delivery.error else ""
+        print(f"{delivery.adapter:<20} {state:<4} {delivery.alert_fingerprint}{suffix}")
+    failures = sum(1 for delivery in deliveries if not delivery.ok)
+    print(f"Delivered {len(deliveries) - failures}/{len(deliveries)} notification attempts.")
+    return 1 if failures else 0
+
+
 def _report(args: argparse.Namespace) -> int:
     rows = build_report_rows(load_catalog()["parts"], tax_rate=args.tax_rate)
     reports = named_reports(rows)
@@ -156,6 +256,12 @@ def main() -> int:
             print(f"{key:15}: ${value:,.2f} CAD")
         print("Estimate only: verify tax, tariff classification, courier brokerage and seller shipping before purchase.")
         return 0
+    if args.command == "landed-snapshot":
+        return asyncio.run(_landed_snapshot(args))
+    if args.command == "landed-history":
+        return asyncio.run(_landed_history(args))
+    if args.command == "notify":
+        return asyncio.run(_notify(args))
     if args.command == "refresh-fx":
         return asyncio.run(_refresh_fx(args))
     if args.command == "ingest-performance":
