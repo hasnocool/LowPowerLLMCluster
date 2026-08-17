@@ -6,11 +6,12 @@ v0.5 can refresh market evidence without turning volatile listings into catalog 
 
 `data/market/profiles.json` defines named refresh jobs. Profiles select sources, queries, retry policy, staleness threshold, source budgets, FX currencies and whether current-market reports are regenerated.
 
-Both profiles now include **discrete GPU sourcing** alongside mini PCs, SBCs, unusual boards and specialist accelerators. The daily profile tracks common current/used GPU candidates while the weekly deep scan includes broader higher-power and experimental bargains.
+The general profiles include **discrete GPU sourcing** alongside mini PCs, SBCs, unusual boards and specialist accelerators. The daily profile tracks common current/used GPU candidates while the weekly deep scan includes broader higher-power and experimental bargains. A separate `gpu-deal-scan` profile keeps high-VRAM workstation/datacenter searches on a narrow eBay-only request budget so those queries do not crowd out the general discovery queues.
 
 ```bash
 llm-cluster-refresh run daily-market
 llm-cluster-refresh run weekly-deep-scan
+llm-cluster-refresh run gpu-deal-scan
 llm-cluster-refresh health
 llm-cluster-refresh stale --hours 72
 llm-cluster-refresh reports
@@ -69,15 +70,16 @@ GPU discovery follows the same market rules as every other hardware family:
 - board TGP/TBP is not complete-node power;
 - current and used-market GPU listings can move among Buy/Watch/Ignore as price and evidence change.
 
-The `gpu-value` watchlist keeps GPU price/stock alerts separate from the <=25W always-on watchlist.
+The `gpu-value` watchlist keeps GPU price/stock alerts separate from the <=25W always-on watchlist. Workstation/datacenter GPU watches additionally support `alerts.max_landed_cad`, which emits a one-time `deal_threshold` alert when a listing is first observed below the configured Canadian landed-cost ceiling or crosses down through that ceiling. See `docs/GPU_DEAL_WATCHES.md`.
 
 ## GitHub Actions schedule
 
 `.github/workflows/autonomous-refresh.yml` runs:
 
 - `daily-market` every day;
+- `gpu-deal-scan` every day on its own low request budget;
 - `weekly-deep-scan` every Sunday;
-- either profile manually through `workflow_dispatch`.
+- any profile manually through `workflow_dispatch`.
 
 The workflow can use optional repository secrets for Mouser, DigiKey and eBay. Public manufacturer discovery and Bank of Canada FX do not depend on those credentials. Refreshed market evidence, intelligence state and generated reports are committed only when files changed.
 
