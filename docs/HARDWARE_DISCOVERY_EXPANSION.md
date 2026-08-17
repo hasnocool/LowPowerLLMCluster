@@ -9,9 +9,9 @@ This catalog expansion adds representative, manufacturer-documented systems for 
 | GMKtec NucBox K6 | Ryzen 7 7840HS / Radeon 780M | 64GB DDR5-5600 | dual 2.5GbE, dual NVMe, USB4 | https://www.gmktec.com/products/amd-ryzen-7-7840hs-mini-pc-nucbox-k6 |
 | Beelink SER8 | Ryzen 7 8845HS / Radeon 780M | 256GB DDR5-5600 stated by vendor | 2.5GbE, dual NVMe, USB4 | https://www.bee-link.com/products/beelink-ser8-8845hs |
 | MINISFORUM UM890 Pro | Ryzen 9 8945HS / Radeon 780M | 96GB DDR5-5600 | dual 2.5GbE, dual NVMe, dual USB4, OCuLink | https://ca.minisforum.com/products/minisforum-um890pro |
-| MINISFORUM AI X1 Pro | Ryzen AI 9 HX 370 / Radeon 890M | 96GB DDR5-5600 | dual 2.5GbE, triple NVMe, dual USB4, OCuLink | https://www.minisforum.com/pages/ai-x1-pro |
+| MINISFORUM AI X1 Pro | Ryzen AI 9 HX 370 / Radeon 890M | 128GB DDR5-5600 stated by vendor | dual 2.5GbE, triple NVMe, dual USB4, OCuLink | https://store.minisforum.com/en-ca/products/minisforum-ai-x1-pro-370-mini-pc |
 
-The AI X1 Pro page contains inconsistent memory claims: a marketing section says 128GB while the formal product specification table says 96GB. The catalog uses **96GB** until MINISFORUM publishes a consistent specification.
+MINISFORUM currently states **128GB max support** for the AI X1 Pro's two DDR5-5600 SO-DIMM slots. Available preconfigured SKUs may be smaller; the catalog keeps the board-level maximum separate from installed-memory configurations.
 
 ## Rockchip SBCs
 
