@@ -9,7 +9,7 @@
       "vendor": "FuriosaAI",
       "price_min_usd": null,
       "price_max_usd": null,
-      "price_status": "quote_or_access_required",
+      "price_status": "live_market_required",
       "moq": 1,
       "url": "https://furiosa.ai/renegade-spec",
       "source_url": "https://developer.furiosa.ai/latest/en/overview/rngd.html",
