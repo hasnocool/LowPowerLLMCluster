@@ -124,7 +124,7 @@
       "igpu": "AMD Radeon 890M",
       "memory_type": "2x DDR5-5600 SO-DIMM",
       "memory_capacity_gb": null,
-      "max_memory_gb": 96,
+      "max_memory_gb": 128,
       "memory_config_status": "configurable",
       "network": "2x 2.5GbE; Wi-Fi 7; Bluetooth 5.4",
       "storage": "3x M.2 2280 PCIe 4.0 NVMe",
@@ -133,8 +133,8 @@
       "software_maturity": "mainstream_linux",
       "risk_level": "low",
       "lifecycle_status": "current",
-      "plain_language": "This is a high-end HX370 reference with Radeon 890M, three NVMe slots, dual 2.5GbE and OCuLink. The formal MINISFORUM specification table says 96GB maximum DDR5 even though another marketing section says 128GB, so the catalog keeps the conservative 96GB figure until the vendor reconciles the page.",
-      "source_notes": "MINISFORUM documents Ryzen AI 9 HX 370, Radeon 890M, triple M.2, dual 2.5GbE, Wi-Fi 7, dual USB4 and OCuLink. The page contains conflicting 128GB and 96GB memory claims; this record uses the formal product-specification table's 96GB maximum. Marketing TOPS are not converted to tokens/sec."
+      "plain_language": "This is a high-end HX370 reference with Radeon 890M, three NVMe slots, dual 2.5GbE and OCuLink. MINISFORUM currently states 128GB maximum support across the two DDR5-5600 SO-DIMM slots, while preconfigured store options may ship with less memory.",
+      "source_notes": "MINISFORUM documents Ryzen AI 9 HX 370, Radeon 890M, triple M.2, dual 2.5GbE, Wi-Fi 7, dual USB4 and OCuLink. The store currently states 128GB as the vendor-stated maximum for the dual DDR5-5600 SO-DIMM slots. Marketing TOPS are not converted to tokens/sec."
     },
     {
       "id": "sbc-radxa-rock5bp-32g",
