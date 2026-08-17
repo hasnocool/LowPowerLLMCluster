@@ -34,6 +34,70 @@
       }
     },
     {
+      "id": "workstation-gpu-24gb-deal",
+      "description": "Review 24GB workstation GPUs when an observed listing reaches a deliberately conservative landed-CAD opportunity ceiling.",
+      "enabled": true,
+      "match": {
+        "keywords": ["rtx a5000", "arc pro b60"]
+      },
+      "alerts": {
+        "max_landed_cad": 900,
+        "deal_severity": "high",
+        "price_drop_pct": 8,
+        "landed_cost_change_pct": 6,
+        "stock_return": true,
+        "new_product": true
+      }
+    },
+    {
+      "id": "workstation-gpu-32gb-deal",
+      "description": "Review 32GB workstation GPUs when landed cost reaches the editable high-VRAM opportunity ceiling.",
+      "enabled": true,
+      "match": {
+        "keywords": ["radeon pro w6800", "arc pro b65", "arc pro b70"]
+      },
+      "alerts": {
+        "max_landed_cad": 1200,
+        "deal_severity": "high",
+        "price_drop_pct": 8,
+        "landed_cost_change_pct": 6,
+        "stock_return": true,
+        "new_product": true
+      }
+    },
+    {
+      "id": "workstation-gpu-48gb-deal",
+      "description": "Review 48GB workstation GPUs only after their landed cost falls into a practical local-LLM acquisition range.",
+      "enabled": true,
+      "match": {
+        "keywords": ["rtx a6000", "quadro rtx 8000"]
+      },
+      "alerts": {
+        "max_landed_cad": 1800,
+        "deal_severity": "high",
+        "price_drop_pct": 8,
+        "landed_cost_change_pct": 6,
+        "stock_return": true,
+        "new_product": true
+      }
+    },
+    {
+      "id": "legacy-datacenter-24gb-deal",
+      "description": "Experimental watch for legacy 24GB datacenter cards whose software, cooling and host-integration costs justify a much lower acquisition ceiling.",
+      "enabled": true,
+      "match": {
+        "keywords": ["tesla p40"]
+      },
+      "alerts": {
+        "max_landed_cad": 350,
+        "deal_severity": "medium",
+        "price_drop_pct": 12,
+        "landed_cost_change_pct": 10,
+        "stock_return": true,
+        "new_product": true
+      }
+    },
+    {
       "id": "weird-accelerators",
       "description": "Unusual, specialist and decommissioned accelerators worth watching for bargains.",
       "enabled": true,
