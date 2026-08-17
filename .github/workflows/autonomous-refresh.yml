@@ -11,9 +11,11 @@ on:
         options:
           - daily-market
           - weekly-deep-scan
+          - secondary-accelerator-scan
   schedule:
     - cron: "17 14 * * *"
     - cron: "41 15 * * 0"
+    - cron: "23 4,10,16,22 * * *"
 
 permissions:
   contents: write
@@ -46,6 +48,8 @@ jobs:
             echo "name=${{ inputs.profile }}" >> "$GITHUB_OUTPUT"
           elif [[ "${{ github.event.schedule }}" == "41 15 * * 0" ]]; then
             echo "name=weekly-deep-scan" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.event.schedule }}" == "23 4,10,16,22 * * *" ]]; then
+            echo "name=secondary-accelerator-scan" >> "$GITHUB_OUTPUT"
           else
             echo "name=daily-market" >> "$GITHUB_OUTPUT"
           fi
