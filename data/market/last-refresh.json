@@ -42,7 +42,7 @@
     }
   },
   "change_alerts": 0,
-  "completed_at": "2026-08-16T15:53:20.374521+00:00",
+  "completed_at": "2026-08-17T14:41:51.446627+00:00",
   "fx": {
     "as_of": "2026-08-14",
     "base": "CAD",
@@ -85,7 +85,7 @@
     "total": 0
   },
   "priority_alerts": 0,
-  "profile": "weekly-deep-scan",
+  "profile": "daily-market",
   "recommendations": {
     "Buy": 0,
     "Experimental": 2,
@@ -104,28 +104,28 @@
   },
   "source_budgets": {
     "digikey": {
-      "allowed": 20,
-      "daily_limit": 100,
-      "remaining_after": 64,
-      "requested": 44
+      "allowed": 16,
+      "daily_limit": 90,
+      "remaining_after": 74,
+      "requested": 25
     },
     "ebay": {
-      "allowed": 42,
-      "daily_limit": 220,
-      "remaining_after": 153,
-      "requested": 44
+      "allowed": 25,
+      "daily_limit": 160,
+      "remaining_after": 135,
+      "requested": 25
     },
     "manufacturer": {
-      "allowed": 42,
-      "daily_limit": 180,
-      "remaining_after": 113,
-      "requested": 44
+      "allowed": 25,
+      "daily_limit": 144,
+      "remaining_after": 119,
+      "requested": 25
     },
     "mouser": {
-      "allowed": 20,
-      "daily_limit": 100,
-      "remaining_after": 64,
-      "requested": 44
+      "allowed": 16,
+      "daily_limit": 90,
+      "remaining_after": 74,
+      "requested": 25
     }
   },
   "stale_count": 0,

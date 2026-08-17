@@ -1,6 +1,6 @@
 # Daily Buy / Watch / Ignore / Experimental
 
-Generated: **2026-08-16T15:53:20.315335+00:00**
+Generated: **2026-08-17T14:41:51.393251+00:00**
 
 This report ranks decision quality from sourced price history, model-capacity fit, confidence, risk and opportunity freshness. It is not a synthetic performance benchmark.
 
