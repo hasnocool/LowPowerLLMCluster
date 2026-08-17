@@ -91,15 +91,15 @@
 - [ ] Expand vendor parameter aliases only as real manufacturer/distributor schemas expose new labels.
 - [ ] Populate serial/manufacture-batch/revision → factory BIOS rules only where vendors publish a verifiable mapping; do not reverse-engineer undocumented serial formats.
 - [ ] Expand the manufacturer registry and stable manufacturer search-page templates as live sourcing encounters new brands.
-- [ ] Infer likely shipped BIOS/hardware revision only when manufacturer or seller evidence supports it.
-- [ ] Add compatibility validation for owned hosts: PCIe generation/lanes, physical slots, PSU connectors/headroom, chassis clearance and cooling capacity.
-- [ ] Add province presets plus tariff/HS-code evidence without pretending customs treatment is universal.
-- [ ] Persist historical landed-CAD snapshots so pure FX movement can be compared without recomputing old observations at current FX.
-- [ ] Add provider-reported remaining quota/reset timestamps when APIs expose them.
-- [ ] Add notification delivery adapters for email/webhook/chat after alert evidence is generated.
+- [x] Infer likely shipped BIOS/hardware revision only when manufacturer or seller evidence supports it.
+- [x] Add compatibility validation for owned hosts: PCIe generation/lanes, physical slots, PSU connectors/headroom, chassis clearance and cooling capacity.
+- [x] Add province presets plus tariff/HS-code evidence without pretending customs treatment is universal.
+- [x] Persist historical landed-CAD snapshots so pure FX movement can be compared without recomputing old observations at current FX.
+- [x] Add provider-reported remaining quota/reset timestamps when APIs expose them.
+- [x] Add notification delivery adapters for email/webhook/chat after alert evidence is generated.
 - [ ] Add more structured used-market sources where official/legal API access exists.
-- [ ] Normalize form factor, dimensions, DC input, PSU/cooling and host requirements.
-- [ ] Verify board-level RAM maximums instead of relying on CPU theoretical limits.
+- [x] Normalize form factor, dimensions, DC input, PSU/cooling and host requirements.
+- [x] Verify board-level RAM maximums instead of relying on CPU theoretical limits.
 - [ ] Add more direct-China and used-market mini PCs, mobile boards, SBCs, GPUs and unusual accelerators.
 
 ## Apple and mobile coverage
@@ -119,7 +119,7 @@
 - [x] Seed complete-device measured power for exact M1 Max, M4/M4 Pro, M4 Max, Pixel 10 Pro XL and Galaxy S26 Ultra configurations.
 - [ ] Expand the Apple A-number/model/part-number knowledge base and add authoritative order-number mappings for more generations/regions.
 - [ ] Ingest LLM-specific complete-node Apple idle/load/inference power with exact model/runtime/workload provenance.
-- [ ] Add used-Mac warranty/AppleCare and seller return-policy evidence where sources expose them.
+- [x] Add used-Mac warranty/AppleCare and seller return-policy evidence where sources expose them.
 - [ ] Expand Android phone/tablet coverage based on RAM, runtime support and used-market value.
 
 ## GPU coverage
@@ -140,7 +140,7 @@
 - [ ] Expand Intel Arc coverage as current/used pricing changes.
 - [ ] Add workstation/datacenter GPU watches when used prices cross practical local-LLM thresholds.
 - [ ] Ingest exact-GPU llama.cpp/vLLM/MLC/community measurements only when board/runtime/model provenance is sufficient.
-- [ ] Add used-GPU condition signals such as board-partner SKU, cooler/fan notes, return policy and seller history where the source provides them.
+- [x] Add used-GPU condition signals such as board-partner SKU, cooler/fan notes, return policy and seller history where the source provides them.
 
 ## Evidence & estimates
 
@@ -156,8 +156,8 @@
 - [x] Feed explicit SSD controller/NAND/interface, RAM topology, GPU board/VBIOS/host context and mobile SKU/SoC identity into adaptive power matching.
 - [x] Allow verified structured manufacturer identity facts to narrow adaptive power identities without replacing stronger direct measurements.
 - [x] Add `docs/EVIDENCE_HARVESTING.md` with measurement-boundary and per-category harvesting rules.
-- [ ] Add confidence-aware performance ranges only when multiple independent compatible real sources justify them.
-- [ ] Add model-family presets beyond the default transparent Q4 decision-capacity screen.
+- [x] Add confidence-aware performance ranges only when multiple independent compatible real sources justify them.
+- [x] Add model-family presets beyond the default transparent Q4 decision-capacity screen.
 - [ ] Benchmark the ThinkPad L14 as an optional local reference/calibration node.
 - [ ] Import additional useful BC-250/RK3588/Jetson/Hailo/SOPHGO/GPU results only when exact hardware/runtime provenance is available.
 
@@ -173,6 +173,6 @@
 ## Optional benchmark tooling
 
 - [ ] Keep `llm-cluster-bench` adapters healthy as runtimes change.
-- [ ] Add importers for third-party benchmark records.
-- [ ] Keep specialist vision/audio metrics separate from LLM throughput.
-- [ ] Do not make benchmarking a prerequisite for catalog releases or daily recommendations.
+- [x] Add importers for third-party benchmark records.
+- [x] Keep specialist vision/audio metrics separate from LLM throughput.
+- [x] Do not make benchmarking a prerequisite for catalog releases or daily recommendations.
