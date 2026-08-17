@@ -1,5 +1,7 @@
 # High-RAM Android inference nodes
 
+Catalog evidence refreshed: **2026-08-17**.
+
 LowPowerLLMCluster treats Android phones and tablets as **mobile inference endpoints**, not miniature replacements for normal Linux or macOS service nodes.
 
 The useful Android candidates are the devices that combine enough physical RAM for local model capacity with a plausible native/Vulkan runtime path and market availability that can become attractive as devices depreciate.
