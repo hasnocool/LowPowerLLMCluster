@@ -96,3 +96,11 @@ def test_mac_studio_part_number_can_establish_exact_chip_family():
     assert config["soc"] == "Apple M1 Max"
     assert config["introduced_year"] == 2022
     assert config["apple_resolution"]["exact_configuration"] is True
+
+
+def test_recognized_order_number_can_identify_apple_without_product_name():
+    config = resolve_apple_configuration("MGN63LL/A 8GB RAM 256GB SSD")
+    assert config["product_family"] == "MacBook Air"
+    assert config["model_identifier"] == "MacBookAir10,1"
+    assert config["soc"] == "Apple M1"
+    assert config["apple_resolution"]["exact_configuration"] is True
