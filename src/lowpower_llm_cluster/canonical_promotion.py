@@ -83,9 +83,9 @@ def canonical_part(record: Mapping[str, Any]) -> dict[str, Any]:
     currency = str(record.get("currency") or "USD").upper()
     usd = float(price) if currency == "USD" and isinstance(price, (int, float)) else None
     observed = str(record.get("observed_at") or datetime.now(UTC).isoformat())
-    category = _category(record)
     source, source_id = listing_identity(record)
     accelerator_policy = promotion_snapshot(record)
+    category = str((accelerator_policy or {}).get("category") or _category(record))
     provenance: dict[str, Any] = {
         "source": source,
         "source_id": source_id,
