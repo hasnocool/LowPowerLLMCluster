@@ -5,12 +5,13 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from .catalog import project_root
+from .market import load_fx
 
 
 def load_policy(path: str | Path | None = None) -> dict[str, Any]:
     target = Path(path) if path is not None else project_root() / "data" / "market" / "secondary-accelerator-policy.json"
     if not target.exists():
-        return {"schema_version": 1, "watches": []}
+        return {"schema_version": 1, "tax_rate": 0.12, "watches": []}
     return json.loads(target.read_text(encoding="utf-8"))
 
 
@@ -43,7 +44,7 @@ def match_watch(record: Mapping[str, Any], policy: Mapping[str, Any] | None = No
     return None
 
 
-def landed_cad(record: Mapping[str, Any]) -> float | None:
+def landed_cad(record: Mapping[str, Any], *, policy: Mapping[str, Any] | None = None) -> float | None:
     attrs = record.get("raw_attributes") if isinstance(record.get("raw_attributes"), Mapping) else {}
     for value in (
         record.get("landed_cost_cad"),
@@ -52,8 +53,26 @@ def landed_cad(record: Mapping[str, Any]) -> float | None:
         attrs.get("landed_cad"),
     ):
         if isinstance(value, (int, float)) and float(value) >= 0:
-            return float(value)
-    return None
+            return round(float(value), 2)
+
+    price = record.get("price")
+    if not isinstance(price, (int, float)):
+        return None
+    currency = str(record.get("currency") or "").upper()
+    shipping_currency = str(record.get("shipping_currency") or currency).upper()
+    try:
+        fx = load_fx()
+    except (OSError, ValueError, TypeError, json.JSONDecodeError):
+        return None
+    if currency not in fx or shipping_currency not in fx:
+        return None
+    shipping = record.get("shipping")
+    shipping_value = float(shipping) if isinstance(shipping, (int, float)) else 0.0
+    policy = policy or load_policy()
+    tax_rate = float(policy.get("tax_rate", 0.12))
+    item_cad = float(price) * float(fx[currency])
+    shipping_cad = shipping_value * float(fx[shipping_currency])
+    return round((item_cad + shipping_cad) * (1.0 + tax_rate), 2)
 
 
 def runtime_evidence(record: Mapping[str, Any]) -> tuple[bool, str | None]:
@@ -75,12 +94,13 @@ def evaluate_secondary_accelerator(
     *,
     policy: Mapping[str, Any] | None = None,
 ) -> list[str]:
+    policy = policy or load_policy()
     watch = match_watch(record, policy)
     if watch is None:
         return []
 
     reasons: list[str] = []
-    landed = landed_cad(record)
+    landed = landed_cad(record, policy=policy)
     ceiling = watch.get("max_landed_cad")
     if landed is None:
         reasons.append("accelerator_landed_cost_missing")
@@ -106,11 +126,12 @@ def evaluate_secondary_accelerator(
 
 
 def promotion_snapshot(record: Mapping[str, Any], *, policy: Mapping[str, Any] | None = None) -> dict[str, Any] | None:
+    policy = policy or load_policy()
     watch = match_watch(record, policy)
     if watch is None:
         return None
     verified_runtime, runtime = runtime_evidence(record)
-    landed = landed_cad(record)
+    landed = landed_cad(record, policy=policy)
     ceiling = watch.get("max_landed_cad")
     return {
         "watch_id": watch.get("id"),
