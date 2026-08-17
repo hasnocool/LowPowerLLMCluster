@@ -22,6 +22,7 @@ from .market import (
     update_listing_presence,
 )
 from .notifications import adapters_from_config, deliver_alerts
+from .owned_host import validate_owned_host
 from .pricing import FxTable
 from .reports import build_report_rows, named_reports, render_report
 from .sources import DigiKeyAdapter, EbayBrowseAdapter, ManufacturerJsonLdAdapter, MouserAdapter
@@ -61,6 +62,12 @@ def build_parser() -> argparse.ArgumentParser:
     landed_history.add_argument("--source-id")
     landed_history.add_argument("--history-path", type=Path)
 
+    owned_host = sub.add_parser("owned-host", help="validate an already-owned host against GPU compatibility requirements")
+    owned_host.add_argument("gpu_part", type=Path, help="JSON catalog-style GPU record")
+    owned_host.add_argument("host_facts", type=Path, help="JSON owned-host PCIe/PSU/chassis/cooling facts")
+    owned_host.add_argument("--exact-gpu-facts", type=Path, help="optional exact-SKU manufacturer facts")
+    owned_host.add_argument("--minimum-psu-headroom-w", type=float, default=100.0)
+
     notify = sub.add_parser("notify", help="deliver generated alert evidence through configured email/webhook/chat adapters")
     notify.add_argument("--input", type=Path, default=project_root() / "reports" / "current" / "daily-changes.json")
     notify.add_argument("--config", type=Path, default=project_root() / "data" / "market" / "notifications.json")
@@ -89,6 +96,14 @@ def _load_sources_config(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _read_json_sync(path: Path) -> object:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+async def _read_json(path: Path) -> object:
+    return await asyncio.to_thread(_read_json_sync, path)
+
+
 def _performance_records(payload: object) -> list[dict]:
     if isinstance(payload, list):
         return payload
@@ -100,9 +115,9 @@ def _performance_records(payload: object) -> list[dict]:
     raise ValueError("performance input must be an object or array")
 
 
-def _current_fx_table() -> FxTable:
-    path = project_root() / "data" / "market" / "fx-cad.json"
-    payload = json.loads(path.read_text(encoding="utf-8"))
+def _fx_table_from_payload(payload: object) -> FxTable:
+    if not isinstance(payload, dict):
+        raise ValueError("FX snapshot must be a JSON object")
     return FxTable(
         target_currency="CAD",
         rates={str(key).upper(): float(value) for key, value in payload.get("rates_to_cad", {}).items()},
@@ -110,10 +125,11 @@ def _current_fx_table() -> FxTable:
     )
 
 
-def _tariff_evidence(path: Path | None) -> TariffEvidence | None:
-    if path is None:
+def _tariff_evidence_from_payload(payload: object | None) -> TariffEvidence | None:
+    if payload is None:
         return None
-    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("tariff evidence must be a JSON object")
     return TariffEvidence(
         hs_code=str(payload["hs_code"]),
         duty_rate=float(payload["duty_rate"]),
@@ -169,7 +185,13 @@ async def _refresh_fx(args: argparse.Namespace) -> int:
 
 
 async def _landed_snapshot(args: argparse.Namespace) -> int:
-    payload = await asyncio.to_thread(json.loads, args.listing.read_text(encoding="utf-8"))
+    payload, fx_payload, tariff_payload = await asyncio.gather(
+        _read_json(args.listing),
+        _read_json(project_root() / "data" / "market" / "fx-cad.json"),
+        _read_json(args.tariff_evidence) if args.tariff_evidence else asyncio.sleep(0, result=None),
+    )
+    if not isinstance(payload, dict):
+        raise ValueError("listing input must be a JSON object")
     listing = Listing.from_mapping(payload, str(payload.get("source", "manual")))
     snapshot = make_landed_snapshot(
         source=listing.source,
@@ -180,10 +202,10 @@ async def _landed_snapshot(args: argparse.Namespace) -> int:
         source_currency=listing.currency,
         shipping=listing.shipping or 0.0,
         shipping_currency=listing.shipping_currency,
-        fx=_current_fx_table(),
+        fx=_fx_table_from_payload(fx_payload),
         province=args.province,
         brokerage_cad=args.brokerage_cad,
-        tariff=_tariff_evidence(args.tariff_evidence),
+        tariff=_tariff_evidence_from_payload(tariff_payload),
     )
     history = LandedCostHistory(args.history_path)
     added = await history.append(snapshot)
@@ -199,13 +221,34 @@ async def _landed_history(args: argparse.Namespace) -> int:
     return 0
 
 
+async def _owned_host(args: argparse.Namespace) -> int:
+    gpu_payload, host_payload, exact_payload = await asyncio.gather(
+        _read_json(args.gpu_part),
+        _read_json(args.host_facts),
+        _read_json(args.exact_gpu_facts) if args.exact_gpu_facts else asyncio.sleep(0, result=None),
+    )
+    if not isinstance(gpu_payload, dict) or not isinstance(host_payload, dict):
+        raise ValueError("GPU and host inputs must be JSON objects")
+    if exact_payload is not None and not isinstance(exact_payload, dict):
+        raise ValueError("exact GPU facts must be a JSON object")
+    result = validate_owned_host(
+        gpu_payload,
+        host_payload,
+        exact_gpu_facts=exact_payload,
+        minimum_psu_headroom_w=args.minimum_psu_headroom_w,
+    )
+    print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
+    return 1 if result.status == "incompatible" else 0
+
+
 async def _notify(args: argparse.Namespace) -> int:
     if not args.config.exists():
         raise SystemExit(f"notification config not found: {args.config}")
     if not args.input.exists():
         raise SystemExit(f"alert evidence not found: {args.input}")
-    config = await asyncio.to_thread(json.loads, args.config.read_text(encoding="utf-8"))
-    summary = await asyncio.to_thread(json.loads, args.input.read_text(encoding="utf-8"))
+    config, summary = await asyncio.gather(_read_json(args.config), _read_json(args.input))
+    if not isinstance(config, dict) or not isinstance(summary, dict):
+        raise ValueError("notification config and alert input must be JSON objects")
     adapters = adapters_from_config(config)
     if not adapters:
         print("No enabled notification adapters have usable environment-backed credentials/URLs.")
@@ -260,6 +303,8 @@ def main() -> int:
         return asyncio.run(_landed_snapshot(args))
     if args.command == "landed-history":
         return asyncio.run(_landed_history(args))
+    if args.command == "owned-host":
+        return asyncio.run(_owned_host(args))
     if args.command == "notify":
         return asyncio.run(_notify(args))
     if args.command == "refresh-fx":
