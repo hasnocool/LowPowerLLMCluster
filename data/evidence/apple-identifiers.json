@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "notes": "Apple Support publishes model identifiers and part-number families. In Apple notation, xx is a country/region variable. These records may establish device generation/chip family where Apple separates the model, but never infer RAM, storage, GPU bin, or other build-to-order options not encoded by the source.",
+  "records": [
+    {
+      "id": "macbook-air-m1-2020",
+      "product_family": "MacBook Air",
+      "introduced_year": 2020,
+      "screen_inches": 13.3,
+      "soc": "Apple M1",
+      "a_numbers": ["A2337"],
+      "model_identifiers": ["MacBookAir10,1"],
+      "part_number_patterns": ["MGN63xx/A", "MGN93xx/A", "MGND3xx/A", "MGN73xx/A", "MGNA3xx/A", "MGNE3xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102869",
+      "a_number_source_url": "https://support.apple.com/ko-kr/111883"
+    },
+    {
+      "id": "macbook-air-m2-2022",
+      "product_family": "MacBook Air",
+      "introduced_year": 2022,
+      "screen_inches": 13.6,
+      "soc": "Apple M2",
+      "a_numbers": ["A2681"],
+      "model_identifiers": ["Mac14,2"],
+      "part_number_patterns": ["MLXW3xx/A", "MLXX3xx/A", "MLXY3xx/A", "MLY03xx/A", "MLY13xx/A", "MLY23xx/A", "MLY33xx/A", "MLY43xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102869",
+      "a_number_source_url": "https://support.apple.com/ko-kr/111867"
+    },
+    {
+      "id": "macbook-air-15-m2-2023",
+      "product_family": "MacBook Air",
+      "introduced_year": 2023,
+      "screen_inches": 15.3,
+      "soc": "Apple M2",
+      "model_identifiers": ["Mac14,15"],
+      "part_number_patterns": ["MQKP3xx/A", "MQKQ3xx/A", "MQKR3xx/A", "MQKT3xx/A", "MQKU3xx/A", "MQKV3xx/A", "MQKW3xx/A", "MQKX3xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102869"
+    },
+    {
+      "id": "macbook-air-13-m3-2024",
+      "product_family": "MacBook Air",
+      "introduced_year": 2024,
+      "screen_inches": 13.6,
+      "soc": "Apple M3",
+      "model_identifiers": ["Mac15,12"],
+      "part_number_patterns": ["MRXN3xx/A", "MRXQ3xx/A", "MRXT3xx/A", "MRXV3xx/A", "MRXP3xx/A", "MRXR3xx/A", "MRXU3xx/A", "MRXW3xx/A", "MXCR3xx/A", "MXCT3xx/A", "MXCU3xx/A", "MXCV3xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102869"
+    },
+    {
+      "id": "macbook-air-15-m3-2024",
+      "product_family": "MacBook Air",
+      "introduced_year": 2024,
+      "screen_inches": 15.3,
+      "soc": "Apple M3",
+      "model_identifiers": ["Mac15,13"],
+      "part_number_patterns": ["MRYM3xx/A", "MRYP3xx/A", "MRYR3xx/A", "MRYU3xx/A", "MRYN3xx/A", "MRYQ3xx/A", "MRYT3xx/A", "MRYV3xx/A", "MXD13xx/A", "MXD23xx/A", "MXD33xx/A", "MXD43xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102869"
+    },
+    {
+      "id": "macbook-air-13-m4-2025",
+      "product_family": "MacBook Air",
+      "introduced_year": 2025,
+      "screen_inches": 13.6,
+      "soc": "Apple M4",
+      "model_identifiers": ["Mac16,12"],
+      "part_number_patterns": ["MC654xx/A", "MC6A4xx/A", "MC6C4xx/A", "MC6T4xx/A", "MC6U4xx/A", "MC6V4xx/A", "MDG24xx/A", "MDG54xx/A", "MDG64xx/A", "MW0W3xx/A", "MW0X3xx/A", "MW0Y3xx/A", "MW103xx/A", "MW123xx/A", "MW133xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102869"
+    },
+    {
+      "id": "macbook-air-15-m4-2025",
+      "product_family": "MacBook Air",
+      "introduced_year": 2025,
+      "screen_inches": 15.3,
+      "soc": "Apple M4",
+      "model_identifiers": ["Mac16,13"],
+      "part_number_patterns": ["MC6J4xx/A", "MC6K4xx/A", "MC6L4xx/A", "MC7A4xx/A", "MC7C4xx/A", "MC7D4xx/A", "MDG34xx/A", "MDG84xx/A", "MDG94xx/A", "MW1G3xx/A", "MW1H3xx/A", "MW1J3xx/A", "MW1K3xx/A", "MW1L3xx/A", "MW1M3xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102869"
+    },
+    {
+      "id": "macbook-air-13-m5-2026",
+      "product_family": "MacBook Air",
+      "introduced_year": 2026,
+      "screen_inches": 13.6,
+      "soc": "Apple M5",
+      "model_identifiers": ["Mac17,3"],
+      "part_number_patterns": ["MDH74xx/A", "MDH84xx/A", "MDHA4xx/A", "MDHC4xx/A", "MDHD4xx/A", "MDHE4xx/A", "MDHF4xx/A", "MDHG4xx/A", "MDHH4xx/A", "MDHJ4xx/A", "MDHK4xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102869"
+    },
+    {
+      "id": "macbook-air-15-m5-2026",
+      "product_family": "MacBook Air",
+      "introduced_year": 2026,
+      "screen_inches": 15.3,
+      "soc": "Apple M5",
+      "model_identifiers": ["Mac17,4"],
+      "part_number_patterns": ["MDV94xx/A", "MDVA4xx/A", "MDVC4xx/A", "MDVD4xx/A", "MDVE4xx/A", "MDVF4xx/A", "MDVH4xx/A", "MDVK4xx/A", "MDVN4xx/A", "MDVQ4xx/A", "MDVT4xx/A", "MDVU4xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102869"
+    },
+    {
+      "id": "macbook-pro-14-2021",
+      "product_family": "MacBook Pro",
+      "introduced_year": 2021,
+      "screen_inches": 14.2,
+      "model_identifiers": ["MacBookPro18,3", "MacBookPro18,4"],
+      "part_number_patterns": ["MKGP3xx/A", "MKGQ3xx/A", "MKGR3xx/A", "MKGT3xx/A"],
+      "soc_candidates": ["Apple M1 Pro", "Apple M1 Max"],
+      "source_url": "https://support.apple.com/en-ca/108052"
+    },
+    {
+      "id": "macbook-pro-16-2021",
+      "product_family": "MacBook Pro",
+      "introduced_year": 2021,
+      "screen_inches": 16.2,
+      "a_numbers": ["A2485"],
+      "model_identifiers": ["MacBookPro18,1", "MacBookPro18,2"],
+      "part_number_patterns": ["MK183xx/A", "MK193xx/A", "MK1A3xx/A", "MK1E3xx/A", "MK1F3xx/A", "MK1H3xx/A"],
+      "soc_candidates": ["Apple M1 Pro", "Apple M1 Max"],
+      "source_url": "https://support.apple.com/en-ca/108052",
+      "a_number_source_url": "https://support.apple.com/ko-kr/111901"
+    },
+    {
+      "id": "macbook-pro-14-2023",
+      "product_family": "MacBook Pro",
+      "introduced_year": 2023,
+      "screen_inches": 14.2,
+      "model_identifiers": ["Mac14,5", "Mac14,9"],
+      "part_number_patterns": ["MPHE3xx/A", "MPHF3xx/A", "MPHG3xx/A", "MPHH3xx/A", "MPHJ3xx/A", "MPHK3xx/A"],
+      "soc_candidates": ["Apple M2 Pro", "Apple M2 Max"],
+      "source_url": "https://support.apple.com/en-ca/108052"
+    },
+    {
+      "id": "macbook-pro-16-2023",
+      "product_family": "MacBook Pro",
+      "introduced_year": 2023,
+      "screen_inches": 16.2,
+      "model_identifiers": ["Mac14,6", "Mac14,10"],
+      "part_number_patterns": ["MNWG3xx/A", "MNW93xx/A", "MNWK3xx/A", "MNWD3xx/A", "MNWF3xx/A", "MNW83xx/A", "MNWJ3xx/A", "MNWC3xx/A"],
+      "soc_candidates": ["Apple M2 Pro", "Apple M2 Max"],
+      "source_url": "https://support.apple.com/en-ca/108052"
+    },
+    {
+      "id": "macbook-pro-14-m3-2023",
+      "product_family": "MacBook Pro",
+      "introduced_year": 2023,
+      "screen_inches": 14.2,
+      "soc": "Apple M3",
+      "model_identifiers": ["Mac15,3"],
+      "part_number_patterns": ["MR7J3xx/A", "MR7K3xx/A", "MRX23xx/A", "MTL73xx/A", "MTL83xx/A", "MTLC3xx/A", "MXE03xx/A", "MXE13xx/A"],
+      "source_url": "https://support.apple.com/en-ca/108052"
+    },
+    {
+      "id": "macbook-pro-14-m3-pro-max-2023",
+      "product_family": "MacBook Pro",
+      "introduced_year": 2023,
+      "screen_inches": 14.2,
+      "model_identifiers": ["Mac15,6", "Mac15,8", "Mac15,10"],
+      "part_number_patterns": ["FRX33xx/A", "FRX43xx/A", "FRX54xx/A", "FRX63xx/A", "FRX73xx/A", "FRX83xx/A", "MRX33xx/A", "MRX43xx/A", "MRX53xx/A", "MRX63xx/A", "MRX73xx/A", "MRX83xx/A"],
+      "soc_candidates": ["Apple M3 Pro", "Apple M3 Max"],
+      "source_url": "https://support.apple.com/en-ca/108052"
+    },
+    {
+      "id": "macbook-pro-16-m3-pro-max-2023",
+      "product_family": "MacBook Pro",
+      "introduced_year": 2023,
+      "screen_inches": 16.2,
+      "model_identifiers": ["Mac15,7", "Mac15,9", "Mac15,11"],
+      "part_number_patterns": ["FRW13xx/A", "FRW23xx/A", "FRW33xx/A", "FRW43xx/A", "FRW63xx/A", "FRW73xx/A", "FUW63xx/A", "FUW73xx/A", "MRW13xx/A", "MRW23xx/A", "MRW33xx/A", "MRW43xx/A", "MRW63xx/A", "MRW73xx/A"],
+      "soc_candidates": ["Apple M3 Pro", "Apple M3 Max"],
+      "source_url": "https://support.apple.com/en-ca/108052"
+    },
+    {
+      "id": "macbook-pro-14-m4-pro-max-2024",
+      "product_family": "MacBook Pro",
+      "introduced_year": 2024,
+      "screen_inches": 14.2,
+      "model_identifiers": ["Mac16,6", "Mac16,8"],
+      "part_number_patterns": ["MXE63xx/A", "MX2E3xx/A", "MX2F3xx/A", "MX2G3xx/A", "MX2H3xx/A", "MX2J3xx/A", "MX2K3xx/A"],
+      "soc_candidates": ["Apple M4 Pro", "Apple M4 Max"],
+      "source_url": "https://support.apple.com/en-ca/108052"
+    },
+    {
+      "id": "macbook-pro-16-m4-pro-max-2024",
+      "product_family": "MacBook Pro",
+      "introduced_year": 2024,
+      "screen_inches": 16.2,
+      "model_identifiers": ["Mac16,7", "Mac16,5"],
+      "part_number_patterns": ["MX2T3xx/A", "MX2U3xx/A", "MX2V3xx/A", "MX2W3xx/A", "MX2X3xx/A", "MX2Y3xx/A", "MX303xx/A", "MX313xx/A"],
+      "soc_candidates": ["Apple M4 Pro", "Apple M4 Max"],
+      "source_url": "https://support.apple.com/en-ca/108052"
+    },
+    {
+      "id": "macbook-pro-14-m5-2025",
+      "product_family": "MacBook Pro",
+      "introduced_year": 2025,
+      "screen_inches": 14.2,
+      "soc": "Apple M5",
+      "model_identifiers": ["Mac17,2"],
+      "part_number_patterns": ["MDE04xx/A", "MDE14xx/A", "MDE34xx/A", "MDE44xx/A", "MDE54xx/A", "MDE64xx/A"],
+      "source_url": "https://support.apple.com/en-ca/108052"
+    },
+    {
+      "id": "macbook-pro-14-m5-pro-max-2026",
+      "product_family": "MacBook Pro",
+      "introduced_year": 2026,
+      "screen_inches": 14.2,
+      "model_identifiers": ["Mac17,7", "Mac17,9"],
+      "part_number_patterns": ["MGDN4xx/A", "MGDP4xx/A", "MGDQxx/A", "MGDR4xx/A", "MGDT4xx/A", "MGDU4xx/A"],
+      "soc_candidates": ["Apple M5 Pro", "Apple M5 Max"],
+      "source_url": "https://support.apple.com/en-ca/108052"
+    },
+    {
+      "id": "macbook-pro-16-m5-pro-max-2026",
+      "product_family": "MacBook Pro",
+      "introduced_year": 2026,
+      "screen_inches": 16.2,
+      "model_identifiers": ["Mac17,6", "Mac17,8"],
+      "part_number_patterns": ["MGE44xx/A", "MGE64xx/A", "MGE74xx/A", "MGE94xx/A", "MGEA4xx/A", "MGEC4xx/A", "MGED4xx/A", "MGEE4xx/A"],
+      "soc_candidates": ["Apple M5 Pro", "Apple M5 Max"],
+      "source_url": "https://support.apple.com/en-ca/108052"
+    },
+    {
+      "id": "mac-mini-m1-2020",
+      "product_family": "Mac mini",
+      "introduced_year": 2020,
+      "soc": "Apple M1",
+      "model_identifiers": ["Macmini9,1"],
+      "part_number_patterns": ["MGNR3xx/A", "MGNT3xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102852"
+    },
+    {
+      "id": "mac-mini-m2-2023",
+      "product_family": "Mac mini",
+      "introduced_year": 2023,
+      "soc": "Apple M2",
+      "model_identifiers": ["Mac14,3"],
+      "part_number_patterns": ["MMFJ3xx/A", "MMFK3xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102852"
+    },
+    {
+      "id": "mac-mini-m2-pro-2023",
+      "product_family": "Mac mini",
+      "introduced_year": 2023,
+      "soc": "Apple M2 Pro",
+      "model_identifiers": ["Mac14,12"],
+      "part_number_patterns": ["MNH73xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102852"
+    },
+    {
+      "id": "mac-mini-2024",
+      "product_family": "Mac mini",
+      "introduced_year": 2024,
+      "a_numbers": ["A3239", "A3238"],
+      "model_identifiers": ["Mac16,11", "Mac16,10"],
+      "part_number_patterns": ["MCX44xx/A", "MCYT4xx/A", "MDAP4xx/A", "MDAQ4xx/A", "MDAY4xx/A", "MU9D3xx/A", "MU9E3xx/A"],
+      "soc_candidates": ["Apple M4", "Apple M4 Pro"],
+      "source_url": "https://support.apple.com/en-ca/102852",
+      "a_number_source_url": "https://support.apple.com/ko-kr/121555"
+    },
+    {
+      "id": "mac-studio-m1-max-2022",
+      "product_family": "Mac Studio",
+      "introduced_year": 2022,
+      "soc": "Apple M1 Max",
+      "model_identifiers": ["Mac13,1"],
+      "part_number_patterns": ["MJMV2xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102231"
+    },
+    {
+      "id": "mac-studio-m1-ultra-2022",
+      "product_family": "Mac Studio",
+      "introduced_year": 2022,
+      "soc": "Apple M1 Ultra",
+      "model_identifiers": ["Mac13,2"],
+      "part_number_patterns": ["MJMW3xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102231"
+    },
+    {
+      "id": "mac-studio-m2-max-2023",
+      "product_family": "Mac Studio",
+      "introduced_year": 2023,
+      "soc": "Apple M2 Max",
+      "model_identifiers": ["Mac14,13"],
+      "part_number_patterns": ["MQH73xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102231"
+    },
+    {
+      "id": "mac-studio-m2-ultra-2023",
+      "product_family": "Mac Studio",
+      "introduced_year": 2023,
+      "soc": "Apple M2 Ultra",
+      "model_identifiers": ["Mac14,14"],
+      "part_number_patterns": ["MQH63xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102231"
+    },
+    {
+      "id": "mac-studio-m4-max-2025",
+      "product_family": "Mac Studio",
+      "introduced_year": 2025,
+      "soc": "Apple M4 Max",
+      "model_identifiers": ["Mac16,9"],
+      "part_number_patterns": ["MU963xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102231"
+    },
+    {
+      "id": "mac-studio-m3-ultra-2025",
+      "product_family": "Mac Studio",
+      "introduced_year": 2025,
+      "soc": "Apple M3 Ultra",
+      "model_identifiers": ["Mac15,14"],
+      "part_number_patterns": ["MU973xx/A"],
+      "source_url": "https://support.apple.com/en-ca/102231"
+    }
+  ]
+}
