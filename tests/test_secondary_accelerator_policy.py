@@ -92,6 +92,7 @@ def test_watched_accelerator_promotes_only_when_economic_and_runtime_gates_pass(
     assert snapshot["eligible"] is True
 
     part = canonical_part(record)
+    assert part["category"] == "ai_asic_accelerator"
     audit = part["promotion_provenance"]["secondary_accelerator_policy"]
     assert audit["watch_id"] == "intel-gaudi2-96g"
     assert audit["landed_cad"] == 1750.0
