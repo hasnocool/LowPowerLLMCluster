@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -8,6 +9,7 @@ from .catalog import project_root
 from .market import load_fx
 
 
+@lru_cache(maxsize=4)
 def load_policy(path: str | Path | None = None) -> dict[str, Any]:
     target = Path(path) if path is not None else project_root() / "data" / "market" / "secondary-accelerator-policy.json"
     if not target.exists():
