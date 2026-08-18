@@ -49,6 +49,22 @@
       }
     },
     {
+      "id": "secondary-accelerator-value",
+      "description": "Focused used/decommissioned accelerator watch. Price alerts are investigation signals only; canonical promotion also requires exact identity and verified transformer runtime evidence.",
+      "enabled": true,
+      "match": {
+        "categories": ["gpu_accelerator", "ai_asic_accelerator", "fpga_accelerator", "decommissioned_accelerator"],
+        "keywords": ["alveo u200", "alveo u250", "alveo u55c", "tenstorrent n150", "tenstorrent n300", "wormhole n150", "wormhole n300", "habana gaudi", "gaudi2", "gaudi 2", "instinct mi60", "nvidia a40"]
+      },
+      "alerts": {
+        "price_drop_pct": 7,
+        "landed_cost_change_pct": 5,
+        "stock_return": true,
+        "new_product": true,
+        "benchmark_change_pct": 10
+      }
+    },
+    {
       "id": "low-power-24-7",
       "description": "Low-power candidates suitable for always-on or constrained-power use.",
       "enabled": true,

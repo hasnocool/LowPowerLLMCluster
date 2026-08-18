@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "currency": "CAD",
+  "tax_rate": 0.12,
+  "policy_note": "Economic ceilings are editable investigation thresholds, not fair-market-value claims. Promotion also requires exact identity and verified transformer runtime evidence.",
+  "watches": [
+    {
+      "id": "alveo-u200-64g",
+      "category": "fpga_accelerator",
+      "keywords": ["alveo u200", "a-u200-a64g"],
+      "memory_gb": 64,
+      "max_landed_cad": 500,
+      "runtime_required": true,
+      "runtime_aliases": ["vitis", "xrt"],
+      "transformer_runtime_required": true
+    },
+    {
+      "id": "alveo-u250-64g",
+      "category": "fpga_accelerator",
+      "keywords": ["alveo u250", "a-u250-a64g"],
+      "memory_gb": 64,
+      "max_landed_cad": 600,
+      "runtime_required": true,
+      "runtime_aliases": ["vitis", "xrt"],
+      "transformer_runtime_required": true
+    },
+    {
+      "id": "alveo-u55c-16g",
+      "category": "fpga_accelerator",
+      "keywords": ["alveo u55c", "a-u55c-p00g"],
+      "memory_gb": 16,
+      "max_landed_cad": 650,
+      "runtime_required": true,
+      "runtime_aliases": ["vitis", "xrt"],
+      "transformer_runtime_required": true
+    },
+    {
+      "id": "tenstorrent-n150-12g",
+      "category": "ai_asic_accelerator",
+      "keywords": ["tenstorrent n150", "wormhole n150"],
+      "memory_gb": 12,
+      "max_landed_cad": 650,
+      "runtime_required": true,
+      "runtime_aliases": ["tt-inference-server", "tt-metalium", "tt-nn", "vllm"],
+      "transformer_runtime_required": true
+    },
+    {
+      "id": "tenstorrent-n300-24g",
+      "category": "ai_asic_accelerator",
+      "keywords": ["tenstorrent n300", "wormhole n300"],
+      "memory_gb": 24,
+      "max_landed_cad": 950,
+      "runtime_required": true,
+      "runtime_aliases": ["tt-inference-server", "tt-metalium", "tt-nn", "vllm"],
+      "transformer_runtime_required": true
+    },
+    {
+      "id": "intel-gaudi-32g",
+      "category": "ai_asic_accelerator",
+      "keywords": ["habana gaudi", "intel gaudi hl-205", "gaudi 32gb"],
+      "exclude_keywords": ["gaudi2", "gaudi 2", "gaudi3", "gaudi 3"],
+      "memory_gb": 32,
+      "max_landed_cad": 700,
+      "runtime_required": true,
+      "runtime_aliases": ["optimum-habana", "synapseai", "gaudi software", "habana frameworks"],
+      "transformer_runtime_required": true
+    },
+    {
+      "id": "intel-gaudi2-96g",
+      "category": "ai_asic_accelerator",
+      "keywords": ["gaudi2", "gaudi 2", "hl-225"],
+      "memory_gb": 96,
+      "max_landed_cad": 1800,
+      "runtime_required": true,
+      "runtime_aliases": ["optimum-habana", "synapseai", "gaudi software", "vllm"],
+      "transformer_runtime_required": true
+    },
+    {
+      "id": "amd-instinct-mi60-32g",
+      "category": "gpu_accelerator",
+      "keywords": ["instinct mi60", "radeon instinct mi60"],
+      "memory_gb": 32,
+      "max_landed_cad": 450,
+      "runtime_required": true,
+      "runtime_aliases": ["rocm", "llama.cpp", "vllm"],
+      "transformer_runtime_required": true
+    },
+    {
+      "id": "nvidia-a40-48g",
+      "category": "gpu_accelerator",
+      "keywords": ["nvidia a40", "tesla a40"],
+      "memory_gb": 48,
+      "max_landed_cad": 1400,
+      "runtime_required": true,
+      "runtime_aliases": ["cuda", "llama.cpp", "vllm", "tensorrt-llm"],
+      "transformer_runtime_required": true
+    }
+  ]
+}
