@@ -65,7 +65,7 @@ Primary references used when defining the initial runtime boundaries include:
 
 ## Autonomous scanning
 
-`secondary-accelerator-scan` searches the focused families through eBay and manufacturer sources. The GitHub Actions market workflow runs the profile four times per day at:
+`secondary-accelerator-scan` searches the focused families through eBay and manufacturer sources. The GitHub Actions market workflow runs the profile four times per day at the following **UTC** cron schedule:
 
 ```text
 23 4,10,16,22 * * *
