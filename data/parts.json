@@ -36,6 +36,7 @@
     "catalog/gpus.json",
     "catalog/accelerators-genai.json",
     "catalog/accelerators-research.json",
+    "catalog/genai-large-memory-accelerators.json",
     "catalog/accelerators-specialist.json",
     "catalog/discovery-expansion.json",
     "catalog/auto-promoted.json"
