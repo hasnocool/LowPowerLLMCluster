@@ -42,18 +42,18 @@
     }
   },
   "change_alerts": 0,
-  "completed_at": "2026-08-17T14:41:51.446627+00:00",
+  "completed_at": "2026-09-25T18:33:50.117899+00:00",
   "fx": {
-    "as_of": "2026-08-14",
+    "as_of": "2026-09-24",
     "base": "CAD",
     "rates_to_cad": {
-      "AUD": 0.9831,
+      "AUD": 0.9923,
       "CAD": 1.0,
-      "CNY": 0.2058,
-      "EUR": 1.6057,
-      "GBP": 1.879,
-      "JPY": 0.00872,
-      "USD": 1.3875
+      "CNY": 0.2106,
+      "EUR": 1.6076,
+      "GBP": 1.8688,
+      "JPY": 0.0089,
+      "USD": 1.4136
     },
     "schema_version": 1,
     "source": "Bank of Canada Valet API",
@@ -62,18 +62,18 @@
   "listings": 0,
   "new_all_time_lows": 0,
   "power_evidence": {
-    "added": 30,
-    "after": 30,
+    "added": 35,
+    "after": 35,
     "before": 0,
     "candidate_sources": {
       "benchmarks": 1,
-      "catalog": 21,
+      "catalog": 26,
       "manufacturer_specs": 0,
       "sourced_measurements": 8
     },
-    "candidates": 30,
+    "candidates": 35,
     "eligible_device_observations": 17,
-    "research_only_observations": 13
+    "research_only_observations": 18
   },
   "presence": {
     "disappeared": 0,
@@ -88,19 +88,19 @@
   "profile": "daily-market",
   "recommendations": {
     "Buy": 0,
-    "Experimental": 2,
-    "Ignore": 19,
-    "Watch": 20
+    "Experimental": 4,
+    "Ignore": 28,
+    "Watch": 24
   },
   "reports": {
-    "32gb-plus": 6,
+    "32gb-plus": 7,
     "eol-bargains": 0,
     "low-power": 6,
     "measured-evidence": 3,
     "under-100": 0,
-    "under-250": 1,
+    "under-250": 0,
     "under-500": 7,
-    "weird-bargains": 5
+    "weird-bargains": 7
   },
   "source_budgets": {
     "digikey": {

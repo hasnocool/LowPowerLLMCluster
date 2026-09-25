@@ -11,7 +11,7 @@
     "name": "Orange Pi 5 Plus, RK3588, 32GB LPDDR4X",
     "power_target_w": 15,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 302.33,
+    "price_cad": 308.02,
     "risk_level": "medium"
   },
   {
@@ -26,7 +26,7 @@
     "name": "Ryzen 7 8845HS mini PC, 32GB DDR5, 1TB NVMe, dual RJ45",
     "power_target_w": null,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 331.0,
+    "price_cad": 337.23,
     "risk_level": "medium"
   },
   {
@@ -41,7 +41,7 @@
     "name": "Radxa ROCK 5 ITX+, RK3588, 32GB LPDDR5x",
     "power_target_w": 10,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 365.19,
+    "price_cad": 372.06,
     "risk_level": "medium"
   },
   {
@@ -56,7 +56,7 @@
     "name": "MINISFORUM BD795M motherboard with Ryzen 9 7945HX",
     "power_target_w": 55,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 571.72,
+    "price_cad": 582.47,
     "risk_level": "low"
   },
   {
@@ -105,7 +105,7 @@
     "name": "Turing RK1 compute module, RK3588, 32GB",
     "power_target_w": 7,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 588.97,
+    "price_cad": 600.04,
     "risk_level": "low"
   },
   {
@@ -120,7 +120,22 @@
     "name": "Framework Laptop 13 Mainboard, Ryzen AI 5 340",
     "power_target_w": 25,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 620.05,
+    "price_cad": 631.71,
     "risk_level": "low"
+  },
+  {
+    "best_measured_group": null,
+    "category": "ai_asic_accelerator",
+    "id": "accel-tenstorrent-blackhole-p150-32g",
+    "lifecycle_status": "current",
+    "live_observation": false,
+    "market_confidence": 0.35,
+    "measured_group_count": 0,
+    "memory_gb": 32.0,
+    "name": "Tenstorrent Blackhole p150, 32GB GDDR6",
+    "power_target_w": 300,
+    "price_basis": "catalog_midpoint+tax",
+    "price_cad": 2214.94,
+    "risk_level": "medium"
   }
 ]

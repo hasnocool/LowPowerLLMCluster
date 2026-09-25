@@ -1,14 +1,14 @@
 {
-  "as_of": "2026-08-14",
+  "as_of": "2026-09-24",
   "base": "CAD",
   "rates_to_cad": {
-    "AUD": 0.9831,
+    "AUD": 0.9923,
     "CAD": 1.0,
-    "CNY": 0.2058,
-    "EUR": 1.6057,
-    "GBP": 1.879,
-    "JPY": 0.00872,
-    "USD": 1.3875
+    "CNY": 0.2106,
+    "EUR": 1.6076,
+    "GBP": 1.8688,
+    "JPY": 0.0089,
+    "USD": 1.4136
   },
   "schema_version": 1,
   "source": "Bank of Canada Valet API",

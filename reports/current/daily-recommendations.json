@@ -2,11 +2,11 @@
   "all_time_low_count": 0,
   "counts": {
     "Buy": 0,
-    "Experimental": 2,
-    "Ignore": 19,
-    "Watch": 20
+    "Experimental": 4,
+    "Ignore": 28,
+    "Watch": 24
   },
-  "generated_at": "2026-08-17T14:41:51.393251+00:00",
+  "generated_at": "2026-09-25T18:33:50.040714+00:00",
   "method_notes": [
     "Deal score weights price-history position most heavily and never converts TOPS/TFLOPS into tokens/sec.",
     "Model-fit score is a transparent memory-capacity screen with 40% planning headroom.",
@@ -42,6 +42,186 @@
   "ownership_profile": "new-build",
   "priority_alerts": [],
   "recommendations": [
+    {
+      "category": "mini_pc",
+      "current_cad": null,
+      "current_observation": null,
+      "deal_score": 49.4,
+      "decision_confidence": 0.53,
+      "hardware_class": "mini_pc",
+      "history_count": 0,
+      "id": "node-beelink-ser8-8845hs",
+      "market_confidence": 0.3,
+      "model_fit": {
+        "fit_score": 1.0,
+        "fits": [
+          {
+            "fits": true,
+            "name": "7B Q4",
+            "required_gb": 4.9
+          },
+          {
+            "fits": true,
+            "name": "14B Q4",
+            "required_gb": 9.8
+          },
+          {
+            "fits": true,
+            "name": "32B Q4",
+            "required_gb": 22.4
+          },
+          {
+            "fits": true,
+            "name": "70B Q4",
+            "required_gb": 49.0
+          }
+        ],
+        "largest_fit": "70B Q4",
+        "memory_basis": "configurable_max",
+        "memory_confidence": 0.82,
+        "memory_gb": 256.0,
+        "notes": "Capacity screen only; does not predict runtime overhead or tokens/sec."
+      },
+      "name": "Beelink SER8, Ryzen 7 8845HS",
+      "new_all_time_low": false,
+      "opportunity": {
+        "active": false,
+        "basis": "no_live_listing",
+        "expired": false,
+        "expires_at": null,
+        "expires_in_hours": null,
+        "freshness_score": 0.3
+      },
+      "power_scope": null,
+      "power_target_w": null,
+      "pre_tco_deal_score": 49.4,
+      "price_percentile": null,
+      "reasons": [
+        "capacity screen fits 70B Q4",
+        "incremental infrastructure CA$450 under new-build",
+        "~354 Wh/day (low power confidence)"
+      ],
+      "recommendation": "Watch",
+      "risk_level": "low",
+      "software_maturity": "mainstream_linux",
+      "tco": {
+        "basis": "sourced product price plus ownership-aware incremental infrastructure and universal evidence-ranked power/Wh estimation",
+        "complete_node_acquisition_cad": null,
+        "infrastructure": {
+          "assumption_component_count": 6,
+          "avoided_acquisition_cad": 0.0,
+          "complete": true,
+          "components": [
+            {
+              "basis": "planning_assumption",
+              "cad": 100.0,
+              "component": "system_ram_32gb",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 80.0,
+              "component": "storage_1tb",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 80.0,
+              "component": "power_supply",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 60.0,
+              "component": "cooling",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 100.0,
+              "component": "chassis",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 30.0,
+              "component": "chassis_misc",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            }
+          ],
+          "owned_components": [],
+          "ownership_profile": "new-build",
+          "profile": "barebone_or_board",
+          "sourced_component_count": 0,
+          "total_cad": 450.0,
+          "warnings": [
+            "Catalog price is treated as not including system RAM unless the live listing proves otherwise.",
+            "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption."
+          ]
+        },
+        "operating": {
+          "annual_cad": 19.38,
+          "annual_kwh": 129.2,
+          "daily_kwh": 0.354,
+          "daily_wh": 354.0,
+          "electricity_cad_per_kwh": 0.15,
+          "idle_hours_per_day": 18.0,
+          "load_hours_per_day": 6.0,
+          "period_cad": 58.14,
+          "power_basis": "inferred_category_baseline_as_integrated_system",
+          "power_confidence": "low",
+          "power_inferred": true,
+          "years": 3
+        },
+        "ownership_profile": "new-build",
+        "power": {
+          "basis": "inferred_category_baseline_as_integrated_system",
+          "confidence": "low",
+          "device_power": {
+            "basis": "inferred_category_baseline",
+            "confidence": "low",
+            "idle_w": 8.0,
+            "inferred": true,
+            "load_w": 35.0,
+            "power_scope": "device_or_component_estimate",
+            "warnings": [
+              "No per-part power evidence is available; using the conservative 'mini_pc' category planning baseline."
+            ]
+          },
+          "idle_w": 8.0,
+          "inferred": true,
+          "load_w": 35.0,
+          "source_power_scope": "device_or_component_estimate",
+          "warnings": [
+            "No per-part power evidence is available; using the conservative 'mini_pc' category planning baseline."
+          ]
+        },
+        "product_price_cad": null,
+        "scenario": "mixed-3yr",
+        "total_cost_of_ownership_cad": null,
+        "warnings": [
+          "Catalog price is treated as not including system RAM unless the live listing proves otherwise.",
+          "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
+          "No per-part power evidence is available; using the conservative 'mini_pc' category planning baseline."
+        ]
+      },
+      "tco_percentile": null,
+      "trend_pct": null,
+      "verified_memory_gb": 256.0,
+      "volatility_pct": null
+    },
     {
       "category": "embedded_board",
       "current_cad": null,
@@ -244,6 +424,366 @@
       "volatility_pct": null
     },
     {
+      "category": "mini_pc",
+      "current_cad": null,
+      "current_observation": null,
+      "deal_score": 49.4,
+      "decision_confidence": 0.53,
+      "hardware_class": "mini_pc",
+      "history_count": 0,
+      "id": "node-gmktec-k6-7840hs",
+      "market_confidence": 0.3,
+      "model_fit": {
+        "fit_score": 1.0,
+        "fits": [
+          {
+            "fits": true,
+            "name": "7B Q4",
+            "required_gb": 4.9
+          },
+          {
+            "fits": true,
+            "name": "14B Q4",
+            "required_gb": 9.8
+          },
+          {
+            "fits": true,
+            "name": "32B Q4",
+            "required_gb": 22.4
+          },
+          {
+            "fits": true,
+            "name": "70B Q4",
+            "required_gb": 49.0
+          }
+        ],
+        "largest_fit": "70B Q4",
+        "memory_basis": "configurable_max",
+        "memory_confidence": 0.82,
+        "memory_gb": 64.0,
+        "notes": "Capacity screen only; does not predict runtime overhead or tokens/sec."
+      },
+      "name": "GMKtec NucBox K6, Ryzen 7 7840HS",
+      "new_all_time_low": false,
+      "opportunity": {
+        "active": false,
+        "basis": "no_live_listing",
+        "expired": false,
+        "expires_at": null,
+        "expires_in_hours": null,
+        "freshness_score": 0.3
+      },
+      "power_scope": null,
+      "power_target_w": null,
+      "pre_tco_deal_score": 49.4,
+      "price_percentile": null,
+      "reasons": [
+        "capacity screen fits 70B Q4",
+        "incremental infrastructure CA$450 under new-build",
+        "~354 Wh/day (low power confidence)"
+      ],
+      "recommendation": "Watch",
+      "risk_level": "low",
+      "software_maturity": "mainstream_linux",
+      "tco": {
+        "basis": "sourced product price plus ownership-aware incremental infrastructure and universal evidence-ranked power/Wh estimation",
+        "complete_node_acquisition_cad": null,
+        "infrastructure": {
+          "assumption_component_count": 6,
+          "avoided_acquisition_cad": 0.0,
+          "complete": true,
+          "components": [
+            {
+              "basis": "planning_assumption",
+              "cad": 100.0,
+              "component": "system_ram_32gb",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 80.0,
+              "component": "storage_1tb",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 80.0,
+              "component": "power_supply",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 60.0,
+              "component": "cooling",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 100.0,
+              "component": "chassis",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 30.0,
+              "component": "chassis_misc",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            }
+          ],
+          "owned_components": [],
+          "ownership_profile": "new-build",
+          "profile": "barebone_or_board",
+          "sourced_component_count": 0,
+          "total_cad": 450.0,
+          "warnings": [
+            "Catalog price is treated as not including system RAM unless the live listing proves otherwise.",
+            "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption."
+          ]
+        },
+        "operating": {
+          "annual_cad": 19.38,
+          "annual_kwh": 129.2,
+          "daily_kwh": 0.354,
+          "daily_wh": 354.0,
+          "electricity_cad_per_kwh": 0.15,
+          "idle_hours_per_day": 18.0,
+          "load_hours_per_day": 6.0,
+          "period_cad": 58.14,
+          "power_basis": "inferred_category_baseline_as_integrated_system",
+          "power_confidence": "low",
+          "power_inferred": true,
+          "years": 3
+        },
+        "ownership_profile": "new-build",
+        "power": {
+          "basis": "inferred_category_baseline_as_integrated_system",
+          "confidence": "low",
+          "device_power": {
+            "basis": "inferred_category_baseline",
+            "confidence": "low",
+            "idle_w": 8.0,
+            "inferred": true,
+            "load_w": 35.0,
+            "power_scope": "device_or_component_estimate",
+            "warnings": [
+              "No per-part power evidence is available; using the conservative 'mini_pc' category planning baseline."
+            ]
+          },
+          "idle_w": 8.0,
+          "inferred": true,
+          "load_w": 35.0,
+          "source_power_scope": "device_or_component_estimate",
+          "warnings": [
+            "No per-part power evidence is available; using the conservative 'mini_pc' category planning baseline."
+          ]
+        },
+        "product_price_cad": null,
+        "scenario": "mixed-3yr",
+        "total_cost_of_ownership_cad": null,
+        "warnings": [
+          "Catalog price is treated as not including system RAM unless the live listing proves otherwise.",
+          "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
+          "No per-part power evidence is available; using the conservative 'mini_pc' category planning baseline."
+        ]
+      },
+      "tco_percentile": null,
+      "trend_pct": null,
+      "verified_memory_gb": 64.0,
+      "volatility_pct": null
+    },
+    {
+      "category": "mini_pc",
+      "current_cad": null,
+      "current_observation": null,
+      "deal_score": 49.4,
+      "decision_confidence": 0.53,
+      "hardware_class": "mini_pc",
+      "history_count": 0,
+      "id": "node-minisforum-ai-x1-pro-hx370",
+      "market_confidence": 0.3,
+      "model_fit": {
+        "fit_score": 1.0,
+        "fits": [
+          {
+            "fits": true,
+            "name": "7B Q4",
+            "required_gb": 4.9
+          },
+          {
+            "fits": true,
+            "name": "14B Q4",
+            "required_gb": 9.8
+          },
+          {
+            "fits": true,
+            "name": "32B Q4",
+            "required_gb": 22.4
+          },
+          {
+            "fits": true,
+            "name": "70B Q4",
+            "required_gb": 49.0
+          }
+        ],
+        "largest_fit": "70B Q4",
+        "memory_basis": "configurable_max",
+        "memory_confidence": 0.82,
+        "memory_gb": 128.0,
+        "notes": "Capacity screen only; does not predict runtime overhead or tokens/sec."
+      },
+      "name": "MINISFORUM AI X1 Pro, Ryzen AI 9 HX 370",
+      "new_all_time_low": false,
+      "opportunity": {
+        "active": false,
+        "basis": "no_live_listing",
+        "expired": false,
+        "expires_at": null,
+        "expires_in_hours": null,
+        "freshness_score": 0.3
+      },
+      "power_scope": null,
+      "power_target_w": null,
+      "pre_tco_deal_score": 49.4,
+      "price_percentile": null,
+      "reasons": [
+        "capacity screen fits 70B Q4",
+        "incremental infrastructure CA$450 under new-build",
+        "~354 Wh/day (low power confidence)"
+      ],
+      "recommendation": "Watch",
+      "risk_level": "low",
+      "software_maturity": "mainstream_linux",
+      "tco": {
+        "basis": "sourced product price plus ownership-aware incremental infrastructure and universal evidence-ranked power/Wh estimation",
+        "complete_node_acquisition_cad": null,
+        "infrastructure": {
+          "assumption_component_count": 6,
+          "avoided_acquisition_cad": 0.0,
+          "complete": true,
+          "components": [
+            {
+              "basis": "planning_assumption",
+              "cad": 100.0,
+              "component": "system_ram_32gb",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 80.0,
+              "component": "storage_1tb",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 80.0,
+              "component": "power_supply",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 60.0,
+              "component": "cooling",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 100.0,
+              "component": "chassis",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 30.0,
+              "component": "chassis_misc",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            }
+          ],
+          "owned_components": [],
+          "ownership_profile": "new-build",
+          "profile": "barebone_or_board",
+          "sourced_component_count": 0,
+          "total_cad": 450.0,
+          "warnings": [
+            "Catalog price is treated as not including system RAM unless the live listing proves otherwise.",
+            "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption."
+          ]
+        },
+        "operating": {
+          "annual_cad": 19.38,
+          "annual_kwh": 129.2,
+          "daily_kwh": 0.354,
+          "daily_wh": 354.0,
+          "electricity_cad_per_kwh": 0.15,
+          "idle_hours_per_day": 18.0,
+          "load_hours_per_day": 6.0,
+          "period_cad": 58.14,
+          "power_basis": "inferred_category_baseline_as_integrated_system",
+          "power_confidence": "low",
+          "power_inferred": true,
+          "years": 3
+        },
+        "ownership_profile": "new-build",
+        "power": {
+          "basis": "inferred_category_baseline_as_integrated_system",
+          "confidence": "low",
+          "device_power": {
+            "basis": "inferred_category_baseline",
+            "confidence": "low",
+            "idle_w": 8.0,
+            "inferred": true,
+            "load_w": 35.0,
+            "power_scope": "device_or_component_estimate",
+            "warnings": [
+              "No per-part power evidence is available; using the conservative 'mini_pc' category planning baseline."
+            ]
+          },
+          "idle_w": 8.0,
+          "inferred": true,
+          "load_w": 35.0,
+          "source_power_scope": "device_or_component_estimate",
+          "warnings": [
+            "No per-part power evidence is available; using the conservative 'mini_pc' category planning baseline."
+          ]
+        },
+        "product_price_cad": null,
+        "scenario": "mixed-3yr",
+        "total_cost_of_ownership_cad": null,
+        "warnings": [
+          "Catalog price is treated as not including system RAM unless the live listing proves otherwise.",
+          "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
+          "No per-part power evidence is available; using the conservative 'mini_pc' category planning baseline."
+        ]
+      },
+      "tco_percentile": null,
+      "trend_pct": null,
+      "verified_memory_gb": 128.0,
+      "volatility_pct": null
+    },
+    {
       "category": "embedded_board",
       "current_cad": null,
       "current_observation": null,
@@ -437,6 +977,186 @@
           "Catalog price is treated as not including system RAM unless the live listing proves otherwise.",
           "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
           "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
+        ]
+      },
+      "tco_percentile": null,
+      "trend_pct": null,
+      "verified_memory_gb": 96.0,
+      "volatility_pct": null
+    },
+    {
+      "category": "mini_pc",
+      "current_cad": null,
+      "current_observation": null,
+      "deal_score": 49.4,
+      "decision_confidence": 0.53,
+      "hardware_class": "mini_pc",
+      "history_count": 0,
+      "id": "node-minisforum-um890pro-8945hs",
+      "market_confidence": 0.3,
+      "model_fit": {
+        "fit_score": 1.0,
+        "fits": [
+          {
+            "fits": true,
+            "name": "7B Q4",
+            "required_gb": 4.9
+          },
+          {
+            "fits": true,
+            "name": "14B Q4",
+            "required_gb": 9.8
+          },
+          {
+            "fits": true,
+            "name": "32B Q4",
+            "required_gb": 22.4
+          },
+          {
+            "fits": true,
+            "name": "70B Q4",
+            "required_gb": 49.0
+          }
+        ],
+        "largest_fit": "70B Q4",
+        "memory_basis": "configurable_max",
+        "memory_confidence": 0.82,
+        "memory_gb": 96.0,
+        "notes": "Capacity screen only; does not predict runtime overhead or tokens/sec."
+      },
+      "name": "MINISFORUM UM890 Pro, Ryzen 9 8945HS",
+      "new_all_time_low": false,
+      "opportunity": {
+        "active": false,
+        "basis": "no_live_listing",
+        "expired": false,
+        "expires_at": null,
+        "expires_in_hours": null,
+        "freshness_score": 0.3
+      },
+      "power_scope": null,
+      "power_target_w": null,
+      "pre_tco_deal_score": 49.4,
+      "price_percentile": null,
+      "reasons": [
+        "capacity screen fits 70B Q4",
+        "incremental infrastructure CA$450 under new-build",
+        "~354 Wh/day (low power confidence)"
+      ],
+      "recommendation": "Watch",
+      "risk_level": "low",
+      "software_maturity": "mainstream_linux",
+      "tco": {
+        "basis": "sourced product price plus ownership-aware incremental infrastructure and universal evidence-ranked power/Wh estimation",
+        "complete_node_acquisition_cad": null,
+        "infrastructure": {
+          "assumption_component_count": 6,
+          "avoided_acquisition_cad": 0.0,
+          "complete": true,
+          "components": [
+            {
+              "basis": "planning_assumption",
+              "cad": 100.0,
+              "component": "system_ram_32gb",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 80.0,
+              "component": "storage_1tb",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 80.0,
+              "component": "power_supply",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 60.0,
+              "component": "cooling",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 100.0,
+              "component": "chassis",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 30.0,
+              "component": "chassis_misc",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            }
+          ],
+          "owned_components": [],
+          "ownership_profile": "new-build",
+          "profile": "barebone_or_board",
+          "sourced_component_count": 0,
+          "total_cad": 450.0,
+          "warnings": [
+            "Catalog price is treated as not including system RAM unless the live listing proves otherwise.",
+            "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption."
+          ]
+        },
+        "operating": {
+          "annual_cad": 19.38,
+          "annual_kwh": 129.2,
+          "daily_kwh": 0.354,
+          "daily_wh": 354.0,
+          "electricity_cad_per_kwh": 0.15,
+          "idle_hours_per_day": 18.0,
+          "load_hours_per_day": 6.0,
+          "period_cad": 58.14,
+          "power_basis": "inferred_category_baseline_as_integrated_system",
+          "power_confidence": "low",
+          "power_inferred": true,
+          "years": 3
+        },
+        "ownership_profile": "new-build",
+        "power": {
+          "basis": "inferred_category_baseline_as_integrated_system",
+          "confidence": "low",
+          "device_power": {
+            "basis": "inferred_category_baseline",
+            "confidence": "low",
+            "idle_w": 8.0,
+            "inferred": true,
+            "load_w": 35.0,
+            "power_scope": "device_or_component_estimate",
+            "warnings": [
+              "No per-part power evidence is available; using the conservative 'mini_pc' category planning baseline."
+            ]
+          },
+          "idle_w": 8.0,
+          "inferred": true,
+          "load_w": 35.0,
+          "source_power_scope": "device_or_component_estimate",
+          "warnings": [
+            "No per-part power evidence is available; using the conservative 'mini_pc' category planning baseline."
+          ]
+        },
+        "product_price_cad": null,
+        "scenario": "mixed-3yr",
+        "total_cost_of_ownership_cad": null,
+        "warnings": [
+          "Catalog price is treated as not including system RAM unless the live listing proves otherwise.",
+          "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
+          "No per-part power evidence is available; using the conservative 'mini_pc' category planning baseline."
         ]
       },
       "tco_percentile": null,
@@ -3646,6 +4366,416 @@
       "category": "ai_asic_accelerator",
       "current_cad": null,
       "current_observation": null,
+      "deal_score": 44.6,
+      "decision_confidence": 0.54,
+      "hardware_class": "llm_ai_asic_pcie",
+      "history_count": 0,
+      "id": "accel-tenstorrent-blackhole-p150-32g",
+      "market_confidence": 0.3,
+      "model_fit": {
+        "fit_score": 0.8,
+        "fits": [
+          {
+            "fits": true,
+            "name": "7B Q4",
+            "required_gb": 4.9
+          },
+          {
+            "fits": true,
+            "name": "14B Q4",
+            "required_gb": 9.8
+          },
+          {
+            "fits": true,
+            "name": "32B Q4",
+            "required_gb": 22.4
+          },
+          {
+            "fits": false,
+            "name": "70B Q4",
+            "required_gb": 49.0
+          }
+        ],
+        "largest_fit": "32B Q4",
+        "memory_basis": "fixed",
+        "memory_confidence": 1.0,
+        "memory_gb": 32.0,
+        "notes": "Capacity screen only; does not predict runtime overhead or tokens/sec."
+      },
+      "name": "Tenstorrent Blackhole p150, 32GB GDDR6",
+      "new_all_time_low": false,
+      "opportunity": {
+        "active": false,
+        "basis": "no_live_listing",
+        "expired": false,
+        "expires_at": null,
+        "expires_in_hours": null,
+        "freshness_score": 0.3
+      },
+      "power_scope": "accelerator_board_tbp",
+      "power_target_w": 300,
+      "pre_tco_deal_score": 44.6,
+      "price_percentile": null,
+      "reasons": [
+        "capacity screen fits 32B Q4",
+        "research/high-risk platform",
+        "incremental infrastructure CA$850 under new-build",
+        "~3,907 Wh/day (low power confidence)"
+      ],
+      "recommendation": "Experimental",
+      "risk_level": "medium",
+      "software_maturity": "active_vendor_llm_stack",
+      "tco": {
+        "basis": "sourced product price plus ownership-aware incremental infrastructure and universal evidence-ranked power/Wh estimation",
+        "complete_node_acquisition_cad": null,
+        "infrastructure": {
+          "assumption_component_count": 9,
+          "avoided_acquisition_cad": 0.0,
+          "complete": true,
+          "components": [
+            {
+              "basis": "planning_assumption",
+              "cad": 180.0,
+              "component": "cpu_host",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 140.0,
+              "component": "motherboard",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 100.0,
+              "component": "host_ram_32gb",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 80.0,
+              "component": "storage_1tb",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 120.0,
+              "component": "psu_750w",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 40.0,
+              "component": "pcie_adapter",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 60.0,
+              "component": "cooling",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 100.0,
+              "component": "chassis",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 30.0,
+              "component": "chassis_misc",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            }
+          ],
+          "owned_components": [],
+          "ownership_profile": "new-build",
+          "profile": "host_attached_pcie",
+          "sourced_component_count": 0,
+          "total_cad": 850.0,
+          "warnings": [
+            "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption."
+          ]
+        },
+        "operating": {
+          "annual_cad": 213.93,
+          "annual_kwh": 1426.2,
+          "daily_kwh": 3.907,
+          "daily_wh": 3907.4,
+          "electricity_cad_per_kwh": 0.15,
+          "idle_hours_per_day": 18.0,
+          "load_hours_per_day": 6.0,
+          "period_cad": 641.8,
+          "power_basis": "complete_node_from_published_target_power_plus_host",
+          "power_confidence": "low",
+          "power_inferred": true,
+          "years": 3
+        },
+        "ownership_profile": "new-build",
+        "power": {
+          "basis": "complete_node_from_published_target_power_plus_host",
+          "confidence": "low",
+          "device_power": {
+            "basis": "published_target_power",
+            "confidence": "medium",
+            "idle_w": 36.0,
+            "inferred": true,
+            "load_w": 300.0,
+            "power_scope": "accelerator_board_tbp",
+            "warnings": [
+              "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+            ]
+          },
+          "idle_w": 76.68,
+          "inferred": true,
+          "load_w": 421.2,
+          "source_power_scope": "accelerator_board_tbp",
+          "warnings": [
+            "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+            "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
+          ]
+        },
+        "product_price_cad": null,
+        "scenario": "mixed-3yr",
+        "total_cost_of_ownership_cad": null,
+        "warnings": [
+          "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
+          "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+          "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
+        ]
+      },
+      "tco_percentile": null,
+      "trend_pct": null,
+      "verified_memory_gb": 32.0,
+      "volatility_pct": null
+    },
+    {
+      "category": "ai_asic_accelerator",
+      "current_cad": null,
+      "current_observation": null,
+      "deal_score": 44.6,
+      "decision_confidence": 0.54,
+      "hardware_class": "llm_ai_asic_pcie",
+      "history_count": 0,
+      "id": "accel-tenstorrent-wormhole-n300s-24g",
+      "market_confidence": 0.3,
+      "model_fit": {
+        "fit_score": 0.8,
+        "fits": [
+          {
+            "fits": true,
+            "name": "7B Q4",
+            "required_gb": 4.9
+          },
+          {
+            "fits": true,
+            "name": "14B Q4",
+            "required_gb": 9.8
+          },
+          {
+            "fits": true,
+            "name": "32B Q4",
+            "required_gb": 22.4
+          },
+          {
+            "fits": false,
+            "name": "70B Q4",
+            "required_gb": 49.0
+          }
+        ],
+        "largest_fit": "32B Q4",
+        "memory_basis": "fixed",
+        "memory_confidence": 1.0,
+        "memory_gb": 24.0,
+        "notes": "Capacity screen only; does not predict runtime overhead or tokens/sec."
+      },
+      "name": "Tenstorrent Wormhole n300s, 24GB GDDR6",
+      "new_all_time_low": false,
+      "opportunity": {
+        "active": false,
+        "basis": "no_live_listing",
+        "expired": false,
+        "expires_at": null,
+        "expires_in_hours": null,
+        "freshness_score": 0.3
+      },
+      "power_scope": "accelerator_board_tbp",
+      "power_target_w": 300,
+      "pre_tco_deal_score": 44.6,
+      "price_percentile": null,
+      "reasons": [
+        "capacity screen fits 32B Q4",
+        "research/high-risk platform",
+        "incremental infrastructure CA$850 under new-build",
+        "~3,907 Wh/day (low power confidence)"
+      ],
+      "recommendation": "Experimental",
+      "risk_level": "medium",
+      "software_maturity": "active_vendor_llm_stack",
+      "tco": {
+        "basis": "sourced product price plus ownership-aware incremental infrastructure and universal evidence-ranked power/Wh estimation",
+        "complete_node_acquisition_cad": null,
+        "infrastructure": {
+          "assumption_component_count": 9,
+          "avoided_acquisition_cad": 0.0,
+          "complete": true,
+          "components": [
+            {
+              "basis": "planning_assumption",
+              "cad": 180.0,
+              "component": "cpu_host",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 140.0,
+              "component": "motherboard",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 100.0,
+              "component": "host_ram_32gb",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 80.0,
+              "component": "storage_1tb",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 120.0,
+              "component": "psu_750w",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 40.0,
+              "component": "pcie_adapter",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 60.0,
+              "component": "cooling",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 100.0,
+              "component": "chassis",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 30.0,
+              "component": "chassis_misc",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            }
+          ],
+          "owned_components": [],
+          "ownership_profile": "new-build",
+          "profile": "host_attached_pcie",
+          "sourced_component_count": 0,
+          "total_cad": 850.0,
+          "warnings": [
+            "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption."
+          ]
+        },
+        "operating": {
+          "annual_cad": 213.93,
+          "annual_kwh": 1426.2,
+          "daily_kwh": 3.907,
+          "daily_wh": 3907.4,
+          "electricity_cad_per_kwh": 0.15,
+          "idle_hours_per_day": 18.0,
+          "load_hours_per_day": 6.0,
+          "period_cad": 641.8,
+          "power_basis": "complete_node_from_published_target_power_plus_host",
+          "power_confidence": "low",
+          "power_inferred": true,
+          "years": 3
+        },
+        "ownership_profile": "new-build",
+        "power": {
+          "basis": "complete_node_from_published_target_power_plus_host",
+          "confidence": "low",
+          "device_power": {
+            "basis": "published_target_power",
+            "confidence": "medium",
+            "idle_w": 36.0,
+            "inferred": true,
+            "load_w": 300.0,
+            "power_scope": "accelerator_board_tbp",
+            "warnings": [
+              "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+            ]
+          },
+          "idle_w": 76.68,
+          "inferred": true,
+          "load_w": 421.2,
+          "source_power_scope": "accelerator_board_tbp",
+          "warnings": [
+            "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+            "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
+          ]
+        },
+        "product_price_cad": null,
+        "scenario": "mixed-3yr",
+        "total_cost_of_ownership_cad": null,
+        "warnings": [
+          "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
+          "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+          "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
+        ]
+      },
+      "tco_percentile": null,
+      "trend_pct": null,
+      "verified_memory_gb": 24.0,
+      "volatility_pct": null
+    },
+    {
+      "category": "ai_asic_accelerator",
+      "current_cad": null,
+      "current_observation": null,
       "deal_score": 37.0,
       "decision_confidence": 0.54,
       "hardware_class": "llm_ai_asic_pcie",
@@ -4040,6 +5170,335 @@
       "volatility_pct": null
     },
     {
+      "category": "mobile_phone",
+      "current_cad": null,
+      "current_observation": null,
+      "deal_score": 44.6,
+      "decision_confidence": 0.54,
+      "hardware_class": "gaming_smartphone",
+      "history_count": 0,
+      "id": "mobile-asus-rog-phone-9-pro-edition-24g",
+      "market_confidence": 0.3,
+      "model_fit": {
+        "fit_score": 0.8,
+        "fits": [
+          {
+            "fits": true,
+            "name": "7B Q4",
+            "required_gb": 4.9
+          },
+          {
+            "fits": true,
+            "name": "14B Q4",
+            "required_gb": 9.8
+          },
+          {
+            "fits": true,
+            "name": "32B Q4",
+            "required_gb": 22.4
+          },
+          {
+            "fits": false,
+            "name": "70B Q4",
+            "required_gb": 49.0
+          }
+        ],
+        "largest_fit": "32B Q4",
+        "memory_basis": "fixed",
+        "memory_confidence": 1.0,
+        "memory_gb": 24.0,
+        "notes": "Capacity screen only; does not predict runtime overhead or tokens/sec."
+      },
+      "name": "ASUS ROG Phone 9 Pro Edition, 24GB / 1TB",
+      "new_all_time_low": false,
+      "opportunity": {
+        "active": false,
+        "basis": "no_live_listing",
+        "expired": false,
+        "expires_at": null,
+        "expires_in_hours": null,
+        "freshness_score": 0.3
+      },
+      "power_scope": null,
+      "power_target_w": null,
+      "pre_tco_deal_score": 44.6,
+      "price_percentile": null,
+      "reasons": [
+        "capacity screen fits 32B Q4",
+        "~58 Wh/day (low power confidence)"
+      ],
+      "recommendation": "Ignore",
+      "risk_level": "medium",
+      "software_maturity": "mobile_sandboxed",
+      "tco": {
+        "basis": "sourced product price plus ownership-aware incremental infrastructure and universal evidence-ranked power/Wh estimation",
+        "complete_node_acquisition_cad": null,
+        "infrastructure": {
+          "assumption_component_count": 0,
+          "avoided_acquisition_cad": 0.0,
+          "complete": true,
+          "components": [],
+          "owned_components": [],
+          "ownership_profile": "new-build",
+          "profile": "complete_system",
+          "sourced_component_count": 0,
+          "total_cad": 0.0,
+          "warnings": []
+        },
+        "operating": {
+          "annual_cad": 3.15,
+          "annual_kwh": 21.0,
+          "daily_kwh": 0.058,
+          "daily_wh": 57.6,
+          "electricity_cad_per_kwh": 0.15,
+          "idle_hours_per_day": 18.0,
+          "load_hours_per_day": 6.0,
+          "period_cad": 9.46,
+          "power_basis": "inferred_category_baseline_as_integrated_system",
+          "power_confidence": "low",
+          "power_inferred": true,
+          "years": 3
+        },
+        "ownership_profile": "new-build",
+        "power": {
+          "basis": "inferred_category_baseline_as_integrated_system",
+          "confidence": "low",
+          "device_power": {
+            "basis": "inferred_category_baseline",
+            "confidence": "low",
+            "idle_w": 1.2,
+            "inferred": true,
+            "load_w": 6.0,
+            "power_scope": "device_or_component_estimate",
+            "warnings": [
+              "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+            ]
+          },
+          "idle_w": 1.2,
+          "inferred": true,
+          "load_w": 6.0,
+          "source_power_scope": "device_or_component_estimate",
+          "warnings": [
+            "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+          ]
+        },
+        "product_price_cad": null,
+        "scenario": "mixed-3yr",
+        "total_cost_of_ownership_cad": null,
+        "warnings": [
+          "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+        ]
+      },
+      "tco_percentile": null,
+      "trend_pct": null,
+      "verified_memory_gb": 24.0,
+      "volatility_pct": null
+    },
+    {
+      "category": "npu_accelerator",
+      "current_cad": null,
+      "current_observation": null,
+      "deal_score": 44.6,
+      "decision_confidence": 0.54,
+      "hardware_class": "llm_npu_pcie",
+      "history_count": 0,
+      "id": "accel-furiosa-rngd-48g",
+      "market_confidence": 0.3,
+      "model_fit": {
+        "fit_score": 0.8,
+        "fits": [
+          {
+            "fits": true,
+            "name": "7B Q4",
+            "required_gb": 4.9
+          },
+          {
+            "fits": true,
+            "name": "14B Q4",
+            "required_gb": 9.8
+          },
+          {
+            "fits": true,
+            "name": "32B Q4",
+            "required_gb": 22.4
+          },
+          {
+            "fits": false,
+            "name": "70B Q4",
+            "required_gb": 49.0
+          }
+        ],
+        "largest_fit": "32B Q4",
+        "memory_basis": "fixed",
+        "memory_confidence": 1.0,
+        "memory_gb": 48.0,
+        "notes": "Capacity screen only; does not predict runtime overhead or tokens/sec."
+      },
+      "name": "FuriosaAI RNGD PCIe accelerator, 48GB HBM3",
+      "new_all_time_low": false,
+      "opportunity": {
+        "active": false,
+        "basis": "no_live_listing",
+        "expired": false,
+        "expires_at": null,
+        "expires_in_hours": null,
+        "freshness_score": 0.3
+      },
+      "power_scope": "accelerator_board_tdp",
+      "power_target_w": 180,
+      "pre_tco_deal_score": 44.6,
+      "price_percentile": null,
+      "reasons": [
+        "capacity screen fits 32B Q4",
+        "incremental infrastructure CA$850 under new-build",
+        "~2,850 Wh/day (low power confidence)"
+      ],
+      "recommendation": "Ignore",
+      "risk_level": "medium",
+      "software_maturity": "production_vendor_llm_stack",
+      "tco": {
+        "basis": "sourced product price plus ownership-aware incremental infrastructure and universal evidence-ranked power/Wh estimation",
+        "complete_node_acquisition_cad": null,
+        "infrastructure": {
+          "assumption_component_count": 9,
+          "avoided_acquisition_cad": 0.0,
+          "complete": true,
+          "components": [
+            {
+              "basis": "planning_assumption",
+              "cad": 180.0,
+              "component": "cpu_host",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 140.0,
+              "component": "motherboard",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 100.0,
+              "component": "host_ram_32gb",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 80.0,
+              "component": "storage_1tb",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 120.0,
+              "component": "psu_750w",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 40.0,
+              "component": "pcie_adapter",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 60.0,
+              "component": "cooling",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 100.0,
+              "component": "chassis",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 30.0,
+              "component": "chassis_misc",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            }
+          ],
+          "owned_components": [],
+          "ownership_profile": "new-build",
+          "profile": "host_attached_pcie",
+          "sourced_component_count": 0,
+          "total_cad": 850.0,
+          "warnings": [
+            "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption."
+          ]
+        },
+        "operating": {
+          "annual_cad": 156.03,
+          "annual_kwh": 1040.2,
+          "daily_kwh": 2.85,
+          "daily_wh": 2849.9,
+          "electricity_cad_per_kwh": 0.15,
+          "idle_hours_per_day": 18.0,
+          "load_hours_per_day": 6.0,
+          "period_cad": 468.1,
+          "power_basis": "complete_node_from_published_target_power_plus_host",
+          "power_confidence": "low",
+          "power_inferred": true,
+          "years": 3
+        },
+        "ownership_profile": "new-build",
+        "power": {
+          "basis": "complete_node_from_published_target_power_plus_host",
+          "confidence": "low",
+          "device_power": {
+            "basis": "published_target_power",
+            "confidence": "medium",
+            "idle_w": 21.6,
+            "inferred": true,
+            "load_w": 180.0,
+            "power_scope": "accelerator_board_tdp",
+            "warnings": [
+              "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+            ]
+          },
+          "idle_w": 61.13,
+          "inferred": true,
+          "load_w": 291.6,
+          "source_power_scope": "accelerator_board_tdp",
+          "warnings": [
+            "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+            "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
+          ]
+        },
+        "product_price_cad": null,
+        "scenario": "mixed-3yr",
+        "total_cost_of_ownership_cad": null,
+        "warnings": [
+          "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
+          "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+          "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
+        ]
+      },
+      "tco_percentile": null,
+      "trend_pct": null,
+      "verified_memory_gb": 48.0,
+      "volatility_pct": null
+    },
+    {
       "category": "sbc",
       "current_cad": null,
       "current_observation": null,
@@ -4236,6 +5695,322 @@
       "current_observation": null,
       "deal_score": 44.6,
       "decision_confidence": 0.54,
+      "hardware_class": "rk3588s_sbc",
+      "history_count": 0,
+      "id": "sbc-orange-pi5-32g",
+      "market_confidence": 0.3,
+      "model_fit": {
+        "fit_score": 0.8,
+        "fits": [
+          {
+            "fits": true,
+            "name": "7B Q4",
+            "required_gb": 4.9
+          },
+          {
+            "fits": true,
+            "name": "14B Q4",
+            "required_gb": 9.8
+          },
+          {
+            "fits": true,
+            "name": "32B Q4",
+            "required_gb": 22.4
+          },
+          {
+            "fits": false,
+            "name": "70B Q4",
+            "required_gb": 49.0
+          }
+        ],
+        "largest_fit": "32B Q4",
+        "memory_basis": "fixed",
+        "memory_confidence": 1.0,
+        "memory_gb": 32.0,
+        "notes": "Capacity screen only; does not predict runtime overhead or tokens/sec."
+      },
+      "name": "Orange Pi 5, RK3588S, 32GB LPDDR4X",
+      "new_all_time_low": false,
+      "opportunity": {
+        "active": false,
+        "basis": "no_live_listing",
+        "expired": false,
+        "expires_at": null,
+        "expires_in_hours": null,
+        "freshness_score": 0.3
+      },
+      "power_scope": null,
+      "power_target_w": null,
+      "pre_tco_deal_score": 44.6,
+      "price_percentile": null,
+      "reasons": [
+        "capacity screen fits 32B Q4",
+        "incremental infrastructure CA$350 under new-build",
+        "~241 Wh/day (low power confidence)"
+      ],
+      "recommendation": "Ignore",
+      "risk_level": "medium",
+      "software_maturity": "community_linux_rk3588",
+      "tco": {
+        "basis": "sourced product price plus ownership-aware incremental infrastructure and universal evidence-ranked power/Wh estimation",
+        "complete_node_acquisition_cad": null,
+        "infrastructure": {
+          "assumption_component_count": 5,
+          "avoided_acquisition_cad": 0.0,
+          "complete": true,
+          "components": [
+            {
+              "basis": "planning_assumption",
+              "cad": 80.0,
+              "component": "storage_1tb",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 80.0,
+              "component": "power_supply",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 60.0,
+              "component": "cooling",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 100.0,
+              "component": "chassis",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 30.0,
+              "component": "chassis_misc",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            }
+          ],
+          "owned_components": [],
+          "ownership_profile": "new-build",
+          "profile": "standalone_board",
+          "sourced_component_count": 0,
+          "total_cad": 350.0,
+          "warnings": [
+            "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption."
+          ]
+        },
+        "operating": {
+          "annual_cad": 13.22,
+          "annual_kwh": 88.1,
+          "daily_kwh": 0.241,
+          "daily_wh": 241.4,
+          "electricity_cad_per_kwh": 0.15,
+          "idle_hours_per_day": 18.0,
+          "load_hours_per_day": 6.0,
+          "period_cad": 39.65,
+          "power_basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
+          "power_confidence": "low",
+          "power_inferred": true,
+          "years": 3
+        },
+        "ownership_profile": "new-build",
+        "power": {
+          "basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
+          "confidence": "low",
+          "device_power": {
+            "basis": "power_evidence_distribution",
+            "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": null,
+              "idle_p75_w": null,
+              "idle_w": 3.75,
+              "inferred": true,
+              "load_p25_w": 15.0,
+              "load_p75_w": 15.0,
+              "load_w": 15.0,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 0,
+              "power_scopes": [
+                "published_device_or_board_power"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "catalog:sbc-orange-pi-5-plus-32g:published_device_or_board_power:15.0"
+              ]
+            },
+            "idle_w": 3.75,
+            "inferred": true,
+            "load_w": 15.0,
+            "power_scope": "evidence_profile_device_power",
+            "warnings": [
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
+            ]
+          },
+          "idle_w": 6.21,
+          "inferred": true,
+          "load_w": 21.6,
+          "source_power_scope": "evidence_profile_device_power",
+          "warnings": [
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
+          ]
+        },
+        "product_price_cad": null,
+        "scenario": "mixed-3yr",
+        "total_cost_of_ownership_cad": null,
+        "warnings": [
+          "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
+        ]
+      },
+      "tco_percentile": null,
+      "trend_pct": null,
+      "verified_memory_gb": 32.0,
+      "volatility_pct": null
+    },
+    {
+      "category": "mobile_phone",
+      "current_cad": null,
+      "current_observation": null,
+      "deal_score": 44.6,
+      "decision_confidence": 0.54,
+      "hardware_class": "gaming_smartphone",
+      "history_count": 0,
+      "id": "mobile-redmagic-11-pro-24g-1t",
+      "market_confidence": 0.3,
+      "model_fit": {
+        "fit_score": 0.8,
+        "fits": [
+          {
+            "fits": true,
+            "name": "7B Q4",
+            "required_gb": 4.9
+          },
+          {
+            "fits": true,
+            "name": "14B Q4",
+            "required_gb": 9.8
+          },
+          {
+            "fits": true,
+            "name": "32B Q4",
+            "required_gb": 22.4
+          },
+          {
+            "fits": false,
+            "name": "70B Q4",
+            "required_gb": 49.0
+          }
+        ],
+        "largest_fit": "32B Q4",
+        "memory_basis": "fixed",
+        "memory_confidence": 1.0,
+        "memory_gb": 24.0,
+        "notes": "Capacity screen only; does not predict runtime overhead or tokens/sec."
+      },
+      "name": "REDMAGIC 11 Pro, 24GB / 1TB",
+      "new_all_time_low": false,
+      "opportunity": {
+        "active": false,
+        "basis": "no_live_listing",
+        "expired": false,
+        "expires_at": null,
+        "expires_in_hours": null,
+        "freshness_score": 0.3
+      },
+      "power_scope": null,
+      "power_target_w": null,
+      "pre_tco_deal_score": 44.6,
+      "price_percentile": null,
+      "reasons": [
+        "capacity screen fits 32B Q4",
+        "~58 Wh/day (low power confidence)"
+      ],
+      "recommendation": "Ignore",
+      "risk_level": "medium",
+      "software_maturity": "mobile_sandboxed",
+      "tco": {
+        "basis": "sourced product price plus ownership-aware incremental infrastructure and universal evidence-ranked power/Wh estimation",
+        "complete_node_acquisition_cad": null,
+        "infrastructure": {
+          "assumption_component_count": 0,
+          "avoided_acquisition_cad": 0.0,
+          "complete": true,
+          "components": [],
+          "owned_components": [],
+          "ownership_profile": "new-build",
+          "profile": "complete_system",
+          "sourced_component_count": 0,
+          "total_cad": 0.0,
+          "warnings": []
+        },
+        "operating": {
+          "annual_cad": 3.15,
+          "annual_kwh": 21.0,
+          "daily_kwh": 0.058,
+          "daily_wh": 57.6,
+          "electricity_cad_per_kwh": 0.15,
+          "idle_hours_per_day": 18.0,
+          "load_hours_per_day": 6.0,
+          "period_cad": 9.46,
+          "power_basis": "inferred_category_baseline_as_integrated_system",
+          "power_confidence": "low",
+          "power_inferred": true,
+          "years": 3
+        },
+        "ownership_profile": "new-build",
+        "power": {
+          "basis": "inferred_category_baseline_as_integrated_system",
+          "confidence": "low",
+          "device_power": {
+            "basis": "inferred_category_baseline",
+            "confidence": "low",
+            "idle_w": 1.2,
+            "inferred": true,
+            "load_w": 6.0,
+            "power_scope": "device_or_component_estimate",
+            "warnings": [
+              "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+            ]
+          },
+          "idle_w": 1.2,
+          "inferred": true,
+          "load_w": 6.0,
+          "source_power_scope": "device_or_component_estimate",
+          "warnings": [
+            "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+          ]
+        },
+        "product_price_cad": null,
+        "scenario": "mixed-3yr",
+        "total_cost_of_ownership_cad": null,
+        "warnings": [
+          "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+        ]
+      },
+      "tco_percentile": null,
+      "trend_pct": null,
+      "verified_memory_gb": 24.0,
+      "volatility_pct": null
+    },
+    {
+      "category": "sbc",
+      "current_cad": null,
+      "current_observation": null,
+      "deal_score": 44.6,
+      "decision_confidence": 0.54,
       "hardware_class": "rk3588_mini_itx",
       "history_count": 0,
       "id": "sbc-radxa-rock5-itxplus-32g",
@@ -4414,6 +6189,176 @@
         "warnings": [
           "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
           "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
+        ]
+      },
+      "tco_percentile": null,
+      "trend_pct": null,
+      "verified_memory_gb": 32.0,
+      "volatility_pct": null
+    },
+    {
+      "category": "sbc",
+      "current_cad": null,
+      "current_observation": null,
+      "deal_score": 44.6,
+      "decision_confidence": 0.54,
+      "hardware_class": "rk3588_sbc",
+      "history_count": 0,
+      "id": "sbc-radxa-rock5bp-32g",
+      "market_confidence": 0.3,
+      "model_fit": {
+        "fit_score": 0.8,
+        "fits": [
+          {
+            "fits": true,
+            "name": "7B Q4",
+            "required_gb": 4.9
+          },
+          {
+            "fits": true,
+            "name": "14B Q4",
+            "required_gb": 9.8
+          },
+          {
+            "fits": true,
+            "name": "32B Q4",
+            "required_gb": 22.4
+          },
+          {
+            "fits": false,
+            "name": "70B Q4",
+            "required_gb": 49.0
+          }
+        ],
+        "largest_fit": "32B Q4",
+        "memory_basis": "fixed",
+        "memory_confidence": 1.0,
+        "memory_gb": 32.0,
+        "notes": "Capacity screen only; does not predict runtime overhead or tokens/sec."
+      },
+      "name": "Radxa ROCK 5B+, RK3588, 32GB LPDDR5",
+      "new_all_time_low": false,
+      "opportunity": {
+        "active": false,
+        "basis": "no_live_listing",
+        "expired": false,
+        "expires_at": null,
+        "expires_in_hours": null,
+        "freshness_score": 0.3
+      },
+      "power_scope": null,
+      "power_target_w": null,
+      "pre_tco_deal_score": 44.6,
+      "price_percentile": null,
+      "reasons": [
+        "capacity screen fits 32B Q4",
+        "incremental infrastructure CA$350 under new-build",
+        "~207 Wh/day (low power confidence)"
+      ],
+      "recommendation": "Ignore",
+      "risk_level": "medium",
+      "software_maturity": "community_linux_rk3588",
+      "tco": {
+        "basis": "sourced product price plus ownership-aware incremental infrastructure and universal evidence-ranked power/Wh estimation",
+        "complete_node_acquisition_cad": null,
+        "infrastructure": {
+          "assumption_component_count": 5,
+          "avoided_acquisition_cad": 0.0,
+          "complete": true,
+          "components": [
+            {
+              "basis": "planning_assumption",
+              "cad": 80.0,
+              "component": "storage_1tb",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 80.0,
+              "component": "power_supply",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 60.0,
+              "component": "cooling",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 100.0,
+              "component": "chassis",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 30.0,
+              "component": "chassis_misc",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            }
+          ],
+          "owned_components": [],
+          "ownership_profile": "new-build",
+          "profile": "standalone_board",
+          "sourced_component_count": 0,
+          "total_cad": 350.0,
+          "warnings": [
+            "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption."
+          ]
+        },
+        "operating": {
+          "annual_cad": 11.35,
+          "annual_kwh": 75.7,
+          "daily_kwh": 0.207,
+          "daily_wh": 207.4,
+          "electricity_cad_per_kwh": 0.15,
+          "idle_hours_per_day": 18.0,
+          "load_hours_per_day": 6.0,
+          "period_cad": 34.06,
+          "power_basis": "complete_node_from_inferred_category_baseline_plus_peripherals",
+          "power_confidence": "low",
+          "power_inferred": true,
+          "years": 3
+        },
+        "ownership_profile": "new-build",
+        "power": {
+          "basis": "complete_node_from_inferred_category_baseline_plus_peripherals",
+          "confidence": "low",
+          "device_power": {
+            "basis": "inferred_category_baseline",
+            "confidence": "low",
+            "idle_w": 3.0,
+            "inferred": true,
+            "load_w": 12.0,
+            "power_scope": "device_or_component_estimate",
+            "warnings": [
+              "No per-part power evidence is available; using the conservative 'sbc' category planning baseline."
+            ]
+          },
+          "idle_w": 5.4,
+          "inferred": true,
+          "load_w": 18.36,
+          "source_power_scope": "device_or_component_estimate",
+          "warnings": [
+            "No per-part power evidence is available; using the conservative 'sbc' category planning baseline."
+          ]
+        },
+        "product_price_cad": null,
+        "scenario": "mixed-3yr",
+        "total_cost_of_ownership_cad": null,
+        "warnings": [
+          "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
+          "No per-part power evidence is available; using the conservative 'sbc' category planning baseline."
         ]
       },
       "tco_percentile": null,
@@ -4943,6 +6888,322 @@
       "volatility_pct": null
     },
     {
+      "category": "mobile_phone",
+      "current_cad": null,
+      "current_observation": null,
+      "deal_score": 37.0,
+      "decision_confidence": 0.54,
+      "hardware_class": "smartphone",
+      "history_count": 0,
+      "id": "mobile-oneplus-15-16g-512g",
+      "market_confidence": 0.3,
+      "model_fit": {
+        "fit_score": 0.5,
+        "fits": [
+          {
+            "fits": true,
+            "name": "7B Q4",
+            "required_gb": 4.9
+          },
+          {
+            "fits": true,
+            "name": "14B Q4",
+            "required_gb": 9.8
+          },
+          {
+            "fits": false,
+            "name": "32B Q4",
+            "required_gb": 22.4
+          },
+          {
+            "fits": false,
+            "name": "70B Q4",
+            "required_gb": 49.0
+          }
+        ],
+        "largest_fit": "14B Q4",
+        "memory_basis": "fixed",
+        "memory_confidence": 1.0,
+        "memory_gb": 16.0,
+        "notes": "Capacity screen only; does not predict runtime overhead or tokens/sec."
+      },
+      "name": "OnePlus 15, 16GB / 512GB",
+      "new_all_time_low": false,
+      "opportunity": {
+        "active": false,
+        "basis": "no_live_listing",
+        "expired": false,
+        "expires_at": null,
+        "expires_in_hours": null,
+        "freshness_score": 0.3
+      },
+      "power_scope": null,
+      "power_target_w": null,
+      "pre_tco_deal_score": 37.0,
+      "price_percentile": null,
+      "reasons": [
+        "capacity screen fits 14B Q4",
+        "~50 Wh/day (medium power confidence)"
+      ],
+      "recommendation": "Ignore",
+      "risk_level": "medium",
+      "software_maturity": "mobile_sandboxed",
+      "tco": {
+        "basis": "sourced product price plus ownership-aware incremental infrastructure and universal evidence-ranked power/Wh estimation",
+        "complete_node_acquisition_cad": null,
+        "infrastructure": {
+          "assumption_component_count": 0,
+          "avoided_acquisition_cad": 0.0,
+          "complete": true,
+          "components": [],
+          "owned_components": [],
+          "ownership_profile": "new-build",
+          "profile": "complete_system",
+          "sourced_component_count": 0,
+          "total_cad": 0.0,
+          "warnings": []
+        },
+        "operating": {
+          "annual_cad": 2.76,
+          "annual_kwh": 18.4,
+          "daily_kwh": 0.05,
+          "daily_wh": 50.4,
+          "electricity_cad_per_kwh": 0.15,
+          "idle_hours_per_day": 18.0,
+          "load_hours_per_day": 6.0,
+          "period_cad": 8.28,
+          "power_basis": "power_evidence_distribution_as_integrated_system",
+          "power_confidence": "medium",
+          "power_inferred": true,
+          "years": 3
+        },
+        "ownership_profile": "new-build",
+        "power": {
+          "basis": "power_evidence_distribution_as_integrated_system",
+          "confidence": "medium",
+          "device_power": {
+            "basis": "power_evidence_distribution",
+            "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": 1.34,
+              "idle_p75_w": 1.34,
+              "idle_w": 1.34,
+              "inferred": true,
+              "load_p25_w": 4.38,
+              "load_p75_w": 4.38,
+              "load_w": 4.38,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 1,
+              "power_scopes": [
+                "measured_device_input"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "sourced-power:notebookcheck-pixel10-pro-xl-tensor-g5-16gb-256gb"
+              ]
+            },
+            "idle_w": 1.34,
+            "inferred": true,
+            "load_w": 4.38,
+            "power_scope": "evidence_profile_device_power",
+            "warnings": [
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
+            ]
+          },
+          "idle_w": 1.34,
+          "inferred": true,
+          "load_w": 4.38,
+          "source_power_scope": "evidence_profile_device_power",
+          "warnings": [
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
+          ]
+        },
+        "product_price_cad": null,
+        "scenario": "mixed-3yr",
+        "total_cost_of_ownership_cad": null,
+        "warnings": [
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
+        ]
+      },
+      "tco_percentile": null,
+      "trend_pct": null,
+      "verified_memory_gb": 16.0,
+      "volatility_pct": null
+    },
+    {
+      "category": "sbc",
+      "current_cad": null,
+      "current_observation": null,
+      "deal_score": 37.0,
+      "decision_confidence": 0.54,
+      "hardware_class": "rk3576_sbc",
+      "history_count": 0,
+      "id": "sbc-radxa-rock4d-16g",
+      "market_confidence": 0.3,
+      "model_fit": {
+        "fit_score": 0.5,
+        "fits": [
+          {
+            "fits": true,
+            "name": "7B Q4",
+            "required_gb": 4.9
+          },
+          {
+            "fits": true,
+            "name": "14B Q4",
+            "required_gb": 9.8
+          },
+          {
+            "fits": false,
+            "name": "32B Q4",
+            "required_gb": 22.4
+          },
+          {
+            "fits": false,
+            "name": "70B Q4",
+            "required_gb": 49.0
+          }
+        ],
+        "largest_fit": "14B Q4",
+        "memory_basis": "fixed",
+        "memory_confidence": 1.0,
+        "memory_gb": 16.0,
+        "notes": "Capacity screen only; does not predict runtime overhead or tokens/sec."
+      },
+      "name": "Radxa ROCK 4D, RK3576, 16GB LPDDR5",
+      "new_all_time_low": false,
+      "opportunity": {
+        "active": false,
+        "basis": "no_live_listing",
+        "expired": false,
+        "expires_at": null,
+        "expires_in_hours": null,
+        "freshness_score": 0.3
+      },
+      "power_scope": null,
+      "power_target_w": null,
+      "pre_tco_deal_score": 37.0,
+      "price_percentile": null,
+      "reasons": [
+        "capacity screen fits 14B Q4",
+        "incremental infrastructure CA$350 under new-build",
+        "~207 Wh/day (low power confidence)"
+      ],
+      "recommendation": "Ignore",
+      "risk_level": "medium",
+      "software_maturity": "community_linux_rk3576",
+      "tco": {
+        "basis": "sourced product price plus ownership-aware incremental infrastructure and universal evidence-ranked power/Wh estimation",
+        "complete_node_acquisition_cad": null,
+        "infrastructure": {
+          "assumption_component_count": 5,
+          "avoided_acquisition_cad": 0.0,
+          "complete": true,
+          "components": [
+            {
+              "basis": "planning_assumption",
+              "cad": 80.0,
+              "component": "storage_1tb",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 80.0,
+              "component": "power_supply",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 60.0,
+              "component": "cooling",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 100.0,
+              "component": "chassis",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            },
+            {
+              "basis": "planning_assumption",
+              "cad": 30.0,
+              "component": "chassis_misc",
+              "evidence": {
+                "basis": "planning_assumption"
+              }
+            }
+          ],
+          "owned_components": [],
+          "ownership_profile": "new-build",
+          "profile": "standalone_board",
+          "sourced_component_count": 0,
+          "total_cad": 350.0,
+          "warnings": [
+            "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption."
+          ]
+        },
+        "operating": {
+          "annual_cad": 11.35,
+          "annual_kwh": 75.7,
+          "daily_kwh": 0.207,
+          "daily_wh": 207.4,
+          "electricity_cad_per_kwh": 0.15,
+          "idle_hours_per_day": 18.0,
+          "load_hours_per_day": 6.0,
+          "period_cad": 34.06,
+          "power_basis": "complete_node_from_inferred_category_baseline_plus_peripherals",
+          "power_confidence": "low",
+          "power_inferred": true,
+          "years": 3
+        },
+        "ownership_profile": "new-build",
+        "power": {
+          "basis": "complete_node_from_inferred_category_baseline_plus_peripherals",
+          "confidence": "low",
+          "device_power": {
+            "basis": "inferred_category_baseline",
+            "confidence": "low",
+            "idle_w": 3.0,
+            "inferred": true,
+            "load_w": 12.0,
+            "power_scope": "device_or_component_estimate",
+            "warnings": [
+              "No per-part power evidence is available; using the conservative 'sbc' category planning baseline."
+            ]
+          },
+          "idle_w": 5.4,
+          "inferred": true,
+          "load_w": 18.36,
+          "source_power_scope": "device_or_component_estimate",
+          "warnings": [
+            "No per-part power evidence is available; using the conservative 'sbc' category planning baseline."
+          ]
+        },
+        "product_price_cad": null,
+        "scenario": "mixed-3yr",
+        "total_cost_of_ownership_cad": null,
+        "warnings": [
+          "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
+          "No per-part power evidence is available; using the conservative 'sbc' category planning baseline."
+        ]
+      },
+      "tco_percentile": null,
+      "trend_pct": null,
+      "verified_memory_gb": 16.0,
+      "volatility_pct": null
+    },
+    {
       "category": "tpu_accelerator",
       "current_cad": null,
       "current_observation": null,
@@ -5213,6 +7474,277 @@
       "tco_percentile": null,
       "trend_pct": null,
       "verified_memory_gb": 12.0,
+      "volatility_pct": null
+    },
+    {
+      "category": "tablet",
+      "current_cad": null,
+      "current_observation": null,
+      "deal_score": 37.0,
+      "decision_confidence": 0.54,
+      "hardware_class": "android_tablet",
+      "history_count": 0,
+      "id": "tablet-samsung-galaxy-tab-s11-ultra-16g-1t",
+      "market_confidence": 0.3,
+      "model_fit": {
+        "fit_score": 0.5,
+        "fits": [
+          {
+            "fits": true,
+            "name": "7B Q4",
+            "required_gb": 4.9
+          },
+          {
+            "fits": true,
+            "name": "14B Q4",
+            "required_gb": 9.8
+          },
+          {
+            "fits": false,
+            "name": "32B Q4",
+            "required_gb": 22.4
+          },
+          {
+            "fits": false,
+            "name": "70B Q4",
+            "required_gb": 49.0
+          }
+        ],
+        "largest_fit": "14B Q4",
+        "memory_basis": "fixed",
+        "memory_confidence": 1.0,
+        "memory_gb": 16.0,
+        "notes": "Capacity screen only; does not predict runtime overhead or tokens/sec."
+      },
+      "name": "Samsung Galaxy Tab S11 Ultra, 16GB / 1TB",
+      "new_all_time_low": false,
+      "opportunity": {
+        "active": false,
+        "basis": "no_live_listing",
+        "expired": false,
+        "expires_at": null,
+        "expires_in_hours": null,
+        "freshness_score": 0.3
+      },
+      "power_scope": null,
+      "power_target_w": null,
+      "pre_tco_deal_score": 37.0,
+      "price_percentile": null,
+      "reasons": [
+        "capacity screen fits 14B Q4",
+        "~108 Wh/day (low power confidence)"
+      ],
+      "recommendation": "Ignore",
+      "risk_level": "medium",
+      "software_maturity": "mobile_sandboxed",
+      "tco": {
+        "basis": "sourced product price plus ownership-aware incremental infrastructure and universal evidence-ranked power/Wh estimation",
+        "complete_node_acquisition_cad": null,
+        "infrastructure": {
+          "assumption_component_count": 0,
+          "avoided_acquisition_cad": 0.0,
+          "complete": true,
+          "components": [],
+          "owned_components": [],
+          "ownership_profile": "new-build",
+          "profile": "complete_system",
+          "sourced_component_count": 0,
+          "total_cad": 0.0,
+          "warnings": []
+        },
+        "operating": {
+          "annual_cad": 5.91,
+          "annual_kwh": 39.4,
+          "daily_kwh": 0.108,
+          "daily_wh": 108.0,
+          "electricity_cad_per_kwh": 0.15,
+          "idle_hours_per_day": 18.0,
+          "load_hours_per_day": 6.0,
+          "period_cad": 17.74,
+          "power_basis": "inferred_category_baseline_as_integrated_system",
+          "power_confidence": "low",
+          "power_inferred": true,
+          "years": 3
+        },
+        "ownership_profile": "new-build",
+        "power": {
+          "basis": "inferred_category_baseline_as_integrated_system",
+          "confidence": "low",
+          "device_power": {
+            "basis": "inferred_category_baseline",
+            "confidence": "low",
+            "idle_w": 2.0,
+            "inferred": true,
+            "load_w": 12.0,
+            "power_scope": "device_or_component_estimate",
+            "warnings": [
+              "No per-part power evidence is available; using the conservative 'tablet' category planning baseline."
+            ]
+          },
+          "idle_w": 2.0,
+          "inferred": true,
+          "load_w": 12.0,
+          "source_power_scope": "device_or_component_estimate",
+          "warnings": [
+            "No per-part power evidence is available; using the conservative 'tablet' category planning baseline."
+          ]
+        },
+        "product_price_cad": null,
+        "scenario": "mixed-3yr",
+        "total_cost_of_ownership_cad": null,
+        "warnings": [
+          "No per-part power evidence is available; using the conservative 'tablet' category planning baseline."
+        ]
+      },
+      "tco_percentile": null,
+      "trend_pct": null,
+      "verified_memory_gb": 16.0,
+      "volatility_pct": null
+    },
+    {
+      "category": "mobile_phone",
+      "current_cad": null,
+      "current_observation": null,
+      "deal_score": 37.0,
+      "decision_confidence": 0.54,
+      "hardware_class": "smartphone",
+      "history_count": 0,
+      "id": "mobile-xiaomi-15-ultra-16g",
+      "market_confidence": 0.3,
+      "model_fit": {
+        "fit_score": 0.5,
+        "fits": [
+          {
+            "fits": true,
+            "name": "7B Q4",
+            "required_gb": 4.9
+          },
+          {
+            "fits": true,
+            "name": "14B Q4",
+            "required_gb": 9.8
+          },
+          {
+            "fits": false,
+            "name": "32B Q4",
+            "required_gb": 22.4
+          },
+          {
+            "fits": false,
+            "name": "70B Q4",
+            "required_gb": 49.0
+          }
+        ],
+        "largest_fit": "14B Q4",
+        "memory_basis": "fixed",
+        "memory_confidence": 1.0,
+        "memory_gb": 16.0,
+        "notes": "Capacity screen only; does not predict runtime overhead or tokens/sec."
+      },
+      "name": "Xiaomi 15 Ultra, 16GB",
+      "new_all_time_low": false,
+      "opportunity": {
+        "active": false,
+        "basis": "no_live_listing",
+        "expired": false,
+        "expires_at": null,
+        "expires_in_hours": null,
+        "freshness_score": 0.3
+      },
+      "power_scope": null,
+      "power_target_w": null,
+      "pre_tco_deal_score": 37.0,
+      "price_percentile": null,
+      "reasons": [
+        "capacity screen fits 14B Q4",
+        "~50 Wh/day (medium power confidence)"
+      ],
+      "recommendation": "Ignore",
+      "risk_level": "medium",
+      "software_maturity": "mobile_sandboxed",
+      "tco": {
+        "basis": "sourced product price plus ownership-aware incremental infrastructure and universal evidence-ranked power/Wh estimation",
+        "complete_node_acquisition_cad": null,
+        "infrastructure": {
+          "assumption_component_count": 0,
+          "avoided_acquisition_cad": 0.0,
+          "complete": true,
+          "components": [],
+          "owned_components": [],
+          "ownership_profile": "new-build",
+          "profile": "complete_system",
+          "sourced_component_count": 0,
+          "total_cad": 0.0,
+          "warnings": []
+        },
+        "operating": {
+          "annual_cad": 2.76,
+          "annual_kwh": 18.4,
+          "daily_kwh": 0.05,
+          "daily_wh": 50.4,
+          "electricity_cad_per_kwh": 0.15,
+          "idle_hours_per_day": 18.0,
+          "load_hours_per_day": 6.0,
+          "period_cad": 8.28,
+          "power_basis": "power_evidence_distribution_as_integrated_system",
+          "power_confidence": "medium",
+          "power_inferred": true,
+          "years": 3
+        },
+        "ownership_profile": "new-build",
+        "power": {
+          "basis": "power_evidence_distribution_as_integrated_system",
+          "confidence": "medium",
+          "device_power": {
+            "basis": "power_evidence_distribution",
+            "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": 1.34,
+              "idle_p75_w": 1.34,
+              "idle_w": 1.34,
+              "inferred": true,
+              "load_p25_w": 4.38,
+              "load_p75_w": 4.38,
+              "load_w": 4.38,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 1,
+              "power_scopes": [
+                "measured_device_input"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "sourced-power:notebookcheck-pixel10-pro-xl-tensor-g5-16gb-256gb"
+              ]
+            },
+            "idle_w": 1.34,
+            "inferred": true,
+            "load_w": 4.38,
+            "power_scope": "evidence_profile_device_power",
+            "warnings": [
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
+            ]
+          },
+          "idle_w": 1.34,
+          "inferred": true,
+          "load_w": 4.38,
+          "source_power_scope": "evidence_profile_device_power",
+          "warnings": [
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
+          ]
+        },
+        "product_price_cad": null,
+        "scenario": "mixed-3yr",
+        "total_cost_of_ownership_cad": null,
+        "warnings": [
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
+        ]
+      },
+      "tco_percentile": null,
+      "trend_pct": null,
+      "verified_memory_gb": 16.0,
       "volatility_pct": null
     },
     {

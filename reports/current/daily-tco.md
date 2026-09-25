@@ -7,8 +7,12 @@ Product price is separated from incremental infrastructure and electricity. Powe
 
 Decision | Score | Product | Missing infra | Sourced lines | Avoided owned cost | Wh/day | Complete node | Operating | TCO | Candidate
 --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---
+Watch | 49.4 | — | CA$450 | 0 | CA$0 | 354 | — | CA$58 | — | Beelink SER8, Ryzen 7 8845HS
 Watch | 49.4 | — | CA$450 | 0 | CA$0 | 355 | — | CA$58 | — | Framework Laptop 13 Mainboard, Ryzen AI 5 340
+Watch | 49.4 | — | CA$450 | 0 | CA$0 | 354 | — | CA$58 | — | GMKtec NucBox K6, Ryzen 7 7840HS
+Watch | 49.4 | — | CA$450 | 0 | CA$0 | 354 | — | CA$58 | — | MINISFORUM AI X1 Pro, Ryzen AI 9 HX 370
 Watch | 49.4 | — | CA$450 | 0 | CA$0 | 695 | — | CA$114 | — | MINISFORUM BD795M motherboard with Ryzen 9 7945HX
+Watch | 49.4 | — | CA$450 | 0 | CA$0 | 354 | — | CA$58 | — | MINISFORUM UM890 Pro, Ryzen 9 8945HS
 Watch | 46.8 | — | CA$850 | 0 | CA$0 | 5,233 | — | CA$859 | — | NVIDIA GeForce RTX 3090 24GB
 Watch | 46.2 | — | CA$450 | 0 | CA$0 | 486 | — | CA$80 | — | Ryzen AI 9 HX 370 barebone, DDR5, dual LAN, OCuLink, Wi-Fi 7
 Watch | 46.2 | — | CA$450 | 0 | CA$0 | 486 | — | CA$80 | — | Topton FU05 Ryzen 7 8745HS barebone, dual 2.5GbE, 2x DDR5, 2x NVMe, OCuLink
@@ -27,16 +31,12 @@ Watch | 37.8 | — | CA$0 | 0 | CA$0 | 237 | — | CA$39 | — | Apple MacBook A
 Watch | 37.8 | — | CA$0 | 0 | CA$0 | 237 | — | CA$39 | — | Apple MacBook Pro 14-inch (M5, 2025)
 Watch | 37.8 | — | CA$0 | 0 | CA$0 | 237 | — | CA$39 | — | Apple MacBook Pro 14/16-inch (M1 Pro / M1 Max, 2021)
 Watch | 37.8 | — | CA$0 | 0 | CA$0 | 237 | — | CA$39 | — | Apple iMac 24-inch (M4)
+Experimental | 44.6 | — | CA$850 | 0 | CA$0 | 3,907 | — | CA$642 | — | Tenstorrent Blackhole p150, 32GB GDDR6
+Experimental | 44.6 | — | CA$850 | 0 | CA$0 | 3,907 | — | CA$642 | — | Tenstorrent Wormhole n300s, 24GB GDDR6
 Experimental | 37.0 | — | CA$850 | 0 | CA$0 | 2,674 | — | CA$439 | — | Tenstorrent Wormhole n150s PCIe accelerator
 Experimental | 35.9 | — | CA$350 | 0 | CA$0 | 695 | — | CA$114 | — | AMD / ASRock BC-250 specialty compute board, 16GB unified GDDR6
-Ignore | 44.6 | — | CA$350 | 0 | CA$0 | 241 | — | CA$40 | — | Orange Pi 5 Plus, RK3588, 32GB LPDDR4X
-Ignore | 44.6 | — | CA$350 | 0 | CA$0 | 185 | — | CA$30 | — | Radxa ROCK 5 ITX+, RK3588, 32GB LPDDR5x
-Ignore | 44.6 | — | CA$0 | 0 | CA$0 | 486 | — | CA$80 | — | Ryzen 7 8845HS mini PC, 32GB DDR5, 1TB NVMe, dual RJ45
-Ignore | 37.0 | — | CA$0 | 0 | CA$0 | 108 | — | CA$18 | — | Apple iPad Air (M4)
-Ignore | 37.0 | — | CA$0 | 0 | CA$0 | 108 | — | CA$18 | — | Apple iPad Pro (M5, 2025)
-Ignore | 37.0 | — | CA$0 | 0 | CA$0 | 50 | — | CA$8 | — | Google Pixel 10 Pro / Pro XL, 16GB
-Ignore | 37.0 | — | CA$0 | 0 | CA$0 | 1,400 | — | CA$230 | — | SOPHGO BM1684X development board, 16GB LPDDR4X class
-Ignore | 37.0 | — | CA$0 | 0 | CA$0 | 111 | — | CA$18 | — | Samsung Galaxy S26 Ultra, up to 16GB
+Ignore | 44.6 | — | CA$0 | 0 | CA$0 | 58 | — | CA$9 | — | ASUS ROG Phone 9 Pro Edition, 24GB / 1TB
+Ignore | 44.6 | — | CA$850 | 0 | CA$0 | 2,850 | — | CA$468 | — | FuriosaAI RNGD PCIe accelerator, 48GB HBM3
 
 - Wh/day uses the selected scenario duty cycle, not the hardware power rating alone.
 - Measured power is preferred; published target/max values are next; category inference is the final fallback.

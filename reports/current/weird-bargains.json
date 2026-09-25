@@ -45,7 +45,7 @@
     "name": "AMD / ASRock BC-250 specialty compute board, 16GB unified GDDR6",
     "power_target_w": 55,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 248.64,
+    "price_cad": 253.32,
     "risk_level": "high"
   },
   {
@@ -60,7 +60,7 @@
     "name": "Raspberry Pi AI HAT+ 2 with Hailo-10H and 8GB RAM",
     "power_target_w": 2.5,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 310.8,
+    "price_cad": 316.65,
     "risk_level": "low"
   },
   {
@@ -75,7 +75,7 @@
     "name": "Firefly Core-1688JD4 BM1688 SoM, 8GB RAM / 32GB storage",
     "power_target_w": null,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 526.81,
+    "price_cad": 536.72,
     "risk_level": "medium"
   },
   {
@@ -90,7 +90,7 @@
     "name": "SOPHGO BM1684X development board, 16GB LPDDR4X class",
     "power_target_w": null,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 1420.54,
+    "price_cad": 1447.26,
     "risk_level": "medium"
   },
   {
@@ -105,7 +105,37 @@
     "name": "Tenstorrent Wormhole n150s PCIe accelerator",
     "power_target_w": 160,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 1552.45,
+    "price_cad": 1581.65,
+    "risk_level": "medium"
+  },
+  {
+    "best_measured_group": null,
+    "category": "ai_asic_accelerator",
+    "id": "accel-tenstorrent-blackhole-p150-32g",
+    "lifecycle_status": "current",
+    "live_observation": false,
+    "market_confidence": 0.35,
+    "measured_group_count": 0,
+    "memory_gb": 32.0,
+    "name": "Tenstorrent Blackhole p150, 32GB GDDR6",
+    "power_target_w": 300,
+    "price_basis": "catalog_midpoint+tax",
+    "price_cad": 2214.94,
+    "risk_level": "medium"
+  },
+  {
+    "best_measured_group": null,
+    "category": "ai_asic_accelerator",
+    "id": "accel-tenstorrent-wormhole-n300s-24g",
+    "lifecycle_status": "current_previous_generation",
+    "live_observation": false,
+    "market_confidence": 0.35,
+    "measured_group_count": 0,
+    "memory_gb": 24.0,
+    "name": "Tenstorrent Wormhole n300s, 24GB GDDR6",
+    "power_target_w": 300,
+    "price_basis": "catalog_midpoint+tax",
+    "price_cad": 2214.94,
     "risk_level": "medium"
   }
 ]
