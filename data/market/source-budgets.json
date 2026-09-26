@@ -2,10 +2,25 @@
   "date": "2026-09-26",
   "schema_version": 1,
   "sources": {
+    "digikey": {
+      "estimated_requests": 16,
+      "last_reserved_at": "2026-09-26T14:24:08.766703+00:00",
+      "skipped": 9
+    },
     "ebay": {
-      "estimated_requests": 9,
-      "last_reserved_at": "2026-09-26T00:41:57.110940+00:00",
+      "estimated_requests": 34,
+      "last_reserved_at": "2026-09-26T14:24:08.767175+00:00",
       "skipped": 0
+    },
+    "manufacturer": {
+      "estimated_requests": 25,
+      "last_reserved_at": "2026-09-26T14:24:08.765753+00:00",
+      "skipped": 0
+    },
+    "mouser": {
+      "estimated_requests": 16,
+      "last_reserved_at": "2026-09-26T14:24:08.766245+00:00",
+      "skipped": 9
     }
   }
 }
