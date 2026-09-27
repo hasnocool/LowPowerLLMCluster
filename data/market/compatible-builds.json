@@ -1,6 +1,6 @@
 {
   "currency": "CAD",
-  "generated_at": "2026-09-26T14:24:09.227655+00:00",
+  "generated_at": "2026-09-27T14:23:36.533361+00:00",
   "gpus": {
     "gpu-amd-rx-9070-16g": {
       "best_build": null,
@@ -52,5 +52,5 @@
     }
   },
   "schema_version": 3,
-  "spec_enrichment_generated_at": "2026-09-26T14:24:09.246463+00:00"
+  "spec_enrichment_generated_at": "2026-09-27T14:23:36.551927+00:00"
 }
