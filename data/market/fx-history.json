@@ -106,6 +106,19 @@
       "schema_version": 1,
       "source": "Bank of Canada Valet API",
       "source_url": "https://www.bankofcanada.ca/valet/observations/FXUSDCAD,FXEURCAD,FXGBPCAD,FXJPYCAD,FXCNYCAD,FXAUDCAD/json?recent=1"
+    },
+    {
+      "as_of": "2026-09-25",
+      "base": "CAD",
+      "rates_to_cad": {
+        "CAD": 1.0,
+        "EUR": 1.6122,
+        "GBP": 1.874,
+        "USD": 1.4145
+      },
+      "schema_version": 1,
+      "source": "Bank of Canada Valet API",
+      "source_url": "https://www.bankofcanada.ca/valet/observations/FXUSDCAD,FXEURCAD,FXGBPCAD/json?recent=1"
     }
   ]
 }
