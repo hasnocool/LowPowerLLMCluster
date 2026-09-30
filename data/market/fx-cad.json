@@ -2,15 +2,12 @@
   "as_of": "2026-09-29",
   "base": "CAD",
   "rates_to_cad": {
-    "AUD": 0.9908,
     "CAD": 1.0,
-    "CNY": 0.2117,
     "EUR": 1.6084,
     "GBP": 1.8758,
-    "JPY": 0.00901,
     "USD": 1.4188
   },
   "schema_version": 1,
   "source": "Bank of Canada Valet API",
-  "source_url": "https://www.bankofcanada.ca/valet/observations/FXUSDCAD,FXEURCAD,FXGBPCAD,FXJPYCAD,FXCNYCAD,FXAUDCAD/json?recent=1"
+  "source_url": "https://www.bankofcanada.ca/valet/observations/FXUSDCAD,FXEURCAD,FXGBPCAD/json?recent=1"
 }
