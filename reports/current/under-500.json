@@ -45,7 +45,7 @@
     "name": "AMD / ASRock BC-250 specialty compute board, 16GB unified GDDR6",
     "power_target_w": 55,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 254.25,
+    "price_cad": 255.23,
     "risk_level": "high"
   },
   {
@@ -60,7 +60,7 @@
     "name": "Ryzen 7 7735U DDR5 mini PC / barebone",
     "power_target_w": null,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 262.19,
+    "price_cad": 263.21,
     "risk_level": "medium"
   },
   {
@@ -75,7 +75,7 @@
     "name": "Orange Pi 5 Plus, RK3588, 32GB LPDDR4X",
     "power_target_w": 15,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 309.15,
+    "price_cad": 310.35,
     "risk_level": "medium"
   },
   {
@@ -90,7 +90,7 @@
     "name": "Raspberry Pi AI HAT+ 2 with Hailo-10H and 8GB RAM",
     "power_target_w": 2.5,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 317.81,
+    "price_cad": 319.04,
     "risk_level": "low"
   },
   {
@@ -105,7 +105,7 @@
     "name": "Ryzen 7 8845HS mini PC, 32GB DDR5, 1TB NVMe, dual RJ45",
     "power_target_w": null,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 338.47,
+    "price_cad": 339.78,
     "risk_level": "medium"
   },
   {
@@ -120,7 +120,7 @@
     "name": "Radxa ROCK 5 ITX+, RK3588, 32GB LPDDR5x",
     "power_target_w": 10,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 373.43,
+    "price_cad": 374.88,
     "risk_level": "medium"
   },
   {
@@ -169,7 +169,7 @@
     "name": "NVIDIA Jetson Orin Nano Super Developer Kit, 8GB",
     "power_target_w": 15,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 395.67,
+    "price_cad": 397.21,
     "risk_level": "low"
   }
 ]
