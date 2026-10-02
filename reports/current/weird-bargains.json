@@ -45,7 +45,7 @@
     "name": "AMD / ASRock BC-250 specialty compute board, 16GB unified GDDR6",
     "power_target_w": 55,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 255.23,
+    "price_cad": 255.29,
     "risk_level": "high"
   },
   {
@@ -60,7 +60,7 @@
     "name": "Raspberry Pi AI HAT+ 2 with Hailo-10H and 8GB RAM",
     "power_target_w": 2.5,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 319.04,
+    "price_cad": 319.11,
     "risk_level": "low"
   },
   {
@@ -75,7 +75,7 @@
     "name": "Firefly Core-1688JD4 BM1688 SoM, 8GB RAM / 32GB storage",
     "power_target_w": null,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 540.78,
+    "price_cad": 540.89,
     "risk_level": "medium"
   },
   {
@@ -90,7 +90,7 @@
     "name": "SOPHGO BM1684X development board, 16GB LPDDR4X class",
     "power_target_w": null,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 1458.22,
+    "price_cad": 1458.53,
     "risk_level": "medium"
   },
   {
@@ -105,7 +105,7 @@
     "name": "Tenstorrent Wormhole n150s PCIe accelerator",
     "power_target_w": 160,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 1593.62,
+    "price_cad": 1593.96,
     "risk_level": "medium"
   },
   {
@@ -120,7 +120,7 @@
     "name": "Tenstorrent Blackhole p150, 32GB GDDR6",
     "power_target_w": 300,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 2231.71,
+    "price_cad": 2232.18,
     "risk_level": "medium"
   },
   {
@@ -135,7 +135,7 @@
     "name": "Tenstorrent Wormhole n300s, 24GB GDDR6",
     "power_target_w": 300,
     "price_basis": "catalog_midpoint+tax",
-    "price_cad": 2231.71,
+    "price_cad": 2232.18,
     "risk_level": "medium"
   }
 ]

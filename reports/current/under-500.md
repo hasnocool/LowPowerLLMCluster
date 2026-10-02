@@ -2,12 +2,12 @@ Under 500
 =========
 CAD price     RAM    W target  Market   Evidence  Candidate
 ------------  -----  --------  -------  --------  ------------------------------------------
-CA$255.23     16GB   55W       static   2         AMD / ASRock BC-250 specialty compute board, 16GB unified GDDR6
-CA$263.21     ?      ?         static   0         Ryzen 7 7735U DDR5 mini PC / barebone
-CA$310.35     32GB   15W       static   0         Orange Pi 5 Plus, RK3588, 32GB LPDDR4X
-CA$319.04     8GB    2.5W      static   0         Raspberry Pi AI HAT+ 2 with Hailo-10H and 8GB RAM
-CA$339.78     32GB   ?         static   0         Ryzen 7 8845HS mini PC, 32GB DDR5, 1TB NVMe, dual RJ45
-CA$374.88     32GB   10W       static   0         Radxa ROCK 5 ITX+, RK3588, 32GB LPDDR5x
-CA$397.21     8GB    15W       static   4         NVIDIA Jetson Orin Nano Super Developer Kit, 8GB
+CA$255.29     16GB   55W       static   2         AMD / ASRock BC-250 specialty compute board, 16GB unified GDDR6
+CA$263.27     ?      ?         static   0         Ryzen 7 7735U DDR5 mini PC / barebone
+CA$310.41     32GB   15W       static   0         Orange Pi 5 Plus, RK3588, 32GB LPDDR4X
+CA$319.11     8GB    2.5W      static   0         Raspberry Pi AI HAT+ 2 with Hailo-10H and 8GB RAM
+CA$339.85     32GB   ?         static   0         Ryzen 7 8845HS mini PC, 32GB DDR5, 1TB NVMe, dual RJ45
+CA$374.95     32GB   10W       static   0         Radxa ROCK 5 ITX+, RK3588, 32GB LPDDR5x
+CA$397.29     8GB    15W       static   4         NVIDIA Jetson Orin Nano Super Developer Kit, 8GB
 
 Price basis is shown in machine-readable output; catalog fallbacks are not live quotes.
