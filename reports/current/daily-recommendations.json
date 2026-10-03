@@ -6,7 +6,7 @@
     "Ignore": 28,
     "Watch": 24
   },
-  "generated_at": "2026-10-02T22:33:36.664825+00:00",
+  "generated_at": "2026-10-03T15:14:06.233125+00:00",
   "method_notes": [
     "Deal score weights price-history position most heavily and never converts TOPS/TFLOPS into tokens/sec.",
     "Model-fit score is a transparent memory-capacity screen with 40% planning headroom.",
@@ -360,32 +360,53 @@
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
           "period_cad": 58.27,
-          "power_basis": "complete_node_from_published_target_power_plus_peripherals",
+          "power_basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
           "power_confidence": "low",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "complete_node_from_published_target_power_plus_peripherals",
+          "basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
           "confidence": "low",
           "device_power": {
-            "basis": "published_target_power",
+            "basis": "power_evidence_distribution",
             "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": null,
+              "idle_p75_w": null,
+              "idle_w": 6.25,
+              "inferred": true,
+              "load_p25_w": 25.0,
+              "load_p75_w": 25.0,
+              "load_w": 25.0,
+              "match_basis": "exact_model",
+              "match_level": 30,
+              "measured_sample_count": 0,
+              "power_scopes": [
+                "published_device_or_board_power"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "catalog:board-framework13-ai5-340:published_device_or_board_power:25.0"
+              ]
+            },
             "idle_w": 6.25,
             "inferred": true,
             "load_w": 25.0,
-            "power_scope": "published_device_or_board_power",
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+              "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
           "idle_w": 8.91,
           "inferred": true,
           "load_w": 32.4,
-          "source_power_scope": "published_device_or_board_power",
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+            "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
@@ -394,7 +415,7 @@
         "warnings": [
           "Catalog price is treated as not including system RAM unless the live listing proves otherwise.",
           "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
-          "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+          "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
@@ -900,32 +921,53 @@
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
           "period_cad": 114.15,
-          "power_basis": "complete_node_from_published_target_power_plus_peripherals",
+          "power_basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
           "power_confidence": "low",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "complete_node_from_published_target_power_plus_peripherals",
+          "basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
           "confidence": "low",
           "device_power": {
-            "basis": "published_target_power",
+            "basis": "power_evidence_distribution",
             "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": null,
+              "idle_p75_w": null,
+              "idle_w": 13.75,
+              "inferred": true,
+              "load_p25_w": 55.0,
+              "load_p75_w": 55.0,
+              "load_w": 55.0,
+              "match_basis": "exact_model",
+              "match_level": 30,
+              "measured_sample_count": 0,
+              "power_scopes": [
+                "published_device_or_board_power"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "catalog:board-minisforum-bd795m-7945hx:published_device_or_board_power:55.0"
+              ]
+            },
             "idle_w": 13.75,
             "inferred": true,
             "load_w": 55.0,
-            "power_scope": "published_device_or_board_power",
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+              "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
           "idle_w": 17.01,
           "inferred": true,
           "load_w": 64.8,
-          "source_power_scope": "published_device_or_board_power",
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+            "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
@@ -934,7 +976,7 @@
         "warnings": [
           "Catalog price is treated as not including system RAM unless the live listing proves otherwise.",
           "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
-          "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+          "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
@@ -1179,7 +1221,7 @@
       "reasons": [
         "capacity screen fits 32B Q4",
         "incremental infrastructure CA$850 under new-build",
-        "~4,348 Wh/day (low power confidence)"
+        "~5,233 Wh/day (low power confidence)"
       ],
       "recommendation": "Watch",
       "risk_level": "medium",
@@ -1276,40 +1318,61 @@
           ]
         },
         "operating": {
-          "annual_cad": 238.06,
-          "annual_kwh": 1587.0,
-          "daily_kwh": 4.348,
-          "daily_wh": 4348.1,
+          "annual_cad": 286.48,
+          "annual_kwh": 1909.9,
+          "daily_kwh": 5.233,
+          "daily_wh": 5232.6,
           "electricity_cad_per_kwh": 0.15,
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
-          "period_cad": 714.17,
-          "power_basis": "complete_node_from_published_target_power_plus_host",
+          "period_cad": 859.45,
+          "power_basis": "complete_node_from_power_evidence_distribution_plus_host",
           "power_confidence": "low",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "complete_node_from_published_target_power_plus_host",
+          "basis": "complete_node_from_power_evidence_distribution_plus_host",
           "confidence": "low",
           "device_power": {
-            "basis": "published_target_power",
+            "basis": "power_evidence_distribution",
             "confidence": "medium",
-            "idle_w": 42.0,
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": null,
+              "idle_p75_w": null,
+              "idle_w": 87.5,
+              "inferred": true,
+              "load_p25_w": 350.0,
+              "load_p75_w": 350.0,
+              "load_w": 350.0,
+              "match_basis": "exact_model",
+              "match_level": 30,
+              "measured_sample_count": 0,
+              "power_scopes": [
+                "accelerator_board_power_reference"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "catalog:gpu-nvidia-rtx-3090-24g:accelerator_board_power_reference:350.0"
+              ]
+            },
+            "idle_w": 87.5,
             "inferred": true,
             "load_w": 350.0,
-            "power_scope": "accelerator_board_power_reference",
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+              "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
-          "idle_w": 83.16,
+          "idle_w": 132.3,
           "inferred": true,
           "load_w": 475.2,
           "source_power_scope": "accelerator_board_power_reference",
           "warnings": [
-            "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+            "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline.",
             "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
           ]
         },
@@ -1319,7 +1382,7 @@
         "warnings": [
           "GPU board price excludes CPU/host, motherboard, RAM, storage, PSU, chassis and cooling required for a new complete node.",
           "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
-          "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+          "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline.",
           "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
         ]
       },
@@ -2372,32 +2435,53 @@
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
           "period_cad": 24.75,
-          "power_basis": "complete_node_from_published_target_power_plus_peripherals",
+          "power_basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
           "power_confidence": "low",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "complete_node_from_published_target_power_plus_peripherals",
+          "basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
           "confidence": "low",
           "device_power": {
-            "basis": "published_target_power",
+            "basis": "power_evidence_distribution",
             "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": null,
+              "idle_p75_w": null,
+              "idle_w": 1.75,
+              "inferred": true,
+              "load_p25_w": 7.0,
+              "load_p75_w": 7.0,
+              "load_w": 7.0,
+              "match_basis": "exact_model",
+              "match_level": 30,
+              "measured_sample_count": 0,
+              "power_scopes": [
+                "published_device_or_board_power"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "catalog:module-turing-rk1-32g:published_device_or_board_power:7.0"
+              ]
+            },
             "idle_w": 1.75,
             "inferred": true,
             "load_w": 7.0,
-            "power_scope": "published_device_or_board_power",
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+              "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
           "idle_w": 4.05,
           "inferred": true,
           "load_w": 12.96,
-          "source_power_scope": "published_device_or_board_power",
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+            "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
@@ -2405,7 +2489,7 @@
         "total_cost_of_ownership_cad": null,
         "warnings": [
           "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
-          "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+          "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
@@ -2470,7 +2554,7 @@
       "reasons": [
         "capacity screen fits 14B Q4",
         "incremental infrastructure CA$850 under new-build",
-        "~2,850 Wh/day (low power confidence)"
+        "~5,233 Wh/day (low power confidence)"
       ],
       "recommendation": "Watch",
       "risk_level": "low",
@@ -2567,40 +2651,61 @@
           ]
         },
         "operating": {
-          "annual_cad": 156.03,
-          "annual_kwh": 1040.2,
-          "daily_kwh": 2.85,
-          "daily_wh": 2849.9,
+          "annual_cad": 286.48,
+          "annual_kwh": 1909.9,
+          "daily_kwh": 5.233,
+          "daily_wh": 5232.6,
           "electricity_cad_per_kwh": 0.15,
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
-          "period_cad": 468.1,
-          "power_basis": "complete_node_from_published_target_power_plus_host",
+          "period_cad": 859.45,
+          "power_basis": "complete_node_from_power_evidence_distribution_plus_host",
           "power_confidence": "low",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "complete_node_from_published_target_power_plus_host",
+          "basis": "complete_node_from_power_evidence_distribution_plus_host",
           "confidence": "low",
           "device_power": {
-            "basis": "published_target_power",
+            "basis": "power_evidence_distribution",
             "confidence": "medium",
-            "idle_w": 21.6,
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": null,
+              "idle_p75_w": null,
+              "idle_w": 87.5,
+              "inferred": true,
+              "load_p25_w": 350.0,
+              "load_p75_w": 350.0,
+              "load_w": 350.0,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 1,
+              "power_scopes": [
+                "accelerator_board_power"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "sourced-power:techpowerup-msi-rtx3090-gaming-x-trio-gaming"
+              ]
+            },
+            "idle_w": 87.5,
             "inferred": true,
-            "load_w": 180.0,
-            "power_scope": "accelerator_board_tgp",
+            "load_w": 350.0,
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
-          "idle_w": 61.13,
+          "idle_w": 132.3,
           "inferred": true,
-          "load_w": 291.6,
+          "load_w": 475.2,
           "source_power_scope": "accelerator_board_tgp",
           "warnings": [
-            "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline.",
             "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
           ]
         },
@@ -2610,7 +2715,7 @@
         "warnings": [
           "GPU board price excludes CPU/host, motherboard, RAM, storage, PSU, chassis and cooling required for a new complete node.",
           "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
-          "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline.",
           "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
         ]
       },
@@ -2676,7 +2781,7 @@
       "reasons": [
         "capacity screen fits 14B Q4",
         "incremental infrastructure CA$850 under new-build",
-        "~3,202 Wh/day (low power confidence)"
+        "~5,233 Wh/day (low power confidence)"
       ],
       "recommendation": "Watch",
       "risk_level": "medium",
@@ -2773,40 +2878,61 @@
           ]
         },
         "operating": {
-          "annual_cad": 175.33,
-          "annual_kwh": 1168.9,
-          "daily_kwh": 3.202,
-          "daily_wh": 3202.4,
+          "annual_cad": 286.48,
+          "annual_kwh": 1909.9,
+          "daily_kwh": 5.233,
+          "daily_wh": 5232.6,
           "electricity_cad_per_kwh": 0.15,
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
-          "period_cad": 525.99,
-          "power_basis": "complete_node_from_published_target_power_plus_host",
+          "period_cad": 859.45,
+          "power_basis": "complete_node_from_power_evidence_distribution_plus_host",
           "power_confidence": "low",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "complete_node_from_published_target_power_plus_host",
+          "basis": "complete_node_from_power_evidence_distribution_plus_host",
           "confidence": "low",
           "device_power": {
-            "basis": "published_target_power",
+            "basis": "power_evidence_distribution",
             "confidence": "medium",
-            "idle_w": 26.4,
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": null,
+              "idle_p75_w": null,
+              "idle_w": 87.5,
+              "inferred": true,
+              "load_p25_w": 350.0,
+              "load_p75_w": 350.0,
+              "load_w": 350.0,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 1,
+              "power_scopes": [
+                "accelerator_board_power"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "sourced-power:techpowerup-msi-rtx3090-gaming-x-trio-gaming"
+              ]
+            },
+            "idle_w": 87.5,
             "inferred": true,
-            "load_w": 220.0,
-            "power_scope": "accelerator_board_tbp",
+            "load_w": 350.0,
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
-          "idle_w": 66.31,
+          "idle_w": 132.3,
           "inferred": true,
-          "load_w": 334.8,
+          "load_w": 475.2,
           "source_power_scope": "accelerator_board_tbp",
           "warnings": [
-            "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline.",
             "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
           ]
         },
@@ -2816,7 +2942,7 @@
         "warnings": [
           "GPU board price excludes CPU/host, motherboard, RAM, storage, PSU, chassis and cooling required for a new complete node.",
           "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
-          "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline.",
           "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
         ]
       },
@@ -2882,7 +3008,7 @@
       "reasons": [
         "capacity screen fits 14B Q4",
         "incremental infrastructure CA$850 under new-build",
-        "~3,943 Wh/day (low power confidence)"
+        "~5,233 Wh/day (low power confidence)"
       ],
       "recommendation": "Watch",
       "risk_level": "medium",
@@ -2979,40 +3105,61 @@
           ]
         },
         "operating": {
-          "annual_cad": 215.86,
-          "annual_kwh": 1439.1,
-          "daily_kwh": 3.943,
-          "daily_wh": 3942.7,
+          "annual_cad": 286.48,
+          "annual_kwh": 1909.9,
+          "daily_kwh": 5.233,
+          "daily_wh": 5232.6,
           "electricity_cad_per_kwh": 0.15,
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
-          "period_cad": 647.59,
-          "power_basis": "complete_node_from_published_target_power_plus_host",
+          "period_cad": 859.45,
+          "power_basis": "complete_node_from_power_evidence_distribution_plus_host",
           "power_confidence": "low",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "complete_node_from_published_target_power_plus_host",
+          "basis": "complete_node_from_power_evidence_distribution_plus_host",
           "confidence": "low",
           "device_power": {
-            "basis": "published_target_power",
+            "basis": "power_evidence_distribution",
             "confidence": "medium",
-            "idle_w": 36.48,
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": null,
+              "idle_p75_w": null,
+              "idle_w": 87.5,
+              "inferred": true,
+              "load_p25_w": 350.0,
+              "load_p75_w": 350.0,
+              "load_w": 350.0,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 1,
+              "power_scopes": [
+                "accelerator_board_power"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "sourced-power:techpowerup-msi-rtx3090-gaming-x-trio-gaming"
+              ]
+            },
+            "idle_w": 87.5,
             "inferred": true,
-            "load_w": 304.0,
-            "power_scope": "accelerator_board_tbp",
+            "load_w": 350.0,
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
-          "idle_w": 77.2,
+          "idle_w": 132.3,
           "inferred": true,
-          "load_w": 425.52,
+          "load_w": 475.2,
           "source_power_scope": "accelerator_board_tbp",
           "warnings": [
-            "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline.",
             "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
           ]
         },
@@ -3022,7 +3169,7 @@
         "warnings": [
           "GPU board price excludes CPU/host, motherboard, RAM, storage, PSU, chassis and cooling required for a new complete node.",
           "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
-          "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline.",
           "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
         ]
       },
@@ -3088,7 +3235,7 @@
       "reasons": [
         "capacity screen fits 14B Q4",
         "incremental infrastructure CA$850 under new-build",
-        "~3,246 Wh/day (low power confidence)"
+        "~5,233 Wh/day (low power confidence)"
       ],
       "recommendation": "Watch",
       "risk_level": "medium",
@@ -3185,40 +3332,61 @@
           ]
         },
         "operating": {
-          "annual_cad": 177.74,
-          "annual_kwh": 1185.0,
-          "daily_kwh": 3.246,
-          "daily_wh": 3246.5,
+          "annual_cad": 286.48,
+          "annual_kwh": 1909.9,
+          "daily_kwh": 5.233,
+          "daily_wh": 5232.6,
           "electricity_cad_per_kwh": 0.15,
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
-          "period_cad": 533.23,
-          "power_basis": "complete_node_from_published_target_power_plus_host",
+          "period_cad": 859.45,
+          "power_basis": "complete_node_from_power_evidence_distribution_plus_host",
           "power_confidence": "low",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "complete_node_from_published_target_power_plus_host",
+          "basis": "complete_node_from_power_evidence_distribution_plus_host",
           "confidence": "low",
           "device_power": {
-            "basis": "published_target_power",
+            "basis": "power_evidence_distribution",
             "confidence": "medium",
-            "idle_w": 27.0,
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": null,
+              "idle_p75_w": null,
+              "idle_w": 87.5,
+              "inferred": true,
+              "load_p25_w": 350.0,
+              "load_p75_w": 350.0,
+              "load_w": 350.0,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 1,
+              "power_scopes": [
+                "accelerator_board_power"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "sourced-power:techpowerup-msi-rtx3090-gaming-x-trio-gaming"
+              ]
+            },
+            "idle_w": 87.5,
             "inferred": true,
-            "load_w": 225.0,
-            "power_scope": "accelerator_board_tbp",
+            "load_w": 350.0,
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
-          "idle_w": 66.96,
+          "idle_w": 132.3,
           "inferred": true,
-          "load_w": 340.2,
+          "load_w": 475.2,
           "source_power_scope": "accelerator_board_tbp",
           "warnings": [
-            "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline.",
             "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
           ]
         },
@@ -3228,7 +3396,7 @@
         "warnings": [
           "GPU board price excludes CPU/host, motherboard, RAM, storage, PSU, chassis and cooling required for a new complete node.",
           "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
-          "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline.",
           "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
         ]
       },
@@ -3294,7 +3462,7 @@
       "reasons": [
         "capacity screen fits 14B Q4",
         "incremental infrastructure CA$850 under new-build",
-        "~2,938 Wh/day (low power confidence)"
+        "~5,233 Wh/day (low power confidence)"
       ],
       "recommendation": "Watch",
       "risk_level": "medium",
@@ -3391,40 +3559,61 @@
           ]
         },
         "operating": {
-          "annual_cad": 160.85,
-          "annual_kwh": 1072.4,
-          "daily_kwh": 2.938,
-          "daily_wh": 2938.0,
+          "annual_cad": 286.48,
+          "annual_kwh": 1909.9,
+          "daily_kwh": 5.233,
+          "daily_wh": 5232.6,
           "electricity_cad_per_kwh": 0.15,
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
-          "period_cad": 482.56,
-          "power_basis": "complete_node_from_published_target_power_plus_host",
+          "period_cad": 859.45,
+          "power_basis": "complete_node_from_power_evidence_distribution_plus_host",
           "power_confidence": "low",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "complete_node_from_published_target_power_plus_host",
+          "basis": "complete_node_from_power_evidence_distribution_plus_host",
           "confidence": "low",
           "device_power": {
-            "basis": "published_target_power",
+            "basis": "power_evidence_distribution",
             "confidence": "medium",
-            "idle_w": 22.8,
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": null,
+              "idle_p75_w": null,
+              "idle_w": 87.5,
+              "inferred": true,
+              "load_p25_w": 350.0,
+              "load_p75_w": 350.0,
+              "load_w": 350.0,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 1,
+              "power_scopes": [
+                "accelerator_board_power"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "sourced-power:techpowerup-msi-rtx3090-gaming-x-trio-gaming"
+              ]
+            },
+            "idle_w": 87.5,
             "inferred": true,
-            "load_w": 190.0,
-            "power_scope": "accelerator_board_tbp",
+            "load_w": 350.0,
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
-          "idle_w": 62.42,
+          "idle_w": 132.3,
           "inferred": true,
-          "load_w": 302.4,
+          "load_w": 475.2,
           "source_power_scope": "accelerator_board_tbp",
           "warnings": [
-            "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline.",
             "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
           ]
         },
@@ -3434,7 +3623,7 @@
         "warnings": [
           "GPU board price excludes CPU/host, motherboard, RAM, storage, PSU, chassis and cooling required for a new complete node.",
           "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
-          "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement.",
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline.",
           "Complete-node power includes inferred host and PSU/cooling overhead; board power is not relabeled as measured wall power."
         ]
       },
@@ -3499,7 +3688,7 @@
       "price_percentile": null,
       "reasons": [
         "capacity screen fits 14B Q4",
-        "~396 Wh/day (low power confidence)"
+        "~237 Wh/day (medium power confidence)"
       ],
       "recommendation": "Watch",
       "risk_level": "low",
@@ -3520,47 +3709,68 @@
           "warnings": []
         },
         "operating": {
-          "annual_cad": 21.68,
-          "annual_kwh": 144.5,
-          "daily_kwh": 0.396,
-          "daily_wh": 396.0,
+          "annual_cad": 12.96,
+          "annual_kwh": 86.4,
+          "daily_kwh": 0.237,
+          "daily_wh": 236.7,
           "electricity_cad_per_kwh": 0.15,
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
-          "period_cad": 65.04,
-          "power_basis": "inferred_category_baseline_as_integrated_system",
-          "power_confidence": "low",
+          "period_cad": 38.88,
+          "power_basis": "power_evidence_distribution_as_integrated_system",
+          "power_confidence": "medium",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "inferred_category_baseline_as_integrated_system",
-          "confidence": "low",
+          "basis": "power_evidence_distribution_as_integrated_system",
+          "confidence": "medium",
           "device_power": {
-            "basis": "inferred_category_baseline",
-            "confidence": "low",
-            "idle_w": 7.0,
+            "basis": "power_evidence_distribution",
+            "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": 2.65,
+              "idle_p75_w": 2.65,
+              "idle_w": 2.65,
+              "inferred": true,
+              "load_p25_w": 31.5,
+              "load_p75_w": 31.5,
+              "load_w": 31.5,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 1,
+              "power_scopes": [
+                "complete_node_input"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "sourced-power:notebookcheck-mac-mini-m4-10gpu-16gb-256gb"
+              ]
+            },
+            "idle_w": 2.65,
             "inferred": true,
-            "load_w": 45.0,
-            "power_scope": "device_or_component_estimate",
+            "load_w": 31.5,
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "No per-part power evidence is available; using the conservative 'apple_silicon_system' category planning baseline."
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
-          "idle_w": 7.0,
+          "idle_w": 2.65,
           "inferred": true,
-          "load_w": 45.0,
-          "source_power_scope": "device_or_component_estimate",
+          "load_w": 31.5,
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "No per-part power evidence is available; using the conservative 'apple_silicon_system' category planning baseline."
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
         "scenario": "mixed-3yr",
         "total_cost_of_ownership_cad": null,
         "warnings": [
-          "No per-part power evidence is available; using the conservative 'apple_silicon_system' category planning baseline."
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
@@ -3624,7 +3834,7 @@
       "price_percentile": null,
       "reasons": [
         "capacity screen fits 14B Q4",
-        "~396 Wh/day (low power confidence)"
+        "~237 Wh/day (medium power confidence)"
       ],
       "recommendation": "Watch",
       "risk_level": "low",
@@ -3645,47 +3855,68 @@
           "warnings": []
         },
         "operating": {
-          "annual_cad": 21.68,
-          "annual_kwh": 144.5,
-          "daily_kwh": 0.396,
-          "daily_wh": 396.0,
+          "annual_cad": 12.96,
+          "annual_kwh": 86.4,
+          "daily_kwh": 0.237,
+          "daily_wh": 236.7,
           "electricity_cad_per_kwh": 0.15,
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
-          "period_cad": 65.04,
-          "power_basis": "inferred_category_baseline_as_integrated_system",
-          "power_confidence": "low",
+          "period_cad": 38.88,
+          "power_basis": "power_evidence_distribution_as_integrated_system",
+          "power_confidence": "medium",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "inferred_category_baseline_as_integrated_system",
-          "confidence": "low",
+          "basis": "power_evidence_distribution_as_integrated_system",
+          "confidence": "medium",
           "device_power": {
-            "basis": "inferred_category_baseline",
-            "confidence": "low",
-            "idle_w": 7.0,
+            "basis": "power_evidence_distribution",
+            "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": 2.65,
+              "idle_p75_w": 2.65,
+              "idle_w": 2.65,
+              "inferred": true,
+              "load_p25_w": 31.5,
+              "load_p75_w": 31.5,
+              "load_w": 31.5,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 1,
+              "power_scopes": [
+                "complete_node_input"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "sourced-power:notebookcheck-mac-mini-m4-10gpu-16gb-256gb"
+              ]
+            },
+            "idle_w": 2.65,
             "inferred": true,
-            "load_w": 45.0,
-            "power_scope": "device_or_component_estimate",
+            "load_w": 31.5,
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "No per-part power evidence is available; using the conservative 'apple_silicon_system' category planning baseline."
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
-          "idle_w": 7.0,
+          "idle_w": 2.65,
           "inferred": true,
-          "load_w": 45.0,
-          "source_power_scope": "device_or_component_estimate",
+          "load_w": 31.5,
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "No per-part power evidence is available; using the conservative 'apple_silicon_system' category planning baseline."
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
         "scenario": "mixed-3yr",
         "total_cost_of_ownership_cad": null,
         "warnings": [
-          "No per-part power evidence is available; using the conservative 'apple_silicon_system' category planning baseline."
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
@@ -3749,7 +3980,7 @@
       "price_percentile": null,
       "reasons": [
         "capacity screen fits 14B Q4",
-        "~396 Wh/day (low power confidence)"
+        "~237 Wh/day (medium power confidence)"
       ],
       "recommendation": "Watch",
       "risk_level": "low",
@@ -3770,47 +4001,68 @@
           "warnings": []
         },
         "operating": {
-          "annual_cad": 21.68,
-          "annual_kwh": 144.5,
-          "daily_kwh": 0.396,
-          "daily_wh": 396.0,
+          "annual_cad": 12.96,
+          "annual_kwh": 86.4,
+          "daily_kwh": 0.237,
+          "daily_wh": 236.7,
           "electricity_cad_per_kwh": 0.15,
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
-          "period_cad": 65.04,
-          "power_basis": "inferred_category_baseline_as_integrated_system",
-          "power_confidence": "low",
+          "period_cad": 38.88,
+          "power_basis": "power_evidence_distribution_as_integrated_system",
+          "power_confidence": "medium",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "inferred_category_baseline_as_integrated_system",
-          "confidence": "low",
+          "basis": "power_evidence_distribution_as_integrated_system",
+          "confidence": "medium",
           "device_power": {
-            "basis": "inferred_category_baseline",
-            "confidence": "low",
-            "idle_w": 7.0,
+            "basis": "power_evidence_distribution",
+            "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": 2.65,
+              "idle_p75_w": 2.65,
+              "idle_w": 2.65,
+              "inferred": true,
+              "load_p25_w": 31.5,
+              "load_p75_w": 31.5,
+              "load_w": 31.5,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 1,
+              "power_scopes": [
+                "complete_node_input"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "sourced-power:notebookcheck-mac-mini-m4-10gpu-16gb-256gb"
+              ]
+            },
+            "idle_w": 2.65,
             "inferred": true,
-            "load_w": 45.0,
-            "power_scope": "device_or_component_estimate",
+            "load_w": 31.5,
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "No per-part power evidence is available; using the conservative 'apple_silicon_system' category planning baseline."
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
-          "idle_w": 7.0,
+          "idle_w": 2.65,
           "inferred": true,
-          "load_w": 45.0,
-          "source_power_scope": "device_or_component_estimate",
+          "load_w": 31.5,
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "No per-part power evidence is available; using the conservative 'apple_silicon_system' category planning baseline."
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
         "scenario": "mixed-3yr",
         "total_cost_of_ownership_cad": null,
         "warnings": [
-          "No per-part power evidence is available; using the conservative 'apple_silicon_system' category planning baseline."
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
@@ -3874,7 +4126,7 @@
       "price_percentile": null,
       "reasons": [
         "capacity screen fits 14B Q4",
-        "~396 Wh/day (low power confidence)"
+        "~237 Wh/day (medium power confidence)"
       ],
       "recommendation": "Watch",
       "risk_level": "low",
@@ -3895,47 +4147,68 @@
           "warnings": []
         },
         "operating": {
-          "annual_cad": 21.68,
-          "annual_kwh": 144.5,
-          "daily_kwh": 0.396,
-          "daily_wh": 396.0,
+          "annual_cad": 12.96,
+          "annual_kwh": 86.4,
+          "daily_kwh": 0.237,
+          "daily_wh": 236.7,
           "electricity_cad_per_kwh": 0.15,
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
-          "period_cad": 65.04,
-          "power_basis": "inferred_category_baseline_as_integrated_system",
-          "power_confidence": "low",
+          "period_cad": 38.88,
+          "power_basis": "power_evidence_distribution_as_integrated_system",
+          "power_confidence": "medium",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "inferred_category_baseline_as_integrated_system",
-          "confidence": "low",
+          "basis": "power_evidence_distribution_as_integrated_system",
+          "confidence": "medium",
           "device_power": {
-            "basis": "inferred_category_baseline",
-            "confidence": "low",
-            "idle_w": 7.0,
+            "basis": "power_evidence_distribution",
+            "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": 2.65,
+              "idle_p75_w": 2.65,
+              "idle_w": 2.65,
+              "inferred": true,
+              "load_p25_w": 31.5,
+              "load_p75_w": 31.5,
+              "load_w": 31.5,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 1,
+              "power_scopes": [
+                "complete_node_input"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "sourced-power:notebookcheck-mac-mini-m4-10gpu-16gb-256gb"
+              ]
+            },
+            "idle_w": 2.65,
             "inferred": true,
-            "load_w": 45.0,
-            "power_scope": "device_or_component_estimate",
+            "load_w": 31.5,
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "No per-part power evidence is available; using the conservative 'apple_silicon_system' category planning baseline."
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
-          "idle_w": 7.0,
+          "idle_w": 2.65,
           "inferred": true,
-          "load_w": 45.0,
-          "source_power_scope": "device_or_component_estimate",
+          "load_w": 31.5,
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "No per-part power evidence is available; using the conservative 'apple_silicon_system' category planning baseline."
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
         "scenario": "mixed-3yr",
         "total_cost_of_ownership_cad": null,
         "warnings": [
-          "No per-part power evidence is available; using the conservative 'apple_silicon_system' category planning baseline."
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
@@ -3999,7 +4272,7 @@
       "price_percentile": null,
       "reasons": [
         "capacity screen fits 14B Q4",
-        "~396 Wh/day (low power confidence)"
+        "~237 Wh/day (medium power confidence)"
       ],
       "recommendation": "Watch",
       "risk_level": "low",
@@ -4020,47 +4293,68 @@
           "warnings": []
         },
         "operating": {
-          "annual_cad": 21.68,
-          "annual_kwh": 144.5,
-          "daily_kwh": 0.396,
-          "daily_wh": 396.0,
+          "annual_cad": 12.96,
+          "annual_kwh": 86.4,
+          "daily_kwh": 0.237,
+          "daily_wh": 236.7,
           "electricity_cad_per_kwh": 0.15,
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
-          "period_cad": 65.04,
-          "power_basis": "inferred_category_baseline_as_integrated_system",
-          "power_confidence": "low",
+          "period_cad": 38.88,
+          "power_basis": "power_evidence_distribution_as_integrated_system",
+          "power_confidence": "medium",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "inferred_category_baseline_as_integrated_system",
-          "confidence": "low",
+          "basis": "power_evidence_distribution_as_integrated_system",
+          "confidence": "medium",
           "device_power": {
-            "basis": "inferred_category_baseline",
-            "confidence": "low",
-            "idle_w": 7.0,
+            "basis": "power_evidence_distribution",
+            "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": 2.65,
+              "idle_p75_w": 2.65,
+              "idle_w": 2.65,
+              "inferred": true,
+              "load_p25_w": 31.5,
+              "load_p75_w": 31.5,
+              "load_w": 31.5,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 1,
+              "power_scopes": [
+                "complete_node_input"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "sourced-power:notebookcheck-mac-mini-m4-10gpu-16gb-256gb"
+              ]
+            },
+            "idle_w": 2.65,
             "inferred": true,
-            "load_w": 45.0,
-            "power_scope": "device_or_component_estimate",
+            "load_w": 31.5,
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "No per-part power evidence is available; using the conservative 'apple_silicon_system' category planning baseline."
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
-          "idle_w": 7.0,
+          "idle_w": 2.65,
           "inferred": true,
-          "load_w": 45.0,
-          "source_power_scope": "device_or_component_estimate",
+          "load_w": 31.5,
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "No per-part power evidence is available; using the conservative 'apple_silicon_system' category planning baseline."
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
         "scenario": "mixed-3yr",
         "total_cost_of_ownership_cad": null,
         "warnings": [
-          "No per-part power evidence is available; using the conservative 'apple_silicon_system' category planning baseline."
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
@@ -4813,32 +5107,53 @@
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
           "period_cad": 114.15,
-          "power_basis": "complete_node_from_published_target_power_plus_peripherals",
+          "power_basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
           "power_confidence": "low",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "complete_node_from_published_target_power_plus_peripherals",
+          "basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
           "confidence": "low",
           "device_power": {
-            "basis": "published_target_power",
+            "basis": "power_evidence_distribution",
             "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": null,
+              "idle_p75_w": null,
+              "idle_w": 13.75,
+              "inferred": true,
+              "load_p25_w": 55.0,
+              "load_p75_w": 55.0,
+              "load_w": 55.0,
+              "match_basis": "exact_model",
+              "match_level": 30,
+              "measured_sample_count": 0,
+              "power_scopes": [
+                "published_device_or_board_power"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "catalog:special-amd-bc250-16g:published_device_or_board_power:55.0"
+              ]
+            },
             "idle_w": 13.75,
             "inferred": true,
             "load_w": 55.0,
-            "power_scope": "published_device_or_board_power",
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+              "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
           "idle_w": 17.01,
           "inferred": true,
           "load_w": 64.8,
-          "source_power_scope": "published_device_or_board_power",
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+            "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
@@ -4846,7 +5161,7 @@
         "total_cost_of_ownership_cad": null,
         "warnings": [
           "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
-          "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+          "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
@@ -5312,32 +5627,53 @@
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
           "period_cad": 39.65,
-          "power_basis": "complete_node_from_published_target_power_plus_peripherals",
+          "power_basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
           "power_confidence": "low",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "complete_node_from_published_target_power_plus_peripherals",
+          "basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
           "confidence": "low",
           "device_power": {
-            "basis": "published_target_power",
+            "basis": "power_evidence_distribution",
             "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": null,
+              "idle_p75_w": null,
+              "idle_w": 3.75,
+              "inferred": true,
+              "load_p25_w": 15.0,
+              "load_p75_w": 15.0,
+              "load_w": 15.0,
+              "match_basis": "exact_model",
+              "match_level": 30,
+              "measured_sample_count": 0,
+              "power_scopes": [
+                "published_device_or_board_power"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "catalog:sbc-orange-pi-5-plus-32g:published_device_or_board_power:15.0"
+              ]
+            },
             "idle_w": 3.75,
             "inferred": true,
             "load_w": 15.0,
-            "power_scope": "published_device_or_board_power",
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+              "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
           "idle_w": 6.21,
           "inferred": true,
           "load_w": 21.6,
-          "source_power_scope": "published_device_or_board_power",
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+            "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
@@ -5345,7 +5681,7 @@
         "total_cost_of_ownership_cad": null,
         "warnings": [
           "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
-          "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+          "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
@@ -5410,7 +5746,7 @@
       "reasons": [
         "capacity screen fits 32B Q4",
         "incremental infrastructure CA$350 under new-build",
-        "~207 Wh/day (low power confidence)"
+        "~241 Wh/day (low power confidence)"
       ],
       "recommendation": "Ignore",
       "risk_level": "medium",
@@ -5474,40 +5810,61 @@
           ]
         },
         "operating": {
-          "annual_cad": 11.35,
-          "annual_kwh": 75.7,
-          "daily_kwh": 0.207,
-          "daily_wh": 207.4,
+          "annual_cad": 13.22,
+          "annual_kwh": 88.1,
+          "daily_kwh": 0.241,
+          "daily_wh": 241.4,
           "electricity_cad_per_kwh": 0.15,
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
-          "period_cad": 34.06,
-          "power_basis": "complete_node_from_inferred_category_baseline_plus_peripherals",
+          "period_cad": 39.65,
+          "power_basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
           "power_confidence": "low",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "complete_node_from_inferred_category_baseline_plus_peripherals",
+          "basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
           "confidence": "low",
           "device_power": {
-            "basis": "inferred_category_baseline",
-            "confidence": "low",
-            "idle_w": 3.0,
+            "basis": "power_evidence_distribution",
+            "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": null,
+              "idle_p75_w": null,
+              "idle_w": 3.75,
+              "inferred": true,
+              "load_p25_w": 15.0,
+              "load_p75_w": 15.0,
+              "load_w": 15.0,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 0,
+              "power_scopes": [
+                "published_device_or_board_power"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "catalog:sbc-orange-pi-5-plus-32g:published_device_or_board_power:15.0"
+              ]
+            },
+            "idle_w": 3.75,
             "inferred": true,
-            "load_w": 12.0,
-            "power_scope": "device_or_component_estimate",
+            "load_w": 15.0,
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "No per-part power evidence is available; using the conservative 'sbc' category planning baseline."
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
-          "idle_w": 5.4,
+          "idle_w": 6.21,
           "inferred": true,
-          "load_w": 18.36,
-          "source_power_scope": "device_or_component_estimate",
+          "load_w": 21.6,
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "No per-part power evidence is available; using the conservative 'sbc' category planning baseline."
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
@@ -5515,7 +5872,7 @@
         "total_cost_of_ownership_cad": null,
         "warnings": [
           "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
-          "No per-part power evidence is available; using the conservative 'sbc' category planning baseline."
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
@@ -5777,32 +6134,53 @@
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
           "period_cad": 30.33,
-          "power_basis": "complete_node_from_published_target_power_plus_peripherals",
+          "power_basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
           "power_confidence": "low",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "complete_node_from_published_target_power_plus_peripherals",
+          "basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
           "confidence": "low",
           "device_power": {
-            "basis": "published_target_power",
+            "basis": "power_evidence_distribution",
             "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": null,
+              "idle_p75_w": null,
+              "idle_w": 2.5,
+              "inferred": true,
+              "load_p25_w": 10.0,
+              "load_p75_w": 10.0,
+              "load_w": 10.0,
+              "match_basis": "exact_model",
+              "match_level": 30,
+              "measured_sample_count": 0,
+              "power_scopes": [
+                "published_device_or_board_power"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "catalog:sbc-radxa-rock5-itxplus-32g:published_device_or_board_power:10.0"
+              ]
+            },
             "idle_w": 2.5,
             "inferred": true,
             "load_w": 10.0,
-            "power_scope": "published_device_or_board_power",
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+              "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
           "idle_w": 4.86,
           "inferred": true,
           "load_w": 16.2,
-          "source_power_scope": "published_device_or_board_power",
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+            "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
@@ -5810,7 +6188,7 @@
         "total_cost_of_ownership_cad": null,
         "warnings": [
           "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
-          "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+          "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
@@ -6419,7 +6797,7 @@
       "price_percentile": null,
       "reasons": [
         "capacity screen fits 14B Q4",
-        "~58 Wh/day (low power confidence)"
+        "~50 Wh/day (medium power confidence)"
       ],
       "recommendation": "Ignore",
       "risk_level": "medium",
@@ -6440,47 +6818,68 @@
           "warnings": []
         },
         "operating": {
-          "annual_cad": 3.15,
-          "annual_kwh": 21.0,
-          "daily_kwh": 0.058,
-          "daily_wh": 57.6,
+          "annual_cad": 2.76,
+          "annual_kwh": 18.4,
+          "daily_kwh": 0.05,
+          "daily_wh": 50.4,
           "electricity_cad_per_kwh": 0.15,
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
-          "period_cad": 9.46,
-          "power_basis": "inferred_category_baseline_as_integrated_system",
-          "power_confidence": "low",
+          "period_cad": 8.28,
+          "power_basis": "power_evidence_distribution_as_integrated_system",
+          "power_confidence": "medium",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "inferred_category_baseline_as_integrated_system",
-          "confidence": "low",
+          "basis": "power_evidence_distribution_as_integrated_system",
+          "confidence": "medium",
           "device_power": {
-            "basis": "inferred_category_baseline",
-            "confidence": "low",
-            "idle_w": 1.2,
+            "basis": "power_evidence_distribution",
+            "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": 1.34,
+              "idle_p75_w": 1.34,
+              "idle_w": 1.34,
+              "inferred": true,
+              "load_p25_w": 4.38,
+              "load_p75_w": 4.38,
+              "load_w": 4.38,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 1,
+              "power_scopes": [
+                "measured_device_input"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "sourced-power:notebookcheck-pixel10-pro-xl-tensor-g5-16gb-256gb"
+              ]
+            },
+            "idle_w": 1.34,
             "inferred": true,
-            "load_w": 6.0,
-            "power_scope": "device_or_component_estimate",
+            "load_w": 4.38,
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
-          "idle_w": 1.2,
+          "idle_w": 1.34,
           "inferred": true,
-          "load_w": 6.0,
-          "source_power_scope": "device_or_component_estimate",
+          "load_w": 4.38,
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
         "scenario": "mixed-3yr",
         "total_cost_of_ownership_cad": null,
         "warnings": [
-          "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
@@ -6544,7 +6943,7 @@
       "price_percentile": null,
       "reasons": [
         "capacity screen fits 14B Q4",
-        "~58 Wh/day (low power confidence)"
+        "~50 Wh/day (medium power confidence)"
       ],
       "recommendation": "Ignore",
       "risk_level": "medium",
@@ -6565,47 +6964,68 @@
           "warnings": []
         },
         "operating": {
-          "annual_cad": 3.15,
-          "annual_kwh": 21.0,
-          "daily_kwh": 0.058,
-          "daily_wh": 57.6,
+          "annual_cad": 2.76,
+          "annual_kwh": 18.4,
+          "daily_kwh": 0.05,
+          "daily_wh": 50.4,
           "electricity_cad_per_kwh": 0.15,
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
-          "period_cad": 9.46,
-          "power_basis": "inferred_category_baseline_as_integrated_system",
-          "power_confidence": "low",
+          "period_cad": 8.28,
+          "power_basis": "power_evidence_distribution_as_integrated_system",
+          "power_confidence": "medium",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "inferred_category_baseline_as_integrated_system",
-          "confidence": "low",
+          "basis": "power_evidence_distribution_as_integrated_system",
+          "confidence": "medium",
           "device_power": {
-            "basis": "inferred_category_baseline",
-            "confidence": "low",
-            "idle_w": 1.2,
+            "basis": "power_evidence_distribution",
+            "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": 1.34,
+              "idle_p75_w": 1.34,
+              "idle_w": 1.34,
+              "inferred": true,
+              "load_p25_w": 4.38,
+              "load_p75_w": 4.38,
+              "load_w": 4.38,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 1,
+              "power_scopes": [
+                "measured_device_input"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "sourced-power:notebookcheck-pixel10-pro-xl-tensor-g5-16gb-256gb"
+              ]
+            },
+            "idle_w": 1.34,
             "inferred": true,
-            "load_w": 6.0,
-            "power_scope": "device_or_component_estimate",
+            "load_w": 4.38,
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
-          "idle_w": 1.2,
+          "idle_w": 1.34,
           "inferred": true,
-          "load_w": 6.0,
-          "source_power_scope": "device_or_component_estimate",
+          "load_w": 4.38,
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
         "scenario": "mixed-3yr",
         "total_cost_of_ownership_cad": null,
         "warnings": [
-          "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
@@ -6966,7 +7386,7 @@
       "price_percentile": null,
       "reasons": [
         "capacity screen fits 14B Q4",
-        "~58 Wh/day (low power confidence)"
+        "~111 Wh/day (medium power confidence)"
       ],
       "recommendation": "Ignore",
       "risk_level": "medium",
@@ -6987,47 +7407,68 @@
           "warnings": []
         },
         "operating": {
-          "annual_cad": 3.15,
-          "annual_kwh": 21.0,
-          "daily_kwh": 0.058,
-          "daily_wh": 57.6,
+          "annual_cad": 6.06,
+          "annual_kwh": 40.4,
+          "daily_kwh": 0.111,
+          "daily_wh": 110.7,
           "electricity_cad_per_kwh": 0.15,
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
-          "period_cad": 9.46,
-          "power_basis": "inferred_category_baseline_as_integrated_system",
-          "power_confidence": "low",
+          "period_cad": 18.18,
+          "power_basis": "power_evidence_distribution_as_integrated_system",
+          "power_confidence": "medium",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "inferred_category_baseline_as_integrated_system",
-          "confidence": "low",
+          "basis": "power_evidence_distribution_as_integrated_system",
+          "confidence": "medium",
           "device_power": {
-            "basis": "inferred_category_baseline",
-            "confidence": "low",
-            "idle_w": 1.2,
+            "basis": "power_evidence_distribution",
+            "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": 1.18,
+              "idle_p75_w": 1.18,
+              "idle_w": 1.18,
+              "inferred": true,
+              "load_p25_w": 14.91,
+              "load_p75_w": 14.91,
+              "load_w": 14.91,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 1,
+              "power_scopes": [
+                "measured_device_input"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "sourced-power:notebookcheck-galaxy-s26-ultra-12gb-256gb"
+              ]
+            },
+            "idle_w": 1.18,
             "inferred": true,
-            "load_w": 6.0,
-            "power_scope": "device_or_component_estimate",
+            "load_w": 14.91,
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
-          "idle_w": 1.2,
+          "idle_w": 1.18,
           "inferred": true,
-          "load_w": 6.0,
-          "source_power_scope": "device_or_component_estimate",
+          "load_w": 14.91,
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
         "scenario": "mixed-3yr",
         "total_cost_of_ownership_cad": null,
         "warnings": [
-          "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
@@ -7216,7 +7657,7 @@
       "price_percentile": null,
       "reasons": [
         "capacity screen fits 14B Q4",
-        "~58 Wh/day (low power confidence)"
+        "~50 Wh/day (medium power confidence)"
       ],
       "recommendation": "Ignore",
       "risk_level": "medium",
@@ -7237,47 +7678,68 @@
           "warnings": []
         },
         "operating": {
-          "annual_cad": 3.15,
-          "annual_kwh": 21.0,
-          "daily_kwh": 0.058,
-          "daily_wh": 57.6,
+          "annual_cad": 2.76,
+          "annual_kwh": 18.4,
+          "daily_kwh": 0.05,
+          "daily_wh": 50.4,
           "electricity_cad_per_kwh": 0.15,
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
-          "period_cad": 9.46,
-          "power_basis": "inferred_category_baseline_as_integrated_system",
-          "power_confidence": "low",
+          "period_cad": 8.28,
+          "power_basis": "power_evidence_distribution_as_integrated_system",
+          "power_confidence": "medium",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "inferred_category_baseline_as_integrated_system",
-          "confidence": "low",
+          "basis": "power_evidence_distribution_as_integrated_system",
+          "confidence": "medium",
           "device_power": {
-            "basis": "inferred_category_baseline",
-            "confidence": "low",
-            "idle_w": 1.2,
+            "basis": "power_evidence_distribution",
+            "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": 1.34,
+              "idle_p75_w": 1.34,
+              "idle_w": 1.34,
+              "inferred": true,
+              "load_p25_w": 4.38,
+              "load_p75_w": 4.38,
+              "load_w": 4.38,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 1,
+              "power_scopes": [
+                "measured_device_input"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "sourced-power:notebookcheck-pixel10-pro-xl-tensor-g5-16gb-256gb"
+              ]
+            },
+            "idle_w": 1.34,
             "inferred": true,
-            "load_w": 6.0,
-            "power_scope": "device_or_component_estimate",
+            "load_w": 4.38,
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+              "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
-          "idle_w": 1.2,
+          "idle_w": 1.34,
           "inferred": true,
-          "load_w": 6.0,
-          "source_power_scope": "device_or_component_estimate",
+          "load_w": 4.38,
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+            "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
         "scenario": "mixed-3yr",
         "total_cost_of_ownership_cad": null,
         "warnings": [
-          "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+          "Power uses a category evidence distribution (1 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
@@ -8039,32 +8501,53 @@
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
           "period_cad": 39.65,
-          "power_basis": "complete_node_from_published_target_power_plus_peripherals",
+          "power_basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
           "power_confidence": "low",
           "power_inferred": true,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "complete_node_from_published_target_power_plus_peripherals",
+          "basis": "complete_node_from_power_evidence_distribution_plus_peripherals",
           "confidence": "low",
           "device_power": {
-            "basis": "published_target_power",
+            "basis": "power_evidence_distribution",
             "confidence": "medium",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "medium",
+              "idle_p25_w": null,
+              "idle_p75_w": null,
+              "idle_w": 3.75,
+              "inferred": true,
+              "load_p25_w": 15.0,
+              "load_p75_w": 15.0,
+              "load_w": 15.0,
+              "match_basis": "exact_model",
+              "match_level": 30,
+              "measured_sample_count": 0,
+              "power_scopes": [
+                "published_device_or_board_power"
+              ],
+              "sample_count": 1,
+              "source_ids": [
+                "catalog:dev-nvidia-jetson-orin-nano-super-8g:published_device_or_board_power:15.0"
+              ]
+            },
             "idle_w": 3.75,
             "inferred": true,
             "load_w": 15.0,
-            "power_scope": "published_device_or_board_power",
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+              "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
             ]
           },
           "idle_w": 6.21,
           "inferred": true,
           "load_w": 21.6,
-          "source_power_scope": "published_device_or_board_power",
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+            "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
@@ -8072,7 +8555,7 @@
         "total_cost_of_ownership_cad": null,
         "warnings": [
           "Infrastructure lines can use sourced BOM listings when available; any unsourced line remains an explicit planning assumption.",
-          "Idle power is inferred from published target/TDP/TBP; it is not a wall measurement."
+          "Power uses a exact_model evidence distribution (1 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
@@ -8693,7 +9176,7 @@
       "price_percentile": null,
       "reasons": [
         "does not clear the smallest model-fit preset",
-        "~58 Wh/day (low power confidence)"
+        "~80 Wh/day (high power confidence)"
       ],
       "recommendation": "Ignore",
       "risk_level": "medium",
@@ -8714,47 +9197,69 @@
           "warnings": []
         },
         "operating": {
-          "annual_cad": 3.15,
-          "annual_kwh": 21.0,
-          "daily_kwh": 0.058,
-          "daily_wh": 57.6,
+          "annual_cad": 4.41,
+          "annual_kwh": 29.4,
+          "daily_kwh": 0.081,
+          "daily_wh": 80.5,
           "electricity_cad_per_kwh": 0.15,
           "idle_hours_per_day": 18.0,
           "load_hours_per_day": 6.0,
-          "period_cad": 9.46,
-          "power_basis": "inferred_category_baseline_as_integrated_system",
-          "power_confidence": "low",
-          "power_inferred": true,
+          "period_cad": 13.23,
+          "power_basis": "power_evidence_distribution_as_integrated_system",
+          "power_confidence": "high",
+          "power_inferred": false,
           "years": 3
         },
         "ownership_profile": "new-build",
         "power": {
-          "basis": "inferred_category_baseline_as_integrated_system",
-          "confidence": "low",
+          "basis": "power_evidence_distribution_as_integrated_system",
+          "confidence": "high",
           "device_power": {
-            "basis": "inferred_category_baseline",
-            "confidence": "low",
-            "idle_w": 1.2,
-            "inferred": true,
-            "load_w": 6.0,
-            "power_scope": "device_or_component_estimate",
+            "basis": "power_evidence_distribution",
+            "confidence": "high",
+            "distribution": {
+              "basis": "power_evidence_distribution",
+              "confidence": "high",
+              "idle_p25_w": 1.22,
+              "idle_p75_w": 1.3,
+              "idle_w": 1.26,
+              "inferred": false,
+              "load_p25_w": 7.01,
+              "load_p75_w": 12.28,
+              "load_w": 9.64,
+              "match_basis": "category",
+              "match_level": 10,
+              "measured_sample_count": 2,
+              "power_scopes": [
+                "measured_device_input"
+              ],
+              "sample_count": 2,
+              "source_ids": [
+                "sourced-power:notebookcheck-pixel10-pro-xl-tensor-g5-16gb-256gb",
+                "sourced-power:notebookcheck-galaxy-s26-ultra-12gb-256gb"
+              ]
+            },
+            "idle_w": 1.26,
+            "inferred": false,
+            "load_w": 9.64,
+            "power_scope": "evidence_profile_device_power",
             "warnings": [
-              "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+              "Power uses a category evidence distribution (2 observations) rather than a generic category baseline."
             ]
           },
-          "idle_w": 1.2,
-          "inferred": true,
-          "load_w": 6.0,
-          "source_power_scope": "device_or_component_estimate",
+          "idle_w": 1.26,
+          "inferred": false,
+          "load_w": 9.64,
+          "source_power_scope": "evidence_profile_device_power",
           "warnings": [
-            "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+            "Power uses a category evidence distribution (2 observations) rather than a generic category baseline."
           ]
         },
         "product_price_cad": null,
         "scenario": "mixed-3yr",
         "total_cost_of_ownership_cad": null,
         "warnings": [
-          "No per-part power evidence is available; using the conservative 'mobile_phone' category planning baseline."
+          "Power uses a category evidence distribution (2 observations) rather than a generic category baseline."
         ]
       },
       "tco_percentile": null,
